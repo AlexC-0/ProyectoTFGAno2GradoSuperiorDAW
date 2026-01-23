@@ -405,7 +405,7 @@ footer {
    RESPONSIVE NAV + ESTRUCTURA
    =========================== */
 
-@@media (max-width: 600px) {
+@media (max-width: 600px) {
     header .contenedor {
         flex-direction: column;
         align-items: stretch;
@@ -516,4 +516,53 @@ footer {
     background-color: #D9B382;
     color: #1F3D2A;
     font-weight: bold;
+}
+
+/* Botón icono carrito en tarjetas */
+.btn-carrito-icono{
+    border: 0;
+    cursor: pointer;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-carrito-icono:hover{
+    background: rgba(255,255,255,0.14);
+}
+.btn-carrito-icono:disabled{
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Toast mensaje carrito */
+.toast-carrito{
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    z-index: 9999;
+    background: #222;
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(0,0,0,.25);
+}
+.toast-carrito.ok{ border-left: 4px solid #2ecc71; }
+.toast-carrito.error{ border-left: 4px solid #e74c3c; }
+
+/* Icono carrito en nav */
+.nav-icon{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 8px;
+    border-radius: 8px;
+}
+.nav-icon:hover{
+    background: rgba(255,255,255,0.10);
 }

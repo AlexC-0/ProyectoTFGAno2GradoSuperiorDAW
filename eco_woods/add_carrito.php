@@ -1,15 +1,53 @@
 <?php
+session_start();
 require_once "conexion.php";
 
-// Usuario fijo (de momento)
-$id_usuario = 1;
+// Siempre vamos a responder en JSON (para no redirigir nunca)
+header('Content-Type: application/json; charset=utf-8');
+
+// Usuario por sesión. Si no hay sesión, NO permitimos carrito.
+if (!isset($_SESSION['usuario_id'])) {
+    http_response_code(401);
+    echo json_encode([
+        "ok" => false,
+        "message" => "Debes iniciar sesión para añadir al carrito."
+    ]);
+    exit;
+}
+
+$id_usuario = (int)$_SESSION['usuario_id'];
 
 // Comprobar que llega el id del recambio
 if (!isset($_GET['id_recambio'])) {
-    die("Recambio no especificado.");
+    http_response_code(400);
+    echo json_encode([
+        "ok" => false,
+        "message" => "Recambio no especificado."
+    ]);
+    exit;
 }
 
-$id_recambio = (int) $_GET['id_recambio'];
+$id_recambio = (int)$_GET['id_recambio'];
+if ($id_recambio <= 0) {
+    http_response_code(400);
+    echo json_encode([
+        "ok" => false,
+        "message" => "Recambio no válido."
+    ]);
+    exit;
+}
+
+// (Opcional pero recomendado) Comprobar que el recambio existe
+$sql_check = "SELECT id_recambio FROM recambios3d WHERE id_recambio = $id_recambio LIMIT 1";
+$res_check = mysqli_query($conexion, $sql_check);
+if (!$res_check || mysqli_num_rows($res_check) == 0) {
+    http_response_code(404);
+    echo json_encode([
+        "ok" => false,
+        "message" => "El recambio no existe."
+    ]);
+    exit;
+}
 
 // 1) Buscar carrito activo del usuario
 $sql_carrito = "SELECT id_carrito FROM carritos
@@ -18,19 +56,24 @@ $sql_carrito = "SELECT id_carrito FROM carritos
 
 $res_carrito = mysqli_query($conexion, $sql_carrito);
 
-if (mysqli_num_rows($res_carrito) > 0) {
+if ($res_carrito && mysqli_num_rows($res_carrito) > 0) {
     $fila_carrito = mysqli_fetch_assoc($res_carrito);
-    $id_carrito = $fila_carrito['id_carrito'];
+    $id_carrito = (int)$fila_carrito['id_carrito'];
 } else {
     // No hay carrito activo → crear uno
-    $sql_nuevo = "INSERT INTO carritos (id_usuario) VALUES ($id_usuario)";
+    $sql_nuevo = "INSERT INTO carritos (id_usuario, estado) VALUES ($id_usuario, 'activo')";
     $ok_nuevo = mysqli_query($conexion, $sql_nuevo);
 
     if (!$ok_nuevo) {
-        die("Error al crear el carrito: " . mysqli_error($conexion));
+        http_response_code(500);
+        echo json_encode([
+            "ok" => false,
+            "message" => "Error al crear el carrito."
+        ]);
+        exit;
     }
 
-    $id_carrito = mysqli_insert_id($conexion);
+    $id_carrito = (int)mysqli_insert_id($conexion);
 }
 
 // 2) ¿Ya existe este recambio en el carrito?
@@ -40,22 +83,33 @@ $sql_item = "SELECT id_item, cantidad FROM carrito_items
 
 $res_item = mysqli_query($conexion, $sql_item);
 
-if (mysqli_num_rows($res_item) > 0) {
+if ($res_item && mysqli_num_rows($res_item) > 0) {
     // Ya existe → sumamos 1 a la cantidad
     $fila_item = mysqli_fetch_assoc($res_item);
-    $nueva_cantidad = $fila_item['cantidad'] + 1;
+    $nueva_cantidad = (int)$fila_item['cantidad'] + 1;
+
+    $id_item = (int)$fila_item['id_item'];
 
     $sql_update = "UPDATE carrito_items
                    SET cantidad = $nueva_cantidad
-                   WHERE id_item = " . $fila_item['id_item'];
+                   WHERE id_item = $id_item";
 
     $ok_update = mysqli_query($conexion, $sql_update);
 
     if (!$ok_update) {
-        die("Error al actualizar la cantidad: " . mysqli_error($conexion));
+        http_response_code(500);
+        echo json_encode([
+            "ok" => false,
+            "message" => "Error al actualizar la cantidad."
+        ]);
+        exit;
     }
 
-    $mensaje = "Cantidad actualizada en el carrito.";
+    echo json_encode([
+        "ok" => true,
+        "message" => "Cantidad actualizada en el carrito."
+    ]);
+    exit;
 
 } else {
     // No existe → lo insertamos
@@ -65,25 +119,17 @@ if (mysqli_num_rows($res_item) > 0) {
     $ok_insert = mysqli_query($conexion, $sql_insert);
 
     if (!$ok_insert) {
-        die("Error al añadir el recambio al carrito: " . mysqli_error($conexion));
+        http_response_code(500);
+        echo json_encode([
+            "ok" => false,
+            "message" => "Error al añadir el recambio al carrito."
+        ]);
+        exit;
     }
 
-    $mensaje = "Recambio añadido al carrito.";
+    echo json_encode([
+        "ok" => true,
+        "message" => "Recambio añadido al carrito."
+    ]);
+    exit;
 }
-?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Carrito</title>
-</head>
-<body>
-
-<h1><?php echo $mensaje; ?></h1>
-
-<p><a href="recambios.php">Volver a recambios 3D</a></p>
-<p><a href="ver_carrito.php">Ver carrito</a></p>
-<p><a href="index.php">Volver al inicio</a></p>
-
-</body>
-</html>
