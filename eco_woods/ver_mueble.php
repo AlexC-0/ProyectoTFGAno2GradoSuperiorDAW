@@ -107,13 +107,21 @@ $res_resenas = mysqli_query($conexion, $sql_lista_resenas);
             <a href="index.php">Inicio</a>
             <a href="muebles.php">Muebles</a>
             <a href="recambios.php">Recambios 3D</a>
-            <a href="ver_carrito.php">Carrito</a>
-            <a href="publicar.php">Publicar mueble</a>
+
+            <!-- Carrito como icono -->
+            <a href="ver_carrito.php" class="nav-icon" aria-label="Carrito">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
+                </svg>
+            </a>
 
             <?php if (isset($_SESSION['usuario_id'])): ?>
 
                 <?php if (!empty($_SESSION['es_admin']) && $_SESSION['es_admin'] == 1): ?>
+                    <a href="publicar.php">Publicar</a>
                     <a href="admin.php">Panel Admin</a>
+                <?php else: ?>
+                    <a href="publicar.php">Publicar mueble</a>
                 <?php endif; ?>
 
                 <a href="mi_perfil.php">Mi perfil</a>
@@ -134,6 +142,9 @@ $res_resenas = mysqli_query($conexion, $sql_lista_resenas);
 
         <p><a href="index.php">Volver al inicio</a></p>
         <p><a href="muebles.php">Volver al listado de muebles</a></p>
+
+        <!-- Toast / mensaje flotante -->
+        <div id="toastCarrito" class="toast-carrito" style="display:none;"></div>
 
         <!-- Tarjeta principal del mueble -->
         <article class="tarjeta">
@@ -167,8 +178,21 @@ $res_resenas = mysqli_query($conexion, $sql_lista_resenas);
             <p><strong>Vendedor:</strong> <?php echo htmlspecialchars($mueble['nombre_vendedor']); ?></p>
             <p><strong>Fecha de publicación:</strong> <?php echo htmlspecialchars($mueble['fecha_publicacion']); ?></p>
 
+            <?php if (isset($_SESSION['usuario_id'])): ?>
+                <div class="tarjeta-footer">
+                    <!-- Botón icono carrito para el MUEBLE -->
+                    <button type="button"
+                            class="btn-carrito-icono btn-carrito-mueble"
+                            data-id="<?php echo (int)$id_mueble; ?>"
+                            aria-label="Añadir mueble al carrito">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+            <?php endif; ?>
+
             <?php
-            // BOTÓN CONTACTAR: solo si estoy logueado y NO soy el vendedor
             if (isset($_SESSION['usuario_id'])) {
                 $id_usuario_sesion = (int)$_SESSION['usuario_id'];
 
@@ -193,21 +217,12 @@ $res_resenas = mysqli_query($conexion, $sql_lista_resenas);
             ?>
 
             <?php
-            // Galería de imágenes adicionales (imagen2..imagen5)
             $imagenes_extra = [];
 
-            if (!empty($mueble['imagen2'])) {
-                $imagenes_extra[] = $mueble['imagen2'];
-            }
-            if (!empty($mueble['imagen3'])) {
-                $imagenes_extra[] = $mueble['imagen3'];
-            }
-            if (!empty($mueble['imagen4'])) {
-                $imagenes_extra[] = $mueble['imagen4'];
-            }
-            if (!empty($mueble['imagen5'])) {
-                $imagenes_extra[] = $mueble['imagen5'];
-            }
+            if (!empty($mueble['imagen2'])) { $imagenes_extra[] = $mueble['imagen2']; }
+            if (!empty($mueble['imagen3'])) { $imagenes_extra[] = $mueble['imagen3']; }
+            if (!empty($mueble['imagen4'])) { $imagenes_extra[] = $mueble['imagen4']; }
+            if (!empty($mueble['imagen5'])) { $imagenes_extra[] = $mueble['imagen5']; }
 
             if (!empty($imagenes_extra)): ?>
                 <hr>
@@ -329,10 +344,14 @@ $res_resenas = mysqli_query($conexion, $sql_lista_resenas);
                         </div>
 
                         <div class="tarjeta-footer">
-                            <a class="btn-ver"
-                               href="add_carrito.php?id_recambio=<?php echo (int)$rec['id_recambio']; ?>">
-                                Añadir al carrito
-                            </a>
+                            <button type="button"
+                                    class="btn-carrito-icono btn-carrito-recambio"
+                                    data-id="<?php echo (int)$rec['id_recambio']; ?>"
+                                    aria-label="Añadir recambio al carrito">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
+                                </svg>
+                            </button>
                         </div>
 
                     </article>
@@ -353,6 +372,70 @@ $res_resenas = mysqli_query($conexion, $sql_lista_resenas);
 
 <button id="btnTop" onclick="scrollToTop()">▲</button>
 <script src="js/app.js"></script>
+
+<script>
+(function () {
+    const toast = document.getElementById('toastCarrito');
+
+    function showToast(text, ok=true) {
+        toast.textContent = text;
+        toast.style.display = 'block';
+        toast.classList.remove('ok', 'error');
+        toast.classList.add(ok ? 'ok' : 'error');
+
+        clearTimeout(window.__toastTimer);
+        window.__toastTimer = setTimeout(() => {
+            toast.style.display = 'none';
+        }, 2200);
+    }
+
+    async function addToCarrito(url) {
+        try {
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const data = await resp.json().catch(() => null);
+
+            if (!resp.ok || !data || data.ok !== true) {
+                const msg = (data && data.message) ? data.message : 'No se pudo añadir al carrito.';
+                showToast(msg, false);
+            } else {
+                showToast(data.message, true);
+            }
+
+        } catch (e) {
+            showToast('Error de conexión al añadir al carrito.', false);
+        }
+    }
+
+    const botonesMueble = document.querySelectorAll('.btn-carrito-mueble');
+    botonesMueble.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            if (!id) return;
+            btn.disabled = true;
+            await addToCarrito('add_carrito.php?id_mueble=' + encodeURIComponent(id));
+            btn.disabled = false;
+        });
+    });
+
+    const botonesRecambio = document.querySelectorAll('.btn-carrito-recambio');
+    botonesRecambio.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            if (!id) return;
+            btn.disabled = true;
+            await addToCarrito('add_carrito.php?id_recambio=' + encodeURIComponent(id));
+            btn.disabled = false;
+        });
+    });
+})();
+</script>
 
 </body>
 </html>

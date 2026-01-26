@@ -80,13 +80,21 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
             <a href="index.php">Inicio</a>
             <a href="muebles.php">Muebles</a>
             <a href="recambios.php">Recambios 3D</a>
-            <a href="ver_carrito.php">Carrito</a>
-            <a href="publicar.php">Publicar mueble</a>
+
+            <!-- Carrito como icono -->
+            <a href="ver_carrito.php" class="nav-icon" aria-label="Carrito">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
+                </svg>
+            </a>
 
             <?php if (isset($_SESSION['usuario_id'])): ?>
 
                 <?php if (!empty($_SESSION['es_admin']) && $_SESSION['es_admin'] == 1): ?>
+                    <a href="publicar.php">Publicar</a>
                     <a href="admin.php">Panel Admin</a>
+                <?php else: ?>
+                    <a href="publicar.php">Publicar mueble</a>
                 <?php endif; ?>
 
                 <span class="saludo">
@@ -106,6 +114,9 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
     <div class="contenedor">
 
         <h1>Listado de muebles</h1>
+
+        <!-- Toast / mensaje flotante -->
+        <div id="toastCarrito" class="toast-carrito" style="display:none;"></div>
 
         <!-- ===========================
              FORMULARIO DE FILTROS (2 COLUMNAS)
@@ -247,12 +258,25 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
 
                             <?php if (isset($_SESSION['usuario_id'])): ?>
                                 <?php
-                                    $esFavorito = in_array((int)$fila['id_mueble'], $favoritos_usuario, true);
+                                    $idMueble = (int)$fila['id_mueble'];
+                                    $esFavorito = in_array($idMueble, $favoritos_usuario, true);
                                 ?>
+
                                 <a class="btn-fav <?php echo $esFavorito ? 'es-favorito' : ''; ?>"
-                                   href="toggle_favorito.php?id_mueble=<?php echo (int)$fila['id_mueble']; ?>">
+                                   href="toggle_favorito.php?id_mueble=<?php echo $idMueble; ?>">
                                     <?php echo $esFavorito ? '★ Quitar de favoritos' : '☆ Añadir a favoritos'; ?>
                                 </a>
+
+                                <!-- Botón icono carrito (AJAX) -->
+                                <button type="button"
+                                        class="btn-carrito-icono btn-carrito-mueble"
+                                        data-id="<?php echo $idMueble; ?>"
+                                        aria-label="Añadir al carrito">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                        <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
+                                    </svg>
+                                </button>
+
                             <?php endif; ?>
 
                         </div>
@@ -278,6 +302,63 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
 
 <button id="btnTop" onclick="scrollToTop()">▲</button>
 <script src="js/app.js"></script>
+
+<script>
+(function () {
+    const toast = document.getElementById('toastCarrito');
+
+    function showToast(text, ok=true) {
+        if (!toast) {
+            alert(text);
+            return;
+        }
+
+        toast.textContent = text;
+        toast.style.display = 'block';
+        toast.classList.remove('ok', 'error');
+        toast.classList.add(ok ? 'ok' : 'error');
+
+        clearTimeout(window.__toastTimer);
+        window.__toastTimer = setTimeout(() => {
+            toast.style.display = 'none';
+        }, 2200);
+    }
+
+    const botones = document.querySelectorAll('.btn-carrito-mueble');
+    botones.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            if (!id) return;
+
+            btn.disabled = true;
+
+            try {
+                const resp = await fetch('add_carrito.php?id_mueble=' + encodeURIComponent(id), {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const data = await resp.json().catch(() => null);
+
+                if (!resp.ok || !data || data.ok !== true) {
+                    const msg = (data && data.message) ? data.message : 'No se pudo añadir al carrito.';
+                    showToast(msg, false);
+                } else {
+                    showToast(data.message, true);
+                }
+
+            } catch (e) {
+                showToast('Error de conexión al añadir al carrito.', false);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    });
+})();
+</script>
 
 </body>
 </html>

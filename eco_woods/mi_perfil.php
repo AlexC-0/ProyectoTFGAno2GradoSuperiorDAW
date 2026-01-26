@@ -10,6 +10,7 @@ if (!isset($_SESSION['usuario_id'])) {
 require 'conexion.php';
 
 $id_usuario = (int) $_SESSION['usuario_id'];
+$es_admin = (!empty($_SESSION['es_admin']) && $_SESSION['es_admin'] == 1);
 
 // 1) Datos del usuario
 $sql_usuario = "SELECT nombre, email, telefono, provincia, localidad, fecha_registro
@@ -89,29 +90,38 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 <header>
     <div class="contenedor">
         <h1>ECO & WOODS</h1>
-			<nav>
-				<a href="index.php">Inicio</a>
-				<a href="muebles.php">Muebles</a>
-				<a href="recambios.php">Recambios 3D</a>
-				<a href="ver_carrito.php">Carrito</a>
-				<a href="publicar.php">Publicar mueble</a>
+        <nav>
+            <a href="index.php">Inicio</a>
+            <a href="muebles.php">Muebles</a>
+            <a href="recambios.php">Recambios 3D</a>
 
-				<?php if (isset($_SESSION['usuario_id'])): ?>
+            <!-- Carrito como icono -->
+            <a href="ver_carrito.php" class="nav-icon" aria-label="Carrito">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
+                </svg>
+            </a>
 
-					<?php if (!empty($_SESSION['es_admin']) && $_SESSION['es_admin'] == 1): ?>
-						<a href="admin.php">Panel Admin</a>
-					<?php endif; ?>
+            <?php if (isset($_SESSION['usuario_id'])): ?>
 
-					<span class="saludo">
-						Hola, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?>
-					</span>
-					<a href="mi_perfil.php">Mi perfil</a>
-					<a href="logout.php">Cerrar sesión</a>
-				<?php else: ?>
-					<a href="login.php">Login</a>
-					<a href="registro.php">Registro</a>
-				<?php endif; ?>
-			</nav>
+                <?php if ($es_admin): ?>
+                    <a href="publicar.php">Publicar</a>
+                    <a href="admin.php">Panel Admin</a>
+                <?php else: ?>
+                    <a href="publicar.php">Publicar mueble</a>
+                <?php endif; ?>
+
+                <span class="saludo">
+                    Hola, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?>
+                </span>
+                <a href="mi_perfil.php">Mi perfil</a>
+                <a href="logout.php">Cerrar sesión</a>
+
+            <?php else: ?>
+                <a href="login.php">Login</a>
+                <a href="registro.php">Registro</a>
+            <?php endif; ?>
+        </nav>
     </div>
 </header>
 

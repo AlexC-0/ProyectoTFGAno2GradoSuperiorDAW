@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Solo usuarios logueados pueden publicar muebles
+// Solo usuarios logueados pueden publicar
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: login.php");
     exit;
@@ -12,127 +12,189 @@ require 'conexion.php';
 $errores = [];
 $exito = "";
 
+$es_admin = (!empty($_SESSION['es_admin']) && $_SESSION['es_admin'] == 1);
+
+// Por defecto:
+// - usuario normal: mueble
+// - admin: mueble (hasta que elija recambio)
+$tipo_publicacion = 'mueble';
+if ($es_admin) {
+    $tipo_publicacion = trim($_POST['tipo_publicacion'] ?? ($_GET['tipo_publicacion'] ?? 'mueble'));
+    if ($tipo_publicacion !== 'mueble' && $tipo_publicacion !== 'recambio') {
+        $tipo_publicacion = 'mueble';
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $id_usuario = (int) $_SESSION['usuario_id'];
 
-    $titulo      = trim($_POST['titulo'] ?? '');
-    $descripcion = trim($_POST['descripcion'] ?? '');
-    $precio      = trim($_POST['precio'] ?? '');
-    $provincia   = trim($_POST['provincia'] ?? '');
-    $localidad   = trim($_POST['localidad'] ?? '');
-    $estado      = trim($_POST['estado'] ?? '');
-    $categoria   = trim($_POST['categoria'] ?? 'Otro');
-
-    // Validaciones básicas
-    if ($titulo === '' || $descripcion === '' || $precio === '' || $provincia === '' || $localidad === '' || $estado === '') {
-        $errores[] = "Todos los campos marcados con * son obligatorios.";
+    if (!$es_admin) {
+        $tipo_publicacion = 'mueble';
     }
 
-    if (!is_numeric($precio) || $precio < 0) {
-        $errores[] = "El precio debe ser un número positivo.";
-    }
+    if ($tipo_publicacion === 'mueble') {
 
-    if ($categoria === '') {
-        $categoria = 'Otro';
-    }
+        $titulo      = trim($_POST['titulo'] ?? '');
+        $descripcion = trim($_POST['descripcion'] ?? '');
+        $precio      = trim($_POST['precio'] ?? '');
+        $provincia   = trim($_POST['provincia'] ?? '');
+        $localidad   = trim($_POST['localidad'] ?? '');
+        $estado      = trim($_POST['estado'] ?? '');
+        $categoria   = trim($_POST['categoria'] ?? 'Otro');
 
-    if (empty($errores)) {
-
-        // ============================
-        //   SUBIDA DE HASTA 5 IMÁGENES
-        // ============================
-        $maxImagenes = 5;
-        $permitidas  = ['jpg', 'jpeg', 'png', 'webp'];
-        $rutaUploads = __DIR__ . '/uploads';
-
-        $imagenesGuardadas = [null, null, null, null, null];
-
-        if (!is_dir($rutaUploads)) {
-            mkdir($rutaUploads, 0775, true);
+        // Validaciones básicas
+        if ($titulo === '' || $descripcion === '' || $precio === '' || $provincia === '' || $localidad === '' || $estado === '') {
+            $errores[] = "Todos los campos marcados con * son obligatorios.";
         }
 
-        if (!empty($_FILES['imagenes']) && is_array($_FILES['imagenes']['name'])) {
+        if (!is_numeric($precio) || $precio < 0) {
+            $errores[] = "El precio debe ser un número positivo.";
+        }
 
-            $totalFiles = count($_FILES['imagenes']['name']);
+        if ($categoria === '') {
+            $categoria = 'Otro';
+        }
 
-            for ($i = 0, $j = 0; $i < $totalFiles && $j < $maxImagenes; $i++) {
+        if (empty($errores)) {
 
-                $errorArchivo = $_FILES['imagenes']['error'][$i];
+            // ============================
+            //   SUBIDA DE HASTA 5 IMÁGENES
+            // ============================
+            $maxImagenes = 5;
+            $permitidas  = ['jpg', 'jpeg', 'png', 'webp'];
+            $rutaUploads = __DIR__ . '/uploads';
 
-                if ($errorArchivo === UPLOAD_ERR_NO_FILE) {
-                    continue;
+            $imagenesGuardadas = [null, null, null, null, null];
+
+            if (!is_dir($rutaUploads)) {
+                mkdir($rutaUploads, 0775, true);
+            }
+
+            if (!empty($_FILES['imagenes']) && is_array($_FILES['imagenes']['name'])) {
+
+                $totalFiles = count($_FILES['imagenes']['name']);
+
+                for ($i = 0, $j = 0; $i < $totalFiles && $j < $maxImagenes; $i++) {
+
+                    $errorArchivo = $_FILES['imagenes']['error'][$i];
+
+                    if ($errorArchivo === UPLOAD_ERR_NO_FILE) {
+                        continue;
+                    }
+
+                    if ($errorArchivo !== UPLOAD_ERR_OK) {
+                        continue;
+                    }
+
+                    $tmpName        = $_FILES['imagenes']['tmp_name'][$i];
+                    $nombreOriginal = $_FILES['imagenes']['name'][$i];
+
+                    $info      = pathinfo($nombreOriginal);
+                    $extension = strtolower($info['extension'] ?? '');
+
+                    if (!in_array($extension, $permitidas)) {
+                        continue;
+                    }
+
+                    $nuevoNombre = uniqid('mueble_', true) . '.' . $extension;
+                    $rutaDestino = $rutaUploads . '/' . $nuevoNombre;
+
+                    if (move_uploaded_file($tmpName, $rutaDestino)) {
+                        $imagenesGuardadas[$j] = $nuevoNombre;
+                        $j++;
+                    }
                 }
+            }
 
-                if ($errorArchivo !== UPLOAD_ERR_OK) {
-                    continue;
-                }
+            // Escape de textos
+            $titulo_esc      = mysqli_real_escape_string($conexion, $titulo);
+            $descripcion_esc = mysqli_real_escape_string($conexion, $descripcion);
+            $provincia_esc   = mysqli_real_escape_string($conexion, $provincia);
+            $localidad_esc   = mysqli_real_escape_string($conexion, $localidad);
+            $estado_esc      = mysqli_real_escape_string($conexion, $estado);
+            $categoria_esc   = mysqli_real_escape_string($conexion, $categoria);
+            $precio_num      = (float) $precio;
 
-                $tmpName        = $_FILES['imagenes']['tmp_name'][$i];
-                $nombreOriginal = $_FILES['imagenes']['name'][$i];
+            // Mapear imágenes a columnas imagen, imagen2, ..., imagen5
+            $img1 = $imagenesGuardadas[0] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[0]) : null;
+            $img2 = $imagenesGuardadas[1] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[1]) : null;
+            $img3 = $imagenesGuardadas[2] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[2]) : null;
+            $img4 = $imagenesGuardadas[3] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[3]) : null;
+            $img5 = $imagenesGuardadas[4] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[4]) : null;
 
-                $info      = pathinfo($nombreOriginal);
-                $extension = strtolower($info['extension'] ?? '');
+            $sql = "INSERT INTO muebles 
+                    (id_usuario, titulo, descripcion, precio, provincia, localidad, estado, categoria,
+                     imagen, imagen2, imagen3, imagen4, imagen5, fecha_publicacion)
+                    VALUES
+                    (
+                        $id_usuario,
+                        '$titulo_esc',
+                        '$descripcion_esc',
+                        $precio_num,
+                        '$provincia_esc',
+                        '$localidad_esc',
+                        '$estado_esc',
+                        '$categoria_esc',
+                        " . ($img1 ? "'$img1'" : "NULL") . ",
+                        " . ($img2 ? "'$img2'" : "NULL") . ",
+                        " . ($img3 ? "'$img3'" : "NULL") . ",
+                        " . ($img4 ? "'$img4'" : "NULL") . ",
+                        " . ($img5 ? "'$img5'" : "NULL") . ",
+                        NOW()
+                    )";
 
-                if (!in_array($extension, $permitidas)) {
-                    continue;
-                }
+            $ok = mysqli_query($conexion, $sql);
 
-                $nuevoNombre = uniqid('mueble_', true) . '.' . $extension;
-                $rutaDestino = $rutaUploads . '/' . $nuevoNombre;
-
-                if (move_uploaded_file($tmpName, $rutaDestino)) {
-                    $imagenesGuardadas[$j] = $nuevoNombre;
-                    $j++;
-                }
+            if ($ok) {
+                $exito = "Mueble publicado correctamente.";
+                $titulo = $descripcion = $precio = $provincia = $localidad = $estado = '';
+                $categoria = 'Otro';
+            } else {
+                $errores[] = "Error al publicar el mueble: " . mysqli_error($conexion);
             }
         }
 
-        // Escape de textos
-        $titulo_esc      = mysqli_real_escape_string($conexion, $titulo);
-        $descripcion_esc = mysqli_real_escape_string($conexion, $descripcion);
-        $provincia_esc   = mysqli_real_escape_string($conexion, $provincia);
-        $localidad_esc   = mysqli_real_escape_string($conexion, $localidad);
-        $estado_esc      = mysqli_real_escape_string($conexion, $estado);
-        $categoria_esc   = mysqli_real_escape_string($conexion, $categoria);
-        $precio_num      = (float) $precio;
+    } else { // recambio (solo admin)
 
-        // Mapear imágenes a columnas imagen, imagen2, ..., imagen5
-        $img1 = $imagenesGuardadas[0] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[0]) : null;
-        $img2 = $imagenesGuardadas[1] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[1]) : null;
-        $img3 = $imagenesGuardadas[2] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[2]) : null;
-        $img4 = $imagenesGuardadas[3] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[3]) : null;
-        $img5 = $imagenesGuardadas[4] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[4]) : null;
-
-        $sql = "INSERT INTO muebles 
-                (id_usuario, titulo, descripcion, precio, provincia, localidad, estado, categoria,
-                 imagen, imagen2, imagen3, imagen4, imagen5, fecha_publicacion)
-                VALUES
-                (
-                    $id_usuario,
-                    '$titulo_esc',
-                    '$descripcion_esc',
-                    $precio_num,
-                    '$provincia_esc',
-                    '$localidad_esc',
-                    '$estado_esc',
-                    '$categoria_esc',
-                    " . ($img1 ? "'$img1'" : "NULL") . ",
-                    " . ($img2 ? "'$img2'" : "NULL") . ",
-                    " . ($img3 ? "'$img3'" : "NULL") . ",
-                    " . ($img4 ? "'$img4'" : "NULL") . ",
-                    " . ($img5 ? "'$img5'" : "NULL") . ",
-                    NOW()
-                )";
-
-        $ok = mysqli_query($conexion, $sql);
-
-        if ($ok) {
-            $exito = "Mueble publicado correctamente.";
-            $titulo = $descripcion = $precio = $provincia = $localidad = $estado = '';
-            $categoria = 'Otro';
+        if (!$es_admin) {
+            $errores[] = "No tienes permisos para publicar recambios.";
         } else {
-            $errores[] = "Error al publicar el mueble: " . mysqli_error($conexion);
+
+            $nombre         = trim($_POST['nombre'] ?? '');
+            $descripcion_r  = trim($_POST['descripcion_recambio'] ?? '');
+            $tipo_r         = trim($_POST['tipo'] ?? '');
+            $compatible_con = trim($_POST['compatible_con'] ?? '');
+            $precio_r       = trim($_POST['precio_recambio'] ?? '');
+
+            if ($nombre === '' || $descripcion_r === '' || $tipo_r === '' || $compatible_con === '' || $precio_r === '') {
+                $errores[] = "Todos los campos marcados con * son obligatorios.";
+            }
+
+            if (!is_numeric($precio_r) || $precio_r < 0) {
+                $errores[] = "El precio debe ser un número positivo.";
+            }
+
+            if (empty($errores)) {
+
+                $nombre_esc         = mysqli_real_escape_string($conexion, $nombre);
+                $descripcion_r_esc  = mysqli_real_escape_string($conexion, $descripcion_r);
+                $tipo_r_esc         = mysqli_real_escape_string($conexion, $tipo_r);
+                $compatible_con_esc = mysqli_real_escape_string($conexion, $compatible_con);
+                $precio_r_num       = (float)$precio_r;
+
+                $sql = "INSERT INTO recambios3d (nombre, descripcion, tipo, compatible_con, precio)
+                        VALUES ('$nombre_esc', '$descripcion_r_esc', '$tipo_r_esc', '$compatible_con_esc', $precio_r_num)";
+
+                $ok = mysqli_query($conexion, $sql);
+
+                if ($ok) {
+                    $exito = "Recambio 3D publicado correctamente.";
+                    $nombre = $descripcion_r = $tipo_r = $compatible_con = $precio_r = '';
+                } else {
+                    $errores[] = "Error al publicar el recambio: " . mysqli_error($conexion);
+                }
+            }
         }
     }
 }
@@ -141,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Publicar mueble - ECO & WOODS</title>
+    <title><?php echo $es_admin ? "Publicar - ECO & WOODS" : "Publicar mueble - ECO & WOODS"; ?></title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -153,16 +215,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="index.php">Inicio</a>
             <a href="muebles.php">Muebles</a>
             <a href="recambios.php">Recambios 3D</a>
-            <a href="ver_carrito.php">Carrito</a>
-            <a href="publicar.php">Publicar mueble</a>
+
+            <!-- Carrito como icono -->
+            <a href="ver_carrito.php" class="nav-icon" aria-label="Carrito">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
+                </svg>
+            </a>
 
             <?php if (isset($_SESSION['usuario_id'])): ?>
 
-                <?php if (!empty($_SESSION['es_admin']) && $_SESSION['es_admin'] == 1): ?>
+                <?php if ($es_admin): ?>
+                    <a href="publicar.php">Publicar</a>
                     <a href="admin.php">Panel Admin</a>
+                <?php else: ?>
+                    <a href="publicar.php">Publicar mueble</a>
                 <?php endif; ?>
 
-                <a href="mi_perfil.php">Mi perfil</a>
+                <?php if ($es_admin): ?>
+                    <a href="mi_perfil.php">Mi perfil</a>
+                <?php else: ?>
+                    <a href="mi_perfil.php">Mi perfil</a>
+                <?php endif; ?>
+
                 <span class="saludo">
                     Hola, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?>
                 </span>
@@ -180,7 +255,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <p><a href="index.php">Volver al inicio</a></p>
 
-        <h1>Publicar un mueble</h1>
+        <?php if ($es_admin): ?>
+            <h1>Publicar</h1>
+        <?php else: ?>
+            <h1>Publicar un mueble</h1>
+        <?php endif; ?>
 
         <?php if (!empty($errores)): ?>
             <div class="mensaje error">
@@ -198,88 +277,155 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
 
-        <form action="publicar.php" method="post" class="formulario formulario-dos-columnas" enctype="multipart/form-data">
+        <?php if ($es_admin): ?>
+            <form action="publicar.php" method="post" class="formulario">
+                <p>
+                    <label for="tipo_publicacion"><strong>¿Qué quieres publicar?</strong></label><br>
+                    <select name="tipo_publicacion" id="tipo_publicacion" onchange="this.form.submit()">
+                        <option value="mueble" <?php echo ($tipo_publicacion === 'mueble') ? 'selected' : ''; ?>>Mueble</option>
+                        <option value="recambio" <?php echo ($tipo_publicacion === 'recambio') ? 'selected' : ''; ?>>Recambio 3D</option>
+                    </select>
+                </p>
+            </form>
+        <?php endif; ?>
 
-            <div class="form-grid">
+        <?php if (!$es_admin || $tipo_publicacion === 'mueble'): ?>
 
-                <!-- Columna izquierda -->
-                <div class="form-columna">
-                    <p>
-                        <label>Imágenes del mueble (máx. 5):<br>
-                            <input
-                                type="file"
-                                name="imagenes[]"
-                                accept="image/jpeg,image/png,image/webp"
-                                multiple
-                            >
-                        </label>
-                        <small>Puedes seleccionar varias a la vez (Ctrl+clic / Shift+clic).</small>
-                    </p>
+            <form action="publicar.php" method="post" class="formulario formulario-dos-columnas" enctype="multipart/form-data">
 
-                    <p>
-                        <label for="titulo">Título del anuncio*:</label><br>
-                        <input type="text" name="titulo" id="titulo" required
-                               value="<?php echo htmlspecialchars($titulo ?? ''); ?>">
-                    </p>
+                <?php if ($es_admin): ?>
+                    <input type="hidden" name="tipo_publicacion" value="mueble">
+                <?php endif; ?>
 
-                    <p>
-                        <label for="precio">Precio (€)*:</label><br>
-                        <input type="number" step="0.01" min="0" name="precio" id="precio" required
-                               value="<?php echo htmlspecialchars($precio ?? ''); ?>">
-                    </p>
+                <div class="form-grid">
 
-                    <p>
-                        <label for="categoria">Categoría del mueble*:</label><br>
-                        <select name="categoria" id="categoria" required>
-                            <?php
-                            $categorias = ["Mesa", "Armario", "Silla", "Cama", "Estantería", "Sofá", "Otro"];
-                            $categoria_actual = $categoria ?? 'Otro';
+                    <!-- Columna izquierda -->
+                    <div class="form-columna">
+                        <p>
+                            <label>Imágenes del mueble (máx. 5):<br>
+                                <input
+                                    type="file"
+                                    name="imagenes[]"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    multiple
+                                >
+                            </label>
+                            <small>Puedes seleccionar varias a la vez (Ctrl+clic / Shift+clic).</small>
+                        </p>
 
-                            foreach ($categorias as $cat) {
-                                $selected = ($cat === $categoria_actual) ? 'selected' : '';
-                                echo "<option value=\"$cat\" $selected>$cat</option>";
-                            }
-                            ?>
-                        </select>
-                    </p>
+                        <p>
+                            <label for="titulo">Título del anuncio*:</label><br>
+                            <input type="text" name="titulo" id="titulo" required
+                                   value="<?php echo htmlspecialchars($titulo ?? ''); ?>">
+                        </p>
+
+                        <p>
+                            <label for="precio">Precio (€)*:</label><br>
+                            <input type="number" step="0.01" min="0" name="precio" id="precio" required
+                                   value="<?php echo htmlspecialchars($precio ?? ''); ?>">
+                        </p>
+
+                        <p>
+                            <label for="categoria">Categoría del mueble*:</label><br>
+                            <select name="categoria" id="categoria" required>
+                                <?php
+                                $categorias = ["Mesa", "Armario", "Silla", "Cama", "Estantería", "Sofá", "Otro"];
+                                $categoria_actual = $categoria ?? 'Otro';
+
+                                foreach ($categorias as $cat) {
+                                    $selected = ($cat === $categoria_actual) ? 'selected' : '';
+                                    echo "<option value=\"$cat\" $selected>$cat</option>";
+                                }
+                                ?>
+                            </select>
+                        </p>
+                    </div>
+
+                    <!-- Columna derecha -->
+                    <div class="form-columna">
+                        <p>
+                            <label for="provincia">Provincia*:</label><br>
+                            <input type="text" name="provincia" id="provincia" required
+                                   value="<?php echo htmlspecialchars($provincia ?? ''); ?>">
+                        </p>
+
+                        <p>
+                            <label for="localidad">Localidad*:</label><br>
+                            <input type="text" name="localidad" id="localidad" required
+                                   value="<?php echo htmlspecialchars($localidad ?? ''); ?>">
+                        </p>
+
+                        <p>
+                            <label for="estado">Estado del mueble*:</label><br>
+                            <input type="text" name="estado" id="estado"
+                                   placeholder="Ej: Como nuevo, Buen estado, Usado..."
+                                   required value="<?php echo htmlspecialchars($estado ?? ''); ?>">
+                        </p>
+
+                        <p>
+                            <label for="descripcion">Descripción*:</label><br>
+                            <textarea name="descripcion" id="descripcion" rows="5" cols="50" required><?php
+                                echo htmlspecialchars($descripcion ?? '');
+                            ?></textarea>
+                        </p>
+                    </div>
+
                 </div>
 
-                <!-- Columna derecha -->
-                <div class="form-columna">
-                    <p>
-                        <label for="provincia">Provincia*:</label><br>
-                        <input type="text" name="provincia" id="provincia" required
-                               value="<?php echo htmlspecialchars($provincia ?? ''); ?>">
-                    </p>
+                <p>
+                    <button type="submit"><?php echo $es_admin ? "Publicar mueble" : "Publicar mueble"; ?></button>
+                </p>
 
-                    <p>
-                        <label for="localidad">Localidad*:</label><br>
-                        <input type="text" name="localidad" id="localidad" required
-                               value="<?php echo htmlspecialchars($localidad ?? ''); ?>">
-                    </p>
+            </form>
 
-                    <p>
-                        <label for="estado">Estado del mueble*:</label><br>
-                        <input type="text" name="estado" id="estado"
-                               placeholder="Ej: Como nuevo, Buen estado, Usado..."
-                               required value="<?php echo htmlspecialchars($estado ?? ''); ?>">
-                    </p>
+        <?php else: ?>
 
-                    <p>
-                        <label for="descripcion">Descripción*:</label><br>
-                        <textarea name="descripcion" id="descripcion" rows="5" cols="50" required><?php
-                            echo htmlspecialchars($descripcion ?? '');
-                        ?></textarea>
-                    </p>
-                </div>
+            <h2>Publicar recambio 3D</h2>
 
-            </div>
+            <form action="publicar.php" method="post" class="formulario">
 
-            <p>
-                <button type="submit">Publicar mueble</button>
-            </p>
+                <input type="hidden" name="tipo_publicacion" value="recambio">
 
-        </form>
+                <p>
+                    <label for="nombre">Nombre del recambio*:</label><br>
+                    <input type="text" name="nombre" id="nombre" required
+                           value="<?php echo htmlspecialchars($nombre ?? ''); ?>">
+                </p>
+
+                <p>
+                    <label for="tipo">Tipo*:</label><br>
+                    <input type="text" name="tipo" id="tipo" required
+                           placeholder="Ej: bisagra, tope, pieza..."
+                           value="<?php echo htmlspecialchars($tipo_r ?? ''); ?>">
+                </p>
+
+                <p>
+                    <label for="compatible_con">Compatible con*:</label><br>
+                    <input type="text" name="compatible_con" id="compatible_con" required
+                           placeholder="Ej: Mesa, Armario, Silla..."
+                           value="<?php echo htmlspecialchars($compatible_con ?? ''); ?>">
+                </p>
+
+                <p>
+                    <label for="precio_recambio">Precio (€)*:</label><br>
+                    <input type="number" step="0.01" min="0" name="precio_recambio" id="precio_recambio" required
+                           value="<?php echo htmlspecialchars($precio_r ?? ''); ?>">
+                </p>
+
+                <p>
+                    <label for="descripcion_recambio">Descripción*:</label><br>
+                    <textarea name="descripcion_recambio" id="descripcion_recambio" rows="5" cols="50" required><?php
+                        echo htmlspecialchars($descripcion_r ?? '');
+                    ?></textarea>
+                </p>
+
+                <p>
+                    <button type="submit">Publicar recambio</button>
+                </p>
+
+            </form>
+
+        <?php endif; ?>
 
     </div>
 </main>
