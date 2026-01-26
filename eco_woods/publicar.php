@@ -9,6 +9,14 @@ if (!isset($_SESSION['usuario_id'])) {
 
 require 'conexion.php';
 
+function columnExists($conexion, $tabla, $columna) {
+    $tabla_esc = mysqli_real_escape_string($conexion, $tabla);
+    $col_esc = mysqli_real_escape_string($conexion, $columna);
+    $sql = "SHOW COLUMNS FROM `$tabla_esc` LIKE '$col_esc'";
+    $res = mysqli_query($conexion, $sql);
+    return ($res && mysqli_num_rows($res) > 0);
+}
+
 $errores = [];
 $exito = "";
 
@@ -43,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $estado      = trim($_POST['estado'] ?? '');
         $categoria   = trim($_POST['categoria'] ?? 'Otro');
 
-        // Validaciones básicas
         if ($titulo === '' || $descripcion === '' || $precio === '' || $provincia === '' || $localidad === '' || $estado === '') {
             $errores[] = "Todos los campos marcados con * son obligatorios.";
         }
@@ -58,9 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($errores)) {
 
-            // ============================
-            //   SUBIDA DE HASTA 5 IMÁGENES
-            // ============================
             $maxImagenes = 5;
             $permitidas  = ['jpg', 'jpeg', 'png', 'webp'];
             $rutaUploads = __DIR__ . '/uploads';
@@ -107,7 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            // Escape de textos
             $titulo_esc      = mysqli_real_escape_string($conexion, $titulo);
             $descripcion_esc = mysqli_real_escape_string($conexion, $descripcion);
             $provincia_esc   = mysqli_real_escape_string($conexion, $provincia);
@@ -116,7 +119,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $categoria_esc   = mysqli_real_escape_string($conexion, $categoria);
             $precio_num      = (float) $precio;
 
-            // Mapear imágenes a columnas imagen, imagen2, ..., imagen5
             $img1 = $imagenesGuardadas[0] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[0]) : null;
             $img2 = $imagenesGuardadas[1] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[1]) : null;
             $img3 = $imagenesGuardadas[2] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[2]) : null;
@@ -177,14 +179,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (empty($errores)) {
 
+                $maxImagenes = 5;
+                $permitidas  = ['jpg', 'jpeg', 'png', 'webp'];
+                $rutaUploads = __DIR__ . '/uploads';
+
+                $imagenesGuardadasRec = [null, null, null, null, null];
+
+                if (!is_dir($rutaUploads)) {
+                    mkdir($rutaUploads, 0775, true);
+                }
+
+                if (!empty($_FILES['imagenes_recambio']) && is_array($_FILES['imagenes_recambio']['name'])) {
+
+                    $totalFiles = count($_FILES['imagenes_recambio']['name']);
+
+                    for ($i = 0, $j = 0; $i < $totalFiles && $j < $maxImagenes; $i++) {
+
+                        $errorArchivo = $_FILES['imagenes_recambio']['error'][$i];
+
+                        if ($errorArchivo === UPLOAD_ERR_NO_FILE) {
+                            continue;
+                        }
+
+                        if ($errorArchivo !== UPLOAD_ERR_OK) {
+                            continue;
+                        }
+
+                        $tmpName        = $_FILES['imagenes_recambio']['tmp_name'][$i];
+                        $nombreOriginal = $_FILES['imagenes_recambio']['name'][$i];
+
+                        $info      = pathinfo($nombreOriginal);
+                        $extension = strtolower($info['extension'] ?? '');
+
+                        if (!in_array($extension, $permitidas)) {
+                            continue;
+                        }
+
+                        $nuevoNombre = uniqid('recambio_', true) . '.' . $extension;
+                        $rutaDestino = $rutaUploads . '/' . $nuevoNombre;
+
+                        if (move_uploaded_file($tmpName, $rutaDestino)) {
+                            $imagenesGuardadasRec[$j] = $nuevoNombre;
+                            $j++;
+                        }
+                    }
+                }
+
                 $nombre_esc         = mysqli_real_escape_string($conexion, $nombre);
                 $descripcion_r_esc  = mysqli_real_escape_string($conexion, $descripcion_r);
                 $tipo_r_esc         = mysqli_real_escape_string($conexion, $tipo_r);
                 $compatible_con_esc = mysqli_real_escape_string($conexion, $compatible_con);
                 $precio_r_num       = (float)$precio_r;
 
-                $sql = "INSERT INTO recambios3d (nombre, descripcion, tipo, compatible_con, precio)
-                        VALUES ('$nombre_esc', '$descripcion_r_esc', '$tipo_r_esc', '$compatible_con_esc', $precio_r_num)";
+                $col1 = columnExists($conexion, 'recambios3d', 'imagen');
+                $col2 = columnExists($conexion, 'recambios3d', 'imagen2');
+                $col3 = columnExists($conexion, 'recambios3d', 'imagen3');
+                $col4 = columnExists($conexion, 'recambios3d', 'imagen4');
+                $col5 = columnExists($conexion, 'recambios3d', 'imagen5');
+
+                $img1r = $imagenesGuardadasRec[0] ? mysqli_real_escape_string($conexion, $imagenesGuardadasRec[0]) : null;
+                $img2r = $imagenesGuardadasRec[1] ? mysqli_real_escape_string($conexion, $imagenesGuardadasRec[1]) : null;
+                $img3r = $imagenesGuardadasRec[2] ? mysqli_real_escape_string($conexion, $imagenesGuardadasRec[2]) : null;
+                $img4r = $imagenesGuardadasRec[3] ? mysqli_real_escape_string($conexion, $imagenesGuardadasRec[3]) : null;
+                $img5r = $imagenesGuardadasRec[4] ? mysqli_real_escape_string($conexion, $imagenesGuardadasRec[4]) : null;
+
+                $campos = ["nombre", "descripcion", "tipo", "compatible_con", "precio"];
+                $valores = ["'$nombre_esc'", "'$descripcion_r_esc'", "'$tipo_r_esc'", "'$compatible_con_esc'", "$precio_r_num"];
+
+                if ($col1) { $campos[] = "imagen";  $valores[] = ($img1r ? "'$img1r'" : "NULL"); }
+                if ($col2) { $campos[] = "imagen2"; $valores[] = ($img2r ? "'$img2r'" : "NULL"); }
+                if ($col3) { $campos[] = "imagen3"; $valores[] = ($img3r ? "'$img3r'" : "NULL"); }
+                if ($col4) { $campos[] = "imagen4"; $valores[] = ($img4r ? "'$img4r'" : "NULL"); }
+                if ($col5) { $campos[] = "imagen5"; $valores[] = ($img5r ? "'$img5r'" : "NULL"); }
+
+                $sql = "INSERT INTO recambios3d (" . implode(", ", $campos) . ")
+                        VALUES (" . implode(", ", $valores) . ")";
 
                 $ok = mysqli_query($conexion, $sql);
 
@@ -216,7 +285,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="muebles.php">Muebles</a>
             <a href="recambios.php">Recambios 3D</a>
 
-            <!-- Carrito como icono -->
             <a href="ver_carrito.php" class="nav-icon" aria-label="Carrito">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
@@ -232,11 +300,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <a href="publicar.php">Publicar mueble</a>
                 <?php endif; ?>
 
-                <?php if ($es_admin): ?>
-                    <a href="mi_perfil.php">Mi perfil</a>
-                <?php else: ?>
-                    <a href="mi_perfil.php">Mi perfil</a>
-                <?php endif; ?>
+                <a href="mi_perfil.php">Mi perfil</a>
 
                 <span class="saludo">
                     Hola, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?>
@@ -299,7 +363,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="form-grid">
 
-                    <!-- Columna izquierda -->
                     <div class="form-columna">
                         <p>
                             <label>Imágenes del mueble (máx. 5):<br>
@@ -341,7 +404,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </p>
                     </div>
 
-                    <!-- Columna derecha -->
                     <div class="form-columna">
                         <p>
                             <label for="provincia">Provincia*:</label><br>
@@ -373,7 +435,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <p>
-                    <button type="submit"><?php echo $es_admin ? "Publicar mueble" : "Publicar mueble"; ?></button>
+                    <button type="submit">Publicar mueble</button>
                 </p>
 
             </form>
@@ -382,9 +444,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <h2>Publicar recambio 3D</h2>
 
-            <form action="publicar.php" method="post" class="formulario">
+            <form action="publicar.php" method="post" class="formulario" enctype="multipart/form-data">
 
                 <input type="hidden" name="tipo_publicacion" value="recambio">
+
+                <p>
+                    <label>Imágenes del recambio (máx. 5):<br>
+                        <input
+                            type="file"
+                            name="imagenes_recambio[]"
+                            accept="image/jpeg,image/png,image/webp"
+                            multiple
+                        >
+                    </label>
+                    <small>Puedes seleccionar varias a la vez (Ctrl+clic / Shift+clic).</small>
+                </p>
 
                 <p>
                     <label for="nombre">Nombre del recambio*:</label><br>

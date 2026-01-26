@@ -17,19 +17,12 @@ if (isset($_SESSION['usuario_id'])) {
         }
     }
 }
-/* ============================
-   LECTURA DE FILTROS (GET)
-   ============================ */
 
 $q                = trim($_GET['q'] ?? '');
 $categoria_filtro = trim($_GET['categoria'] ?? '');
 $precio_min       = trim($_GET['precio_min'] ?? '');
 $precio_max       = trim($_GET['precio_max'] ?? '');
 $ubicacion_filtro = trim($_GET['ubicacion'] ?? '');
-
-/* ============================
-   CONSTRUCCIÓN DE LA CONSULTA
-   ============================ */
 
 $sql = "SELECT * FROM muebles WHERE 1";
 
@@ -61,7 +54,6 @@ if ($ubicacion_filtro !== '') {
 $sql .= " ORDER BY fecha_publicacion DESC";
 $resultado = mysqli_query($conexion, $sql);
 
-/* Categorías posibles (como en publicar.php) */
 $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "Sofá", "Otro"];
 ?>
 <!DOCTYPE html>
@@ -81,7 +73,6 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
             <a href="muebles.php">Muebles</a>
             <a href="recambios.php">Recambios 3D</a>
 
-            <!-- Carrito como icono -->
             <a href="ver_carrito.php" class="nav-icon" aria-label="Carrito">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
@@ -115,19 +106,15 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
 
         <h1>Listado de muebles</h1>
 
-        <!-- Toast / mensaje flotante -->
-        <div id="toastCarrito" class="toast-carrito" style="display:none;"></div>
+        <!-- Toast general (lo usamos para carrito + favoritos) -->
+        <div id="toastGlobal" class="toast-carrito" style="display:none;"></div>
 
-        <!-- ===========================
-             FORMULARIO DE FILTROS (2 COLUMNAS)
-             =========================== -->
         <form action="muebles.php" method="get" class="formulario formulario-filtros-grid">
 
             <h3>Buscar y filtrar muebles</h3>
 
             <div class="filtros-grid">
 
-                <!-- Columna izquierda -->
                 <div class="filtro-columna">
                     <p>
                         <label for="q">Palabra clave:</label><br>
@@ -150,7 +137,6 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
                     </p>
                 </div>
 
-                <!-- Columna derecha -->
                 <div class="filtro-columna">
                     <p>
                         <label for="ubicacion">Ubicación (provincia o localidad):</label><br>
@@ -197,10 +183,6 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
         ?>
             <p><em>Mostrando resultados filtrados.</em></p>
         <?php endif; ?>
-
-        <!-- ===========================
-             LISTADO DE TARJETAS
-             =========================== -->
 
         <?php if ($resultado && mysqli_num_rows($resultado) > 0): ?>
 
@@ -262,8 +244,11 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
                                     $esFavorito = in_array($idMueble, $favoritos_usuario, true);
                                 ?>
 
-                                <a class="btn-fav <?php echo $esFavorito ? 'es-favorito' : ''; ?>"
-                                   href="toggle_favorito.php?id_mueble=<?php echo $idMueble; ?>">
+                                <!-- Favorito por AJAX -->
+                                <a class="btn-fav js-fav <?php echo $esFavorito ? 'es-favorito' : ''; ?>"
+                                   href="toggle_favorito.php?id_mueble=<?php echo $idMueble; ?>"
+                                   data-id="<?php echo $idMueble; ?>"
+                                   data-fav="<?php echo $esFavorito ? '1' : '0'; ?>">
                                     <?php echo $esFavorito ? '★ Quitar de favoritos' : '☆ Añadir a favoritos'; ?>
                                 </a>
 
@@ -305,14 +290,9 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
 
 <script>
 (function () {
-    const toast = document.getElementById('toastCarrito');
+    const toast = document.getElementById('toastGlobal');
 
     function showToast(text, ok=true) {
-        if (!toast) {
-            alert(text);
-            return;
-        }
-
         toast.textContent = text;
         toast.style.display = 'block';
         toast.classList.remove('ok', 'error');
@@ -324,8 +304,9 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
         }, 2200);
     }
 
-    const botones = document.querySelectorAll('.btn-carrito-mueble');
-    botones.forEach(btn => {
+    // Carrito muebles
+    const botonesCarrito = document.querySelectorAll('.btn-carrito-mueble');
+    botonesCarrito.forEach(btn => {
         btn.addEventListener('click', async () => {
             const id = btn.getAttribute('data-id');
             if (!id) return;
@@ -357,6 +338,56 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
             }
         });
     });
+
+    // Favoritos (sin recargar)
+    const botonesFav = document.querySelectorAll('.js-fav');
+    botonesFav.forEach(a => {
+        a.addEventListener('click', async (ev) => {
+            ev.preventDefault();
+
+            const id = a.getAttribute('data-id');
+            if (!id) return;
+
+            a.classList.add('cargando');
+
+            try {
+                const resp = await fetch('toggle_favorito.php?id_mueble=' + encodeURIComponent(id), {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const data = await resp.json().catch(() => null);
+
+                if (!resp.ok || !data || data.ok !== true) {
+                    const msg = (data && data.message) ? data.message : 'No se pudo actualizar favoritos.';
+                    showToast(msg, false);
+                    return;
+                }
+
+                // Actualizar estado visual
+                if (data.action === 'added') {
+                    a.classList.add('es-favorito');
+                    a.textContent = '★ Quitar de favoritos';
+                    a.setAttribute('data-fav', '1');
+                } else if (data.action === 'removed') {
+                    a.classList.remove('es-favorito');
+                    a.textContent = '☆ Añadir a favoritos';
+                    a.setAttribute('data-fav', '0');
+                }
+
+                showToast(data.message, true);
+
+            } catch (e) {
+                showToast('Error de conexión en favoritos.', false);
+            } finally {
+                a.classList.remove('cargando');
+            }
+        });
+    });
+
 })();
 </script>
 

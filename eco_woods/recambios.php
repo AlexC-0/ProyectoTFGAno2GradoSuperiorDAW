@@ -2,6 +2,33 @@
 session_start();
 require_once "conexion.php";
 
+function columnExists($conexion, $tabla, $columna) {
+    $tabla_esc = mysqli_real_escape_string($conexion, $tabla);
+    $col_esc = mysqli_real_escape_string($conexion, $columna);
+    $sql = "SHOW COLUMNS FROM `$tabla_esc` LIKE '$col_esc'";
+    $res = mysqli_query($conexion, $sql);
+    return ($res && mysqli_num_rows($res) > 0);
+}
+
+$col_img1 = columnExists($conexion, 'recambios3d', 'imagen');
+$col_img2 = columnExists($conexion, 'recambios3d', 'imagen2');
+$col_img3 = columnExists($conexion, 'recambios3d', 'imagen3');
+$col_img4 = columnExists($conexion, 'recambios3d', 'imagen4');
+$col_img5 = columnExists($conexion, 'recambios3d', 'imagen5');
+
+$favoritos_recambios = [];
+if (isset($_SESSION['usuario_id'])) {
+    $id_usuario_fav = (int) $_SESSION['usuario_id'];
+    $sql_fav = "SELECT id_recambio FROM favoritos_recambios WHERE id_usuario = $id_usuario_fav";
+    $res_fav = mysqli_query($conexion, $sql_fav);
+
+    if ($res_fav) {
+        while ($f = mysqli_fetch_assoc($res_fav)) {
+            $favoritos_recambios[] = (int) $f['id_recambio'];
+        }
+    }
+}
+
 $sql = "SELECT * FROM recambios3d ORDER BY id_recambio DESC";
 $resultado = mysqli_query($conexion, $sql);
 ?>
@@ -22,7 +49,6 @@ $resultado = mysqli_query($conexion, $sql);
             <a href="muebles.php">Muebles</a>
             <a href="recambios.php">Recambios 3D</a>
 
-            <!-- Carrito como icono -->
             <a href="ver_carrito.php" class="nav-icon" aria-label="Carrito">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
@@ -56,50 +82,124 @@ $resultado = mysqli_query($conexion, $sql);
 <main>
     <div class="contenedor">
 
-        <p><a href="index.php">Volver al inicio</a></p>
-
-        <h1>Recambios 3D ECO & WOODS</h1>
+        <h1>Recambios 3D</h1>
 
         <p>
             Aquí encontrarás los <strong>recambios oficiales</strong> que ECO & WOODS pone a disposición
-            para complementar los muebles de segunda mano:
-            bisagras, topes, piezas específicas y otros componentes impresos en 3D.
+            para complementar los muebles de segunda mano.
         </p>
 
-        <hr>
+        <div id="toastGlobal" class="toast-carrito" style="display:none;"></div>
 
-        <!-- Toast / mensaje flotante -->
-        <div id="toastCarrito" class="toast-carrito" style="display:none;"></div>
+        <?php if ($resultado && mysqli_num_rows($resultado) > 0): ?>
 
-        <?php
-        if ($resultado && mysqli_num_rows($resultado) > 0) {
+            <div class="listado-tarjetas">
+                <?php while ($fila = mysqli_fetch_assoc($resultado)): ?>
+                    <?php
+                        $idRec = (int)$fila['id_recambio'];
 
-            while ($fila = mysqli_fetch_assoc($resultado)) {
-                $idRec = (int)$fila['id_recambio'];
+                        $img = '';
+                        $candidatas = [];
 
-                echo '<div class="tarjeta">';
-                echo "<h3>" . htmlspecialchars($fila['nombre']) . "</h3>";
-                echo "<p><strong>Descripción:</strong> " . htmlspecialchars($fila['descripcion']) . "</p>";
-                echo "<p><strong>Tipo:</strong> " . htmlspecialchars($fila['tipo']) . "</p>";
-                echo "<p><strong>Compatible con:</strong> " . htmlspecialchars($fila['compatible_con']) . "</p>";
-                echo "<p><strong>Precio:</strong> " . htmlspecialchars($fila['precio']) . " €</p>";
+                        if ($col_img1 && !empty($fila['imagen'])) $candidatas[] = trim($fila['imagen']);
+                        if ($col_img2 && !empty($fila['imagen2'])) $candidatas[] = trim($fila['imagen2']);
+                        if ($col_img3 && !empty($fila['imagen3'])) $candidatas[] = trim($fila['imagen3']);
+                        if ($col_img4 && !empty($fila['imagen4'])) $candidatas[] = trim($fila['imagen4']);
+                        if ($col_img5 && !empty($fila['imagen5'])) $candidatas[] = trim($fila['imagen5']);
 
-                // Botón icono carrito (sin redirección)
-                echo '<div class="tarjeta-footer">';
-                echo '  <button type="button" class="btn-carrito-icono" data-id="' . $idRec . '" aria-label="Añadir al carrito">';
-                echo '      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">';
-                echo '          <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>';
-                echo '      </svg>';
-                echo '  </button>';
-                echo '</div>';
+                        foreach ($candidatas as $cand) {
+                            if ($cand === '') continue;
 
-                echo "</div>";
-            }
+                            if (strpos($cand, ';') !== false) {
+                                $partes = array_filter(array_map('trim', explode(';', $cand)));
+                                if (!empty($partes)) {
+                                    $img = $partes[0];
+                                    break;
+                                }
+                            } else {
+                                $img = $cand;
+                                break;
+                            }
+                        }
 
-        } else {
-            echo "<p>De momento no hay recambios 3D disponibles en el catálogo.</p>";
-        }
-        ?>
+                        $descripcion = (string)($fila['descripcion'] ?? '');
+                        if (mb_strlen($descripcion) > 100) {
+                            $descripcion = mb_substr($descripcion, 0, 97) . '...';
+                        }
+
+                        $precio = (float)($fila['precio'] ?? 0);
+                        $esFav = in_array($idRec, $favoritos_recambios, true);
+                    ?>
+
+                    <article class="tarjeta">
+
+                        <?php if (!empty($img)): ?>
+                            <img
+                                src="uploads/<?php echo htmlspecialchars($img); ?>"
+                                alt="<?php echo htmlspecialchars($fila['nombre'] ?? 'Recambio'); ?>"
+                            >
+                        <?php endif; ?>
+
+                        <div class="tarjeta-header">
+                            <h3 class="tarjeta-titulo">
+                                <?php echo htmlspecialchars($fila['nombre'] ?? ''); ?>
+                            </h3>
+                            <p class="tarjeta-precio">
+                                <?php echo number_format($precio, 2, ',', '.'); ?> €
+                            </p>
+                        </div>
+
+                        <p class="tarjeta-descripcion">
+                            <?php echo htmlspecialchars($descripcion); ?>
+                        </p>
+
+                        <div class="tarjeta-tags">
+                            <?php if (!empty($fila['tipo'])): ?>
+                                <span class="badge badge-categoria">
+                                    <?php echo htmlspecialchars($fila['tipo']); ?>
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if (!empty($fila['compatible_con'])): ?>
+                                <span class="badge badge-ubicacion">
+                                    <?php echo htmlspecialchars($fila['compatible_con']); ?>
+                                </span>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="tarjeta-footer">
+
+                            <a class="btn-ver"
+                               href="ver_recambio.php?id_recambio=<?php echo $idRec; ?>">
+                                Ver detalles y reseñas
+                            </a>
+
+                            <?php if (isset($_SESSION['usuario_id'])): ?>
+                                <button type="button"
+                                        class="btn-fav <?php echo $esFav ? 'es-favorito' : ''; ?> btn-fav-recambio"
+                                        data-url="toggle_favorito_recambio.php?id_recambio=<?php echo $idRec; ?>">
+                                    <?php echo $esFav ? '★ Quitar de favoritos' : '☆ Añadir a favoritos'; ?>
+                                </button>
+
+                                <button type="button"
+                                        class="btn-carrito-icono btn-carrito-recambio"
+                                        data-id="<?php echo $idRec; ?>"
+                                        aria-label="Añadir al carrito">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                        <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
+                                    </svg>
+                                </button>
+                            <?php endif; ?>
+
+                        </div>
+
+                    </article>
+                <?php endwhile; ?>
+            </div>
+
+        <?php else: ?>
+            <p>De momento no hay recambios 3D disponibles en el catálogo.</p>
+        <?php endif; ?>
 
     </div>
 </main>
@@ -113,10 +213,9 @@ $resultado = mysqli_query($conexion, $sql);
 <button id="btnTop" onclick="scrollToTop()">▲</button>
 <script src="js/app.js"></script>
 
-<!-- JS específico: añadir al carrito SIN redirigir -->
 <script>
 (function () {
-    const toast = document.getElementById('toastCarrito');
+    const toast = document.getElementById('toastGlobal');
 
     function showToast(text, ok=true) {
         toast.textContent = text;
@@ -130,8 +229,7 @@ $resultado = mysqli_query($conexion, $sql);
         }, 2200);
     }
 
-    const botones = document.querySelectorAll('.btn-carrito-icono');
-    botones.forEach(btn => {
+    document.querySelectorAll('.btn-carrito-recambio').forEach(btn => {
         btn.addEventListener('click', async () => {
             const id = btn.getAttribute('data-id');
             if (!id) return;
@@ -158,6 +256,53 @@ $resultado = mysqli_query($conexion, $sql);
 
             } catch (e) {
                 showToast('Error de conexión al añadir al carrito.', false);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    });
+
+    document.querySelectorAll('.btn-fav-recambio').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const url = btn.getAttribute('data-url');
+            if (!url) return;
+
+            btn.disabled = true;
+
+            try {
+                const resp = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const ctype = resp.headers.get('content-type') || '';
+                if (!ctype.includes('application/json')) {
+                    window.location.href = url;
+                    return;
+                }
+
+                const data = await resp.json().catch(() => null);
+
+                if (!resp.ok || !data || data.ok !== true) {
+                    const msg = (data && data.message) ? data.message : 'No se pudo actualizar favoritos.';
+                    showToast(msg, false);
+                } else {
+                    showToast(data.message, true);
+
+                    if (data.es_favorito === true) {
+                        btn.classList.add('es-favorito');
+                        btn.textContent = '★ Quitar de favoritos';
+                    } else if (data.es_favorito === false) {
+                        btn.classList.remove('es-favorito');
+                        btn.textContent = '☆ Añadir a favoritos';
+                    }
+                }
+
+            } catch (e) {
+                window.location.href = url;
             } finally {
                 btn.disabled = false;
             }

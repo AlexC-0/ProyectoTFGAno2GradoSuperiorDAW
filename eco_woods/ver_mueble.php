@@ -1,3 +1,5 @@
+codigo de ver_mueble.php
+
 <?php
 session_start();
 require 'conexion.php';
