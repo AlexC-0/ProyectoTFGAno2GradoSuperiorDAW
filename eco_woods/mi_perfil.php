@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Solo usuarios logueados pueden entrar aquí
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: login.php");
     exit;
@@ -12,7 +11,6 @@ require 'conexion.php';
 $id_usuario = (int) $_SESSION['usuario_id'];
 $es_admin = (!empty($_SESSION['es_admin']) && $_SESSION['es_admin'] == 1);
 
-// 1) Datos del usuario
 $sql_usuario = "SELECT nombre, email, telefono, provincia, localidad, fecha_registro
                 FROM usuarios
                 WHERE id_usuario = $id_usuario
@@ -21,7 +19,6 @@ $sql_usuario = "SELECT nombre, email, telefono, provincia, localidad, fecha_regi
 $res_usuario = mysqli_query($conexion, $sql_usuario);
 $usuario = mysqli_fetch_assoc($res_usuario);
 
-// 2) Muebles publicados por este usuario
 $sql_muebles = "SELECT id_mueble, titulo, precio, provincia, localidad, estado, fecha_publicacion, categoria, imagen
                 FROM muebles
                 WHERE id_usuario = $id_usuario
@@ -29,7 +26,6 @@ $sql_muebles = "SELECT id_mueble, titulo, precio, provincia, localidad, estado, 
 
 $res_muebles = mysqli_query($conexion, $sql_muebles);
 
-// 3) Reseñas hechas por este usuario
 $sql_resenas = "SELECT r.*, m.titulo AS titulo_mueble
                 FROM resenas r
                 JOIN muebles m ON r.id_mueble = m.id_mueble
@@ -38,7 +34,6 @@ $sql_resenas = "SELECT r.*, m.titulo AS titulo_mueble
 
 $res_resenas = mysqli_query($conexion, $sql_resenas);
 
-// 4) Muebles favoritos de este usuario
 $sql_favoritos = "SELECT f.fecha_guardado,
                          m.id_mueble, m.titulo, m.precio, m.provincia,
                          m.localidad, m.estado, m.categoria, m.imagen
@@ -49,7 +44,6 @@ $sql_favoritos = "SELECT f.fecha_guardado,
 
 $res_favoritos = mysqli_query($conexion, $sql_favoritos);
 
-// 5) Mensajes (recibidos y enviados)
 $sql_recibidos = "SELECT msg.id_mensaje, msg.asunto, msg.cuerpo, msg.fecha_envio, msg.leido,
                          u.nombre AS nombre_remitente,
                          m.titulo AS titulo_mueble,
@@ -74,7 +68,6 @@ $sql_enviados = "SELECT msg.id_mensaje, msg.asunto, msg.cuerpo, msg.fecha_envio,
 
 $res_enviados = mysqli_query($conexion, $sql_enviados);
 
-// Contadores de mensajes (por si los quieres usar)
 $num_recibidos = $res_recibidos ? mysqli_num_rows($res_recibidos) : 0;
 $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 ?>
@@ -89,13 +82,18 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
 <header>
     <div class="contenedor">
-        <h1>ECO & WOODS</h1>
+
+    <h1 style="display:flex; align-items:center;">
+        <img src="uploads/Verde.png"
+            alt="ECO & WOODS"
+            style="height:180px; width:auto; object-fit:contain; display:block;">
+    </h1>
+
         <nav>
             <a href="index.php">Inicio</a>
             <a href="muebles.php">Muebles</a>
             <a href="recambios.php">Recambios 3D</a>
 
-            <!-- Carrito como icono -->
             <a href="ver_carrito.php" class="nav-icon" aria-label="Carrito">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
@@ -131,21 +129,24 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
         <h1>Mi perfil</h1>
 
         <?php if ($usuario): ?>
-            <section class="bloque-perfil">
-                <h2>Datos de la cuenta</h2>
-                <p><strong>Nombre:</strong> <?php echo htmlspecialchars($usuario['nombre']); ?></p>
-                <p><strong>Email:</strong> <?php echo htmlspecialchars($usuario['email']); ?></p>
-                <p><strong>Teléfono:</strong> <?php echo htmlspecialchars($usuario['telefono'] ?? ''); ?></p>
-                <p><strong>Ubicación:</strong>
-                    <?php
-                        echo htmlspecialchars($usuario['provincia'] ?? '');
-                        if (!empty($usuario['provincia']) && !empty($usuario['localidad'])) {
-                            echo " - ";
-                        }
-                        echo htmlspecialchars($usuario['localidad'] ?? '');
-                    ?>
-                </p>
-                <p><strong>Fecha de registro:</strong> <?php echo htmlspecialchars($usuario['fecha_registro']); ?></p>
+            <section class="perfil-seccion">
+                <h2 class="perfil-titulo">Datos de la cuenta</h2>
+
+                <div class="perfil-card perfil-card-estrecha perfil-card-centrada">
+                    <p><strong>Nombre:</strong> <?php echo htmlspecialchars($usuario['nombre']); ?></p>
+                    <p><strong>Email:</strong> <?php echo htmlspecialchars($usuario['email']); ?></p>
+                    <p><strong>Teléfono:</strong> <?php echo htmlspecialchars($usuario['telefono'] ?? ''); ?></p>
+                    <p><strong>Ubicación:</strong>
+                        <?php
+                            echo htmlspecialchars($usuario['provincia'] ?? '');
+                            if (!empty($usuario['provincia']) && !empty($usuario['localidad'])) {
+                                echo " - ";
+                            }
+                            echo htmlspecialchars($usuario['localidad'] ?? '');
+                        ?>
+                    </p>
+                    <p><strong>Fecha de registro:</strong> <?php echo htmlspecialchars($usuario['fecha_registro']); ?></p>
+                </div>
             </section>
         <?php else: ?>
             <p>No se han encontrado tus datos de usuario.</p>
@@ -153,7 +154,6 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
         <hr>
 
-        <!-- MIS MUEBLES PUBLICADOS -->
         <section class="bloque-mis-muebles">
             <h2>Mis muebles publicados</h2>
 
@@ -222,7 +222,6 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
         <hr>
 
-        <!-- MIS FAVORITOS -->
         <section class="bloque-mis-favoritos">
             <h2>Mis muebles favoritos</h2>
 
@@ -288,7 +287,6 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
         <hr>
 
-        <!-- MIS RESEÑAS -->
         <section class="bloque-mis-resenas">
             <h2>Mis reseñas</h2>
 
@@ -318,68 +316,68 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
         <hr>
 
-        <!-- MIS MENSAJES -->
-        <section class="bloque-mis-mensajes">
-            <h2>Mis mensajes</h2>
+        <section class="perfil-seccion">
+            <h2 class="perfil-titulo">Mis mensajes</h2>
 
-            <!-- MENSAJES RECIBIDOS -->
-            <h3>Recibidos (<?php echo $num_recibidos; ?>)</h3>
-            <?php if ($res_recibidos && mysqli_num_rows($res_recibidos) > 0): ?>
-                <ul class="lista-mensajes">
-                    <?php while ($msg = mysqli_fetch_assoc($res_recibidos)): ?>
-                        <li class="mensaje-item">
-                            <strong>De:</strong> <?php echo htmlspecialchars($msg['nombre_remitente']); ?>
-                            — <small><?php echo htmlspecialchars($msg['fecha_envio']); ?></small>
+            <div class="perfil-grid">
 
-                            <br>
+                <div class="perfil-card">
+                    <h3>Recibidos (<?php echo $num_recibidos; ?>)</h3>
 
-                            <?php if (!empty($msg['titulo_mueble'])): ?>
-                                <span class="mensaje-mueble">
-                                    Sobre: "<?php echo htmlspecialchars($msg['titulo_mueble']); ?>"
-                                </span>
-                                <br>
-                            <?php endif; ?>
+                    <?php if ($res_recibidos && mysqli_num_rows($res_recibidos) > 0): ?>
+                        <ul class="perfil-lista">
+                            <?php while ($msg = mysqli_fetch_assoc($res_recibidos)): ?>
+                                <li>
+                                    <strong>De:</strong> <?php echo htmlspecialchars($msg['nombre_remitente']); ?>
+                                    — <small><?php echo htmlspecialchars($msg['fecha_envio']); ?></small>
 
-                            <a class="btn-ver" href="ver_mensaje.php?id=<?php echo (int)$msg['id_mensaje']; ?>">
-                                Ver mensaje
-                            </a>
-                        </li>
-                    <?php endwhile; ?>
-                </ul>
-            <?php else: ?>
-                <p>No tienes mensajes recibidos.</p>
-            <?php endif; ?>
+                                    <?php if (!empty($msg['titulo_mueble'])): ?>
+                                        <br>
+                                        <span>Sobre: "<?php echo htmlspecialchars($msg['titulo_mueble']); ?>"</span>
+                                    <?php endif; ?>
 
-            <hr>
+                                    <br><br>
 
-            <!-- MENSAJES ENVIADOS -->
-            <h3>Enviados (<?php echo $num_enviados; ?>)</h3>
-            <?php if ($res_enviados && mysqli_num_rows($res_enviados) > 0): ?>
-                <ul class="lista-mensajes">
-                    <?php while ($msg = mysqli_fetch_assoc($res_enviados)): ?>
-                        <li class="mensaje-item">
-                            <strong>Para:</strong> <?php echo htmlspecialchars($msg['nombre_destinatario']); ?>
-                            — <small><?php echo htmlspecialchars($msg['fecha_envio']); ?></small>
+                                    <a class="link-accion mini" href="ver_mensaje.php?id=<?php echo (int)$msg['id_mensaje']; ?>">
+                                        Ver mensaje
+                                    </a>
+                                </li>
+                            <?php endwhile; ?>
+                        </ul>
+                    <?php else: ?>
+                        <p>No tienes mensajes recibidos.</p>
+                    <?php endif; ?>
+                </div>
 
-                            <br>
+                <div class="perfil-card">
+                    <h3>Enviados (<?php echo $num_enviados; ?>)</h3>
 
-                            <?php if (!empty($msg['titulo_mueble'])): ?>
-                                <span class="mensaje-mueble">
-                                    Sobre: "<?php echo htmlspecialchars($msg['titulo_mueble']); ?>"
-                                </span>
-                                <br>
-                            <?php endif; ?>
+                    <?php if ($res_enviados && mysqli_num_rows($res_enviados) > 0): ?>
+                        <ul class="perfil-lista">
+                            <?php while ($msg = mysqli_fetch_assoc($res_enviados)): ?>
+                                <li>
+                                    <strong>Para:</strong> <?php echo htmlspecialchars($msg['nombre_destinatario']); ?>
+                                    — <small><?php echo htmlspecialchars($msg['fecha_envio']); ?></small>
 
-                            <a class="btn-ver" href="ver_mensaje.php?id=<?php echo (int)$msg['id_mensaje']; ?>">
-                                Ver mensaje
-                            </a>
-                        </li>
-                    <?php endwhile; ?>
-                </ul>
-            <?php else: ?>
-                <p>No has enviado mensajes todavía.</p>
-            <?php endif; ?>
+                                    <?php if (!empty($msg['titulo_mueble'])): ?>
+                                        <br>
+                                        <span>Sobre: "<?php echo htmlspecialchars($msg['titulo_mueble']); ?>"</span>
+                                    <?php endif; ?>
 
+                                    <br><br>
+
+                                    <a class="link-accion mini" href="ver_mensaje.php?id=<?php echo (int)$msg['id_mensaje']; ?>">
+                                        Ver mensaje
+                                    </a>
+                                </li>
+                            <?php endwhile; ?>
+                        </ul>
+                    <?php else: ?>
+                        <p>No has enviado mensajes todavía.</p>
+                    <?php endif; ?>
+                </div>
+
+            </div>
         </section>
 
     </div>

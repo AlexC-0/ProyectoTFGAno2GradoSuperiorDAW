@@ -50,7 +50,13 @@ if (isset($_SESSION['usuario_id'])) {
 
 <header>
     <div class="contenedor">
-        <h1>ECO & WOODS</h1>
+
+    <h1 style="display:flex; align-items:center;">
+        <img src="uploads/Verde.png"
+            alt="ECO & WOODS"
+            style="height:180px; width:auto; object-fit:contain; display:block;">
+    </h1>
+
         <nav>
             <a href="index.php">Inicio</a>
             <a href="muebles.php">Muebles</a>
@@ -90,8 +96,10 @@ if (isset($_SESSION['usuario_id'])) {
 
         <h1>Carrito de productos</h1>
 
-        <p><a href="index.php">Volver al inicio</a></p>
-        <p><a href="muebles.php">Seguir viendo productos</a></p>
+        <div class="landing-acciones" style="margin-bottom:16px;">
+            <a href="index.php" class="btn-ver">Volver al inicio</a>
+            <a href="muebles.php" class="btn-ver">Seguir viendo productos</a>
+        </div>
 
         <div id="toastCarrito" class="toast-carrito" style="display:none;"></div>
 

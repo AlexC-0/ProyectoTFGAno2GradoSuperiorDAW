@@ -216,6 +216,9 @@ a:hover {
     margin-top: 10px;
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .btn-ver {
@@ -365,12 +368,114 @@ table th {
 }
 
 /* ===========================
+   PERFIL (MI PERFIL) - TARJETAS + CONTRASTE
+   =========================== */
+
+.perfil-seccion{
+    margin-bottom: 25px;
+}
+
+.perfil-titulo{
+    margin: 0 0 12px 0;
+}
+
+.perfil-card{
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.10);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    padding: 16px 18px;
+}
+
+.perfil-card-estrecha{
+    max-width: 720px;
+}
+
+.perfil-card-centrada{
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.perfil-grid{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+@media (min-width: 900px){
+    .perfil-grid{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.perfil-lista{
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 0 0;
+}
+
+.perfil-lista li{
+    padding: 12px 0;
+    border-top: 1px solid rgba(0,0,0,0.10);
+}
+
+.perfil-lista li:first-child{
+    border-top: 0;
+    padding-top: 0;
+}
+
+.link-accion{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border-radius: 999px;
+    text-decoration: none;
+    border: 2px solid #1F3D2A;
+    background: #1F3D2A;
+    font-weight: 700;
+    color: #ffffff;
+    transition: 0.2s ease;
+}
+
+.link-accion:hover{
+    background: #D9B382;
+    color: #1F3D2A;
+    border-color: #D9B382;
+}
+
+.link-accion.mini{
+    padding: 7px 12px;
+    font-size: 13px;
+}
+
+/* Botón eliminar (para que no sea texto plano) */
+.btn-eliminar{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 2px solid rgba(164,113,72,0.85);
+    background: rgba(164,113,72,0.12);
+    color: #A47148;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.btn-eliminar:hover{
+    background: #A47148;
+    color: #ffffff;
+}
+
+/* ===========================
    FOOTER
    =========================== */
 
 footer {
     background-color: #d9d9d9;  /* gris medio */
-    padding: 10px 0;
+    padding: 12px 0;
     text-align: center;
     margin-top: 30px;
     font-size: 14px;
@@ -567,3 +672,170 @@ footer {
     background: rgba(255,255,255,0.10);
 }
 
+/* ===========================
+   LANDING (INDEX)
+   =========================== */
+
+.landing-bloque{
+    margin: 28px 0;
+    padding: 22px;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.landing-bloque h2{
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+.landing-bloque p{
+    line-height: 1.6;
+    margin: 0 0 12px 0;
+    max-width: 900px;
+    color: #444;
+}
+
+.landing-acciones{
+    margin-top: 14px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.landing-cajas{
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+}
+
+.landing-caja{
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.10);
+    background: #fafafa;
+}
+
+.landing-caja h3{
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    border: 2px solid #1F3D2A;
+    background: #1F3D2A;
+    font-weight: 700;
+    color: #ffffff;
+    transition: 0.2s ease;
+}
+
+.btn:hover{
+    background: #D9B382;   /* madera */
+    color: #1F3D2A;
+    border-color: #D9B382;
+}
+
+/* ===========================
+   SUBMENÚ ADMIN (PANEL)
+   =========================== */
+
+.submenu-admin{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin: 12px 0 6px 0;
+}
+
+.submenu-admin a{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    border: 2px solid rgba(31,61,42,0.55);
+    background: rgba(255,255,255,0.65);
+    color: #1F3D2A;
+    transition: 0.2s;
+}
+
+.submenu-admin a:hover{
+    background: #D9B382;
+    border-color: #D9B382;
+    color: #1F3D2A;
+}
+
+.submenu-admin a.activo{
+    background: #1F3D2A;
+    border-color: #1F3D2A;
+    color: #ffffff;
+}
+
+@media (max-width: 600px){
+    .submenu-admin{
+        gap: 10px;
+    }
+    .submenu-admin a{
+        width: 100%;
+        justify-content: center;
+        padding: 10px 14px;
+    }
+}
+
+/* ===========================
+   FOOTER (ICONOS)
+   =========================== */
+
+.footer-flex{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+.footer-contacto{
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-icon{
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgba(0,0,0,0.18);
+    background: rgba(255,255,255,0.35);
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.footer-icon svg{
+    width: 22px;
+    height: 22px;
+}
+
+.footer-icon:hover{
+    background: rgba(31,61,42,0.12);
+    border-color: rgba(31,61,42,0.35);
+}
+
+header nav .nav-icon{
+    order: 9999;
+}

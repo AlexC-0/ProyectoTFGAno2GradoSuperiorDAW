@@ -43,7 +43,13 @@ $resultado = mysqli_query($conexion, $sql);
 
 <header>
     <div class="contenedor">
-        <h1>ECO & WOODS</h1>
+
+    <h1 style="display:flex; align-items:center;">
+        <img src="uploads/Verde.png"
+            alt="ECO & WOODS"
+            style="height:180px; width:auto; object-fit:contain; display:block;">
+    </h1>
+
         <nav>
             <a href="index.php">Inicio</a>
             <a href="muebles.php">Muebles</a>
@@ -83,11 +89,6 @@ $resultado = mysqli_query($conexion, $sql);
     <div class="contenedor">
 
         <h1>Recambios 3D</h1>
-
-        <p>
-            Aquí encontrarás los <strong>recambios oficiales</strong> que ECO & WOODS pone a disposición
-            para complementar los muebles de segunda mano.
-        </p>
 
         <div id="toastGlobal" class="toast-carrito" style="display:none;"></div>
 

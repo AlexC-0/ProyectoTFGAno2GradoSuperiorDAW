@@ -67,7 +67,14 @@ $es_admin = (!empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1);
 
 <header>
     <div class="contenedor">
-        <h1>ECO & WOODS</h1>
+
+<h1 style="display:flex; align-items:center;">
+    <img src="uploads/Verde.png"
+         alt="ECO & WOODS"
+         style="height:180px; width:auto; object-fit:contain; display:block;">
+</h1>
+
+        
         <nav>
             <a href="index.php">Inicio</a>
             <a href="muebles.php">Muebles</a>
