@@ -1,5 +1,3 @@
-codigo de ver_recambio.php
-
 <?php
 session_start();
 require_once "conexion.php";
@@ -18,14 +16,12 @@ if (!isset($_GET['id_recambio'])) {
 
 $id_recambio = (int)$_GET['id_recambio'];
 
-// Columnas de imágenes disponibles en recambios3d
 $col_img1 = columnExists($conexion, 'recambios3d', 'imagen');
 $col_img2 = columnExists($conexion, 'recambios3d', 'imagen2');
 $col_img3 = columnExists($conexion, 'recambios3d', 'imagen3');
 $col_img4 = columnExists($conexion, 'recambios3d', 'imagen4');
 $col_img5 = columnExists($conexion, 'recambios3d', 'imagen5');
 
-// 1) Cargar datos del recambio
 $sql_rec = "SELECT * FROM recambios3d WHERE id_recambio = $id_recambio LIMIT 1";
 $res_rec = mysqli_query($conexion, $sql_rec);
 
@@ -35,7 +31,6 @@ if (!$res_rec || mysqli_num_rows($res_rec) == 0) {
 
 $recambio = mysqli_fetch_assoc($res_rec);
 
-// 3) Listar reseñas
 $sql_lista = "SELECT rr.*, u.nombre AS nombre_usuario
               FROM resenas_recambios rr
               JOIN usuarios u ON rr.id_usuario = u.id_usuario
@@ -44,7 +39,6 @@ $sql_lista = "SELECT rr.*, u.nombre AS nombre_usuario
 
 $res_resenas = mysqli_query($conexion, $sql_lista);
 
-// 4) Construir array de imágenes del recambio
 $imagenes = [];
 
 if ($col_img1 && !empty($recambio['imagen'])) {
@@ -118,8 +112,12 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 <main>
     <div class="contenedor">
 
-        <p><a href="index.php">Volver al inicio</a></p>
-        <p><a href="recambios.php">Volver al listado de recambios</a></p>
+        <p>
+            <a href="index.php" class="btn-ver">Volver al inicio</a>
+            <a href="recambios.php" class="btn-ver">Volver al listado de recambios</a>
+        </p>
+
+        <div id="toastCarrito" class="toast-carrito" style="display:none;"></div>
 
         <article class="tarjeta">
 
@@ -156,6 +154,62 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
                 echo number_format($precio, 2, ',', '.');
                 ?> €
             </p>
+
+            <div class="tarjeta-footer" style="display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap; margin-top:14px;">
+
+                <div style="display:flex; flex-direction:column; align-items:flex-start; gap:8px;">
+                    <div style="background:#1F3D2A; color:#fff; padding:8px 12px; border-radius:10px; font-weight:700;">
+                        Compartir:
+                    </div>
+
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-start;">
+                        <button type="button"
+                                class="btn-share btn-share-mail"
+                                aria-label="Compartir por email"
+                                style="background:#1F3D2A; border-radius:999px; padding:10px 12px; border:none; cursor:pointer; color:#fff;">
+                            ✉️ Email
+                        </button>
+
+                        <button type="button"
+                                class="btn-share btn-share-whatsapp"
+                                aria-label="Compartir por WhatsApp"
+                                style="background:#1F3D2A; border-radius:999px; padding:10px 12px; border:none; cursor:pointer; color:#fff;">
+                            💬 WhatsApp
+                        </button>
+
+                        <button type="button"
+                                class="btn-share btn-share-instagram"
+                                aria-label="Compartir en Instagram"
+                                style="background:#1F3D2A; border-radius:999px; padding:10px 12px; border:none; cursor:pointer; color:#fff;">
+                            📷 Instagram
+                        </button>
+                    </div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+                    <button type="button"
+                            class="btn-carrito-icono btn-carrito-recambio-grande"
+                            data-id="<?php echo (int)$id_recambio; ?>"
+                            aria-label="Añadir recambio al carrito"
+                            style="
+                                background:#4F6F52;
+                                border-radius:50%;
+                                width:60px;
+                                height:60px;
+                                border:none;
+                                cursor:pointer;
+                                color:#fff;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                            ">
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="margin-left:-7px;">
+                            <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+
+            </div>
 
         </article>
 
@@ -233,18 +287,124 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 
 <script>
 (function () {
-    const toast = document.getElementById('toastResena');
+    const loggedIn = <?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>;
 
-    function showToast(text, ok=true) {
-        toast.textContent = text;
-        toast.style.display = 'block';
-        toast.classList.remove('ok', 'error');
-        toast.classList.add(ok ? 'ok' : 'error');
+    const toastCarrito = document.getElementById('toastCarrito');
+    const toastResena = document.getElementById('toastResena');
 
-        clearTimeout(window.__toastTimerResena);
-        window.__toastTimerResena = setTimeout(() => {
-            toast.style.display = 'none';
+    function showToast(el, text, ok=true) {
+        if (!el) return;
+        el.textContent = text;
+        el.style.display = 'block';
+        el.classList.remove('ok', 'error');
+        el.classList.add(ok ? 'ok' : 'error');
+
+        clearTimeout(el.__t);
+        el.__t = setTimeout(() => {
+            el.style.display = 'none';
         }, 2200);
+    }
+
+    async function addToCarrito(url) {
+        try {
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const data = await resp.json().catch(() => null);
+
+            if (!resp.ok || !data || data.ok !== true) {
+                const msg = (data && data.message) ? data.message : 'No se pudo añadir al carrito.';
+                showToast(toastCarrito, msg, false);
+            } else {
+                showToast(toastCarrito, data.message, true);
+            }
+
+        } catch (e) {
+            showToast(toastCarrito, 'Error de conexión al añadir al carrito.', false);
+        }
+    }
+
+    const btnCarrito = document.querySelector('.btn-carrito-recambio-grande');
+    if (btnCarrito) {
+        btnCarrito.addEventListener('click', async () => {
+            if (!loggedIn) {
+                window.location.href = 'login.php';
+                return;
+            }
+
+            const id = btnCarrito.getAttribute('data-id');
+            if (!id) return;
+
+            btnCarrito.disabled = true;
+            await addToCarrito('add_carrito.php?id_recambio=' + encodeURIComponent(id));
+            btnCarrito.disabled = false;
+        });
+    }
+
+    function getShareData() {
+        const url = window.location.href;
+        const titulo = <?php echo json_encode($recambio['nombre'] ?? 'Recambio'); ?>;
+        const texto = `Mira este anuncio en ECO & WOODS: ${titulo}`;
+        return { url, titulo, texto };
+    }
+
+    function openPopup(url) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    async function copyLink(url) {
+        try {
+            await navigator.clipboard.writeText(url);
+            showToast(toastCarrito, 'Enlace copiado. Pégalo donde quieras.', true);
+            return true;
+        } catch (e) {
+            showToast(toastCarrito, 'No se pudo copiar el enlace.', false);
+            return false;
+        }
+    }
+
+    const btnMail = document.querySelector('.btn-share-mail');
+    const btnWa = document.querySelector('.btn-share-whatsapp');
+    const btnIg = document.querySelector('.btn-share-instagram');
+
+    if (btnMail) {
+        btnMail.addEventListener('click', () => {
+            const d = getShareData();
+            const subject = encodeURIComponent(d.titulo);
+            const body = encodeURIComponent(d.texto + "\n\n" + d.url);
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        });
+    }
+
+    if (btnWa) {
+        btnWa.addEventListener('click', () => {
+            const d = getShareData();
+            const text = encodeURIComponent(d.texto + " " + d.url);
+            openPopup(`https://wa.me/?text=${text}`);
+        });
+    }
+
+    if (btnIg) {
+        btnIg.addEventListener('click', async () => {
+            const d = getShareData();
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: d.titulo, text: d.texto, url: d.url });
+                    return;
+                } catch (e) {}
+            }
+
+            const ok = await copyLink(d.url);
+            if (ok) {
+                openPopup('https://www.instagram.com/');
+            }
+        });
     }
 
     const form = document.getElementById('formResena');
@@ -273,11 +433,11 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 
             if (!resp.ok || !data || data.ok !== true) {
                 const msg = (data && data.message) ? data.message : 'No se pudo guardar la reseña.';
-                showToast(msg, false);
+                showToast(toastResena, msg, false);
                 return;
             }
 
-            showToast(data.message, true);
+            showToast(toastResena, data.message, true);
 
             const sinResenas = document.getElementById('sinResenas');
             if (sinResenas) sinResenas.remove();
@@ -295,10 +455,8 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
             art.className = 'tarjeta';
 
             const fecha = r && r.fecha_resena ? r.fecha_resena : '';
-
             const nombreUsuario = r && r.nombre_usuario ? r.nombre_usuario : 'Usuario';
             const puntuacion = r && r.puntuacion ? r.puntuacion : '';
-
             const comentario = r && r.comentario ? r.comentario : '';
 
             art.innerHTML = `
@@ -312,7 +470,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
             form.reset();
 
         } catch (err) {
-            showToast('Error de conexión al enviar la reseña.', false);
+            showToast(toastResena, 'Error de conexión al enviar la reseña.', false);
         } finally {
             if (btn) btn.disabled = false;
         }

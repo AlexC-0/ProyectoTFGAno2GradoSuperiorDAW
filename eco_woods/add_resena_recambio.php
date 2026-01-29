@@ -12,34 +12,34 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 if (!isset($_SESSION['usuario_id'])) {
     http_response_code(401);
-    echo json_encode(['ok' => false, 'message' => 'Debes iniciar sesión para escribir una reseña.']);
+    echo json_encode(['ok' => false, 'message' => 'Debes iniciar sesión.']);
     exit;
 }
 
-$id_usuario = (int)$_SESSION['usuario_id'];
-$id_recambio = isset($_GET['id_recambio']) ? (int)$_GET['id_recambio'] : 0;
+if (!isset($_GET['id_recambio'])) {
+    http_response_code(400);
+    echo json_encode(['ok' => false, 'message' => 'Recambio no especificado.']);
+    exit;
+}
+
+$id_usuario  = (int)$_SESSION['usuario_id'];
+$id_recambio = (int)$_GET['id_recambio'];
 
 $puntuacion = isset($_POST['puntuacion']) ? (int)$_POST['puntuacion'] : 0;
 $comentario = trim($_POST['comentario'] ?? '');
 
-if ($id_recambio <= 0) {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'message' => 'Recambio no válido.']);
-    exit;
-}
-
 if ($puntuacion < 1 || $puntuacion > 5 || $comentario === '') {
     http_response_code(400);
-    echo json_encode(['ok' => false, 'message' => 'Debes indicar una puntuación entre 1 y 5 y escribir un comentario.']);
+    echo json_encode(['ok' => false, 'message' => 'Puntuación (1-5) y comentario obligatorio.']);
     exit;
 }
 
 $comentario_esc = mysqli_real_escape_string($conexion, $comentario);
 
-$sql_ins = "INSERT INTO resenas_recambios (id_usuario, id_recambio, puntuacion, comentario)
-            VALUES ($id_usuario, $id_recambio, $puntuacion, '$comentario_esc')";
+$sql = "INSERT INTO resenas_recambios (id_usuario, id_recambio, puntuacion, comentario)
+        VALUES ($id_usuario, $id_recambio, $puntuacion, '$comentario_esc')";
 
-$ok = mysqli_query($conexion, $sql_ins);
+$ok = mysqli_query($conexion, $sql);
 
 if (!$ok) {
     http_response_code(500);
@@ -47,19 +47,15 @@ if (!$ok) {
     exit;
 }
 
-$id_resena = (int)mysqli_insert_id($conexion);
-
-$sql_get = "SELECT rr.id_resena, rr.puntuacion, rr.comentario, rr.fecha_resena, u.nombre AS nombre_usuario
-            FROM resenas_recambios rr
-            JOIN usuarios u ON rr.id_usuario = u.id_usuario
-            WHERE rr.id_resena = $id_resena
-            LIMIT 1";
-
-$res_get = mysqli_query($conexion, $sql_get);
-$row = ($res_get && mysqli_num_rows($res_get) > 0) ? mysqli_fetch_assoc($res_get) : null;
+$nombre_usuario = $_SESSION['usuario_nombre'] ?? 'Usuario';
 
 echo json_encode([
     'ok' => true,
     'message' => 'Reseña guardada correctamente.',
-    'resena' => $row
+    'resena' => [
+        'nombre_usuario' => $nombre_usuario,
+        'puntuacion' => $puntuacion,
+        'comentario' => $comentario,
+        'fecha_resena' => date('Y-m-d H:i:s')
+    ]
 ]);

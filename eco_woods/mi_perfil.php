@@ -385,7 +385,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
 <footer>
     <div class="contenedor">
-        ECO & WOODS - Proyecto Trabajo Fin de Grado
+        GR-Inn - Proyecto Trabajo Fin de Grado
     </div>
 </footer>
 

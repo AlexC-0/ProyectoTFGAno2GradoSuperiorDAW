@@ -187,7 +187,7 @@ if (isset($_SESSION['usuario_id'])) {
 
 <footer>
     <div class="contenedor">
-        ECO & WOODS - Proyecto Trabajo Fin de Grado
+        GR-Inn - Proyecto Trabajo Fin de Grado
     </div>
 </footer>
 

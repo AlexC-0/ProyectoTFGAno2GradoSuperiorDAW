@@ -514,7 +514,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <footer>
     <div class="contenedor">
-        ECO & WOODS - Proyecto Trabajo Fin de Grado
+        GR-Inn - Proyecto Trabajo Fin de Grado
     </div>
 </footer>
 

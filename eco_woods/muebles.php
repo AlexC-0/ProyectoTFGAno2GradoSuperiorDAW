@@ -60,7 +60,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ECO & WOODS - Muebles</title>
+    <title>GR-Inn - Muebles</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -287,7 +287,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
 
 <footer>
     <div class="contenedor">
-        ECO & WOODS - Proyecto Trabajo Fin de Grado
+        GR-Inn - Proyecto Trabajo Fin de Grado
     </div>
 </footer>
 

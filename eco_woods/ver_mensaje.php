@@ -10,7 +10,6 @@ require 'conexion.php';
 
 $id_usuario_actual = (int)$_SESSION['usuario_id'];
 
-// Comprobar parámetro id del mensaje
 if (!isset($_GET['id'])) {
     header("Location: mi_perfil.php");
     exit;
@@ -18,7 +17,6 @@ if (!isset($_GET['id'])) {
 
 $id_mensaje = (int)$_GET['id'];
 
-// Cargar datos del mensaje + remitente + destinatario + mueble (si lo hay)
 $sql = "SELECT msg.*,
                ur.nombre AS nombre_remitente,
                ud.nombre AS nombre_destinatario,
@@ -39,15 +37,13 @@ if (!$res || mysqli_num_rows($res) === 0) {
 
 $mensaje = mysqli_fetch_assoc($res);
 
-// Comprobar que el usuario actual es remitente o destinatario
-$id_remitente   = (int)$mensaje['id_remitente'];
-$id_destinatario= (int)$mensaje['id_destinatario'];
+$id_remitente    = (int)$mensaje['id_remitente'];
+$id_destinatario = (int)$mensaje['id_destinatario'];
 
 if ($id_usuario_actual !== $id_remitente && $id_usuario_actual !== $id_destinatario) {
     die("No tienes permiso para ver este mensaje.");
 }
 
-// Si soy el destinatario y el mensaje no estaba leído, marcar como leído
 if ($id_usuario_actual === $id_destinatario && (int)$mensaje['leido'] === 0) {
     $sql_leido = "UPDATE mensajes SET leido = 1 WHERE id_mensaje = $id_mensaje LIMIT 1";
     mysqli_query($conexion, $sql_leido);
@@ -56,9 +52,6 @@ if ($id_usuario_actual === $id_destinatario && (int)$mensaje['leido'] === 0) {
 $errores = [];
 $exito   = "";
 
-// Preparar datos para la respuesta
-// Si yo soy el remitente original, responderé al destinatario.
-// Si yo soy el destinatario original, responderé al remitente.
 if ($id_usuario_actual === $id_remitente) {
     $id_destinatario_respuesta = $id_destinatario;
 } else {
@@ -67,7 +60,6 @@ if ($id_usuario_actual === $id_remitente) {
 
 $id_mueble_asociado = !empty($mensaje['id_mueble']) ? (int)$mensaje['id_mueble'] : null;
 
-// Asunto de respuesta (RE: ...)
 $asunto_original = $mensaje['asunto'];
 if (strpos($asunto_original, 'RE: ') === 0) {
     $asunto_respuesta = $asunto_original;
@@ -75,7 +67,6 @@ if (strpos($asunto_original, 'RE: ') === 0) {
     $asunto_respuesta = 'RE: ' . $asunto_original;
 }
 
-// Envío de respuesta
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cuerpo = trim($_POST['cuerpo'] ?? '');
 
@@ -117,11 +108,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <header>
     <div class="contenedor">
 
-    <h1 style="display:flex; align-items:center;">
-        <img src="uploads/Verde.png"
-            alt="ECO & WOODS"
-            style="height:180px; width:auto; object-fit:contain; display:block;">
-    </h1>
+        <h1 style="display:flex; align-items:center;">
+            <img src="uploads/Verde.png"
+                 alt="ECO & WOODS"
+                 style="height:180px; width:auto; object-fit:contain; display:block;">
+        </h1>
 
         <nav>
             <a href="index.php">Inicio</a>
@@ -147,7 +138,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <main>
     <div class="contenedor">
 
-        <p><a href="mi_perfil.php">← Volver a mi perfil</a></p>
+        <div style="margin-bottom:20px;">
+            <a href="mi_perfil.php" class="btn">Volver a mi perfil</a>
+        </div>
 
         <article class="tarjeta">
             <h1><?php echo htmlspecialchars($mensaje['asunto']); ?></h1>

@@ -36,7 +36,7 @@ $resultado = mysqli_query($conexion, $sql);
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Recambios 3D ECO & WOODS</title>
+    <title>Recambios 3D GR-Inn</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -46,7 +46,7 @@ $resultado = mysqli_query($conexion, $sql);
 
     <h1 style="display:flex; align-items:center;">
         <img src="uploads/Verde.png"
-            alt="ECO & WOODS"
+            alt="GR-Inn"
             style="height:180px; width:auto; object-fit:contain; display:block;">
     </h1>
 
@@ -207,7 +207,7 @@ $resultado = mysqli_query($conexion, $sql);
 
 <footer>
     <div class="contenedor">
-        ECO & WOODS - Proyecto Trabajo Fin de Grado
+        GR-Inn - Proyecto Trabajo Fin de Grado
     </div>
 </footer>
 

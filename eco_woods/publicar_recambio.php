@@ -129,8 +129,7 @@ if (!empty($mensaje)) {
 
 <footer>
     <div class="contenedor">
-        ECO & WOODS - Proyecto Trabajo Fin de Grado
-    </div>
+        GR-Inn - Proyecto Trabajo Fin de Grado
 </footer>
 
 </body>

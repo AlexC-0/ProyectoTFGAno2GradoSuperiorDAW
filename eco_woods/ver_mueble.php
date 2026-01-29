@@ -1,5 +1,3 @@
-codigo de ver_mueble.php
-
 <?php
 session_start();
 require 'conexion.php';
@@ -91,6 +89,8 @@ $sql_lista_resenas = "SELECT r.*, u.nombre AS nombre_usuario
                       ORDER BY r.fecha_resena DESC";
 
 $res_resenas = mysqli_query($conexion, $sql_lista_resenas);
+
+$loggedIn = isset($_SESSION['usuario_id']);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -147,8 +147,10 @@ $res_resenas = mysqli_query($conexion, $sql_lista_resenas);
 <main>
     <div class="contenedor">
 
-        <p><a href="index.php">Volver al inicio</a></p>
-        <p><a href="muebles.php">Volver al listado de muebles</a></p>
+        <p>
+            <a href="index.php" class="btn-ver">Volver al inicio</a>
+            <a href="muebles.php" class="btn-ver">Volver al listado de muebles</a>
+        </p>
 
         <!-- Toast / mensaje flotante -->
         <div id="toastCarrito" class="toast-carrito" style="display:none;"></div>
@@ -185,19 +187,63 @@ $res_resenas = mysqli_query($conexion, $sql_lista_resenas);
             <p><strong>Vendedor:</strong> <?php echo htmlspecialchars($mueble['nombre_vendedor']); ?></p>
             <p><strong>Fecha de publicación:</strong> <?php echo htmlspecialchars($mueble['fecha_publicacion']); ?></p>
 
-            <?php if (isset($_SESSION['usuario_id'])): ?>
-                <div class="tarjeta-footer">
-                    <!-- Botón icono carrito para el MUEBLE -->
+            <div class="tarjeta-footer" style="display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap; margin-top:14px;">
+
+                <!-- IZQUIERDA: COMPARTIR -->
+                <div style="display:flex; flex-direction:column; align-items:flex-start; gap:8px;">
+                    <div style="background:#1F3D2A; color:#fff; padding:8px 12px; border-radius:10px; font-weight:700;">
+                        Compartir:
+                    </div>
+
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-start;">
+                        <button type="button"
+                                class="btn-share btn-share-mail"
+                                aria-label="Compartir por email"
+                                style="background:#1F3D2A; border-radius:999px; padding:10px 12px; border:none; cursor:pointer; color:#fff;">
+                            ✉️ Email
+                        </button>
+
+                        <button type="button"
+                                class="btn-share btn-share-whatsapp"
+                                aria-label="Compartir por WhatsApp"
+                                style="background:#1F3D2A; border-radius:999px; padding:10px 12px; border:none; cursor:pointer; color:#fff;">
+                            💬 WhatsApp
+                        </button>
+
+                        <button type="button"
+                                class="btn-share btn-share-instagram"
+                                aria-label="Compartir en Instagram"
+                                style="background:#1F3D2A; border-radius:999px; padding:10px 12px; border:none; cursor:pointer; color:#fff;">
+                            📷 Instagram
+                        </button>
+                    </div>
+                </div>
+
+                <!-- DERECHA: CARRITO -->
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
                     <button type="button"
                             class="btn-carrito-icono btn-carrito-mueble"
                             data-id="<?php echo (int)$id_mueble; ?>"
-                            aria-label="Añadir mueble al carrito">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            aria-label="Añadir mueble al carrito"
+                            style="
+                                background:#4F6F52;
+                                border-radius:50%;
+                                width:60px;
+                                height:60px;
+                                border:none;
+                                cursor:pointer;
+                                color:#fff;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                            ">
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="margin-left:-7px;">
                             <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
                         </svg>
                     </button>
                 </div>
-            <?php endif; ?>
+
+            </div>
 
             <?php
             if (isset($_SESSION['usuario_id'])) {
@@ -205,7 +251,7 @@ $res_resenas = mysqli_query($conexion, $sql_lista_resenas);
 
                 if ($id_usuario_sesion !== $id_vendedor) {
                     ?>
-                    <p>
+                    <p style="text-align:right; margin-top:22px;">
                         <a class="btn-ver"
                            href="enviar_mensaje.php?id_mueble=<?php echo (int)$id_mueble; ?>">
                             Contactar con el vendedor
@@ -382,6 +428,7 @@ $res_resenas = mysqli_query($conexion, $sql_lista_resenas);
 
 <script>
 (function () {
+    const loggedIn = <?php echo $loggedIn ? 'true' : 'false'; ?>;
     const toast = document.getElementById('toastCarrito');
 
     function showToast(text, ok=true) {
@@ -423,6 +470,10 @@ $res_resenas = mysqli_query($conexion, $sql_lista_resenas);
     const botonesMueble = document.querySelectorAll('.btn-carrito-mueble');
     botonesMueble.forEach(btn => {
         btn.addEventListener('click', async () => {
+            if (!loggedIn) {
+                window.location.href = 'login.php';
+                return;
+            }
             const id = btn.getAttribute('data-id');
             if (!id) return;
             btn.disabled = true;
@@ -434,6 +485,10 @@ $res_resenas = mysqli_query($conexion, $sql_lista_resenas);
     const botonesRecambio = document.querySelectorAll('.btn-carrito-recambio');
     botonesRecambio.forEach(btn => {
         btn.addEventListener('click', async () => {
+            if (!loggedIn) {
+                window.location.href = 'login.php';
+                return;
+            }
             const id = btn.getAttribute('data-id');
             if (!id) return;
             btn.disabled = true;
@@ -441,6 +496,67 @@ $res_resenas = mysqli_query($conexion, $sql_lista_resenas);
             btn.disabled = false;
         });
     });
+
+    function getShareData() {
+        const url = window.location.href;
+        const titulo = <?php echo json_encode($mueble['titulo'] ?? 'Mueble'); ?>;
+        const texto = `Mira este anuncio en ECO & WOODS: ${titulo}`;
+        return { url, titulo, texto };
+    }
+
+    function openPopup(url) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    async function copyLink(url) {
+        try {
+            await navigator.clipboard.writeText(url);
+            showToast('Enlace copiado. Pégalo donde quieras.', true);
+            return true;
+        } catch (e) {
+            showToast('No se pudo copiar el enlace.', false);
+            return false;
+        }
+    }
+
+    const btnMail = document.querySelector('.btn-share-mail');
+    const btnWa = document.querySelector('.btn-share-whatsapp');
+    const btnIg = document.querySelector('.btn-share-instagram');
+
+    if (btnMail) {
+        btnMail.addEventListener('click', () => {
+            const d = getShareData();
+            const subject = encodeURIComponent(d.titulo);
+            const body = encodeURIComponent(d.texto + "\n\n" + d.url);
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        });
+    }
+
+    if (btnWa) {
+        btnWa.addEventListener('click', () => {
+            const d = getShareData();
+            const text = encodeURIComponent(d.texto + " " + d.url);
+            openPopup(`https://wa.me/?text=${text}`);
+        });
+    }
+
+    if (btnIg) {
+        btnIg.addEventListener('click', async () => {
+            const d = getShareData();
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: d.titulo, text: d.texto, url: d.url });
+                    return;
+                } catch (e) {}
+            }
+
+            const ok = await copyLink(d.url);
+            if (ok) {
+                openPopup('https://www.instagram.com/');
+            }
+        });
+    }
 })();
 </script>
 

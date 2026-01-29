@@ -361,7 +361,7 @@ $es_admin = (!empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1);
 
 <footer>
     <div class="contenedor">
-        ECO & WOODS - Proyecto Trabajo Fin de Grado
+        GR-Inn - Proyecto Trabajo Fin de Grado
     </div>
 </footer>
 

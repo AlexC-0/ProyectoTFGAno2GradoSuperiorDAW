@@ -5,7 +5,7 @@ session_start();
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ECO & WOODS - Inicio</title>
+    <title>GR-Inn - Inicio</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -15,7 +15,7 @@ session_start();
 
         <h1 style="display:flex; align-items:center;">
             <img src="uploads/Verde.png"
-                 alt="ECO & WOODS"
+                 alt="GR-Inn"
                  style="height:180px; width:auto; object-fit:contain; display:block;">
         </h1>
 
@@ -63,7 +63,7 @@ session_start();
 
         <!-- TARJETA 1: Presentación -->
         <div class="tarjeta">
-            <h2>ECO & WOODS</h2>
+            <h2>GR-Inn</h2>
             <p>
                 Plataforma para la compra y venta de muebles de segunda mano y recambios impresos en 3D.
                 Un espacio sencillo, intuitivo y orientado a dar una segunda vida al mobiliario con confianza.
@@ -111,7 +111,7 @@ session_start();
             <h2>Segunda vida, mejor impacto</h2>
             <p>
                 Reutilizar reduce residuos, ahorra recursos y mantiene el valor de productos que todavía pueden usarse.
-                ECO & WOODS está orientada a facilitar ese proceso con una experiencia práctica y directa.
+                GR-Inn está orientada a facilitar ese proceso con una experiencia práctica y directa.
             </p>
         </div>
 
@@ -133,7 +133,7 @@ session_start();
 <footer>
     <div class="contenedor footer-flex">
         <div class="footer-texto">
-            ECO & WOODS - Proyecto Trabajo Fin de Grado
+            GR-Inn - Proyecto Trabajo Fin de Grado
         </div>
 
         <div class="footer-contacto">
