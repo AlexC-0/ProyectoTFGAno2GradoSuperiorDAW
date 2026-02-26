@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
 require_once "conexion.php";
 
 header('Content-Type: application/json; charset=utf-8');
@@ -22,18 +22,29 @@ if (!isset($_SESSION['usuario_id'])) {
 
 $id_usuario = (int)$_SESSION['usuario_id'];
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !csrf_validate($_POST['csrf_token'] ?? null)) {
+    http_response_code(419);
+    echo json_encode([
+        "ok" => false,
+        "message" => "Sesion expirada. Recarga la pagina e intentalo de nuevo."
+    ]);
+    exit;
+}
+
+$source = ($_SERVER['REQUEST_METHOD'] === 'POST') ? $_POST : $_GET;
+
 /* ============================
    DETERMINAR TIPO FAVORITO
    ============================ */
 $tipo = null;
 $id_producto = 0;
 
-if (isset($_GET['id_mueble'])) {
+if (isset($source['id_mueble'])) {
     $tipo = 'mueble';
-    $id_producto = (int)$_GET['id_mueble'];
-} elseif (isset($_GET['id_recambio'])) {
+    $id_producto = (int)$source['id_mueble'];
+} elseif (isset($source['id_recambio'])) {
     $tipo = 'recambio';
-    $id_producto = (int)$_GET['id_recambio'];
+    $id_producto = (int)$source['id_recambio'];
 } else {
     http_response_code(400);
     echo json_encode([

@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 
 // Comprobar que llega el id del mueble
@@ -429,6 +429,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
 <script>
 (function () {
     const loggedIn = <?php echo $loggedIn ? 'true' : 'false'; ?>;
+    const csrfToken = <?php echo json_encode(csrf_token()); ?>;
     const toast = document.getElementById('toastCarrito');
 
     function showToast(text, ok=true) {
@@ -443,14 +444,16 @@ $loggedIn = isset($_SESSION['usuario_id']);
         }, 2200);
     }
 
-    async function addToCarrito(url) {
+    async function addToCarrito(tipo, id) {
         try {
-            const resp = await fetch(url, {
-                method: 'GET',
+            const resp = await fetch('add_carrito.php', {
+                method: 'POST',
                 headers: {
                     'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                body: tipo + '=' + encodeURIComponent(id) + '&csrf_token=' + encodeURIComponent(csrfToken)
             });
 
             const data = await resp.json().catch(() => null);
@@ -477,7 +480,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
             const id = btn.getAttribute('data-id');
             if (!id) return;
             btn.disabled = true;
-            await addToCarrito('add_carrito.php?id_mueble=' + encodeURIComponent(id));
+            await addToCarrito('id_mueble', id);
             btn.disabled = false;
         });
     });
@@ -492,7 +495,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
             const id = btn.getAttribute('data-id');
             if (!id) return;
             btn.disabled = true;
-            await addToCarrito('add_carrito.php?id_recambio=' + encodeURIComponent(id));
+            await addToCarrito('id_recambio', id);
             btn.disabled = false;
         });
     });

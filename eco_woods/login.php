@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 
 $errores = [];
@@ -23,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
 
         if ($usuario && password_verify($password, $usuario['password'])) {
+            session_regenerate_id(true);
             $_SESSION['usuario_id']     = $usuario['id_usuario'];
             $_SESSION['usuario_nombre'] = $usuario['nombre'];
             $_SESSION['usuario_email']  = $usuario['email'];

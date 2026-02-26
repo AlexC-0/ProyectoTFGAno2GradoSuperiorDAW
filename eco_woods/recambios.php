@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
 require_once "conexion.php";
 
 function columnExists($conexion, $tabla, $columna) {
@@ -217,6 +217,7 @@ $resultado = mysqli_query($conexion, $sql);
 <script>
 (function () {
     const toast = document.getElementById('toastGlobal');
+    const csrfToken = <?php echo json_encode(csrf_token()); ?>;
 
     function showToast(text, ok=true) {
         toast.textContent = text;
@@ -238,12 +239,14 @@ $resultado = mysqli_query($conexion, $sql);
             btn.disabled = true;
 
             try {
-                const resp = await fetch('add_carrito.php?id_recambio=' + encodeURIComponent(id), {
-                    method: 'GET',
+                const resp = await fetch('add_carrito.php', {
+                    method: 'POST',
                     headers: {
                         'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: 'id_recambio=' + encodeURIComponent(id) + '&csrf_token=' + encodeURIComponent(csrfToken)
                 });
 
                 const data = await resp.json().catch(() => null);

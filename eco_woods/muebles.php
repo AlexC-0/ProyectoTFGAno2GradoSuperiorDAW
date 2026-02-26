@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
 require_once "conexion.php";
 
 $favoritos_usuario = [];
@@ -297,6 +297,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
 <script>
 (function () {
     const toast = document.getElementById('toastGlobal');
+    const csrfToken = <?php echo json_encode(csrf_token()); ?>;
 
     function showToast(text, ok=true) {
         toast.textContent = text;
@@ -320,12 +321,14 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
             btn.disabled = true;
 
             try {
-                const resp = await fetch('add_carrito.php?id_mueble=' + encodeURIComponent(id), {
-                    method: 'GET',
+                const resp = await fetch('add_carrito.php', {
+                    method: 'POST',
                     headers: {
                         'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: 'id_mueble=' + encodeURIComponent(id) + '&csrf_token=' + encodeURIComponent(csrfToken)
                 });
 
                 const data = await resp.json().catch(() => null);
@@ -357,12 +360,14 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
             a.classList.add('cargando');
 
             try {
-                const resp = await fetch('toggle_favorito.php?id_mueble=' + encodeURIComponent(id), {
-                    method: 'GET',
+                const resp = await fetch('toggle_favorito.php', {
+                    method: 'POST',
                     headers: {
                         'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: 'id_mueble=' + encodeURIComponent(id) + '&csrf_token=' + encodeURIComponent(csrfToken)
                 });
 
                 const data = await resp.json().catch(() => null);

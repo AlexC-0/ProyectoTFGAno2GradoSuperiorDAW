@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
 require_once "conexion.php";
 
 function columnExists($conexion, $tabla, $columna) {
@@ -288,6 +288,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 <script>
 (function () {
     const loggedIn = <?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>;
+    const csrfToken = <?php echo json_encode(csrf_token()); ?>;
 
     const toastCarrito = document.getElementById('toastCarrito');
     const toastResena = document.getElementById('toastResena');
@@ -305,14 +306,16 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
         }, 2200);
     }
 
-    async function addToCarrito(url) {
+    async function addToCarrito(id) {
         try {
-            const resp = await fetch(url, {
-                method: 'GET',
+            const resp = await fetch('add_carrito.php', {
+                method: 'POST',
                 headers: {
                     'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                body: 'id_recambio=' + encodeURIComponent(id) + '&csrf_token=' + encodeURIComponent(csrfToken)
             });
 
             const data = await resp.json().catch(() => null);
@@ -341,7 +344,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
             if (!id) return;
 
             btnCarrito.disabled = true;
-            await addToCarrito('add_carrito.php?id_recambio=' + encodeURIComponent(id));
+            await addToCarrito(id);
             btnCarrito.disabled = false;
         });
     }
