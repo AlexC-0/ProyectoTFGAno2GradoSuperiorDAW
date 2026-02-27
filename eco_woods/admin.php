@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 
 // Solo admins pueden entrar aquí
@@ -182,11 +182,13 @@ $es_admin = (!empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1);
                                 </td>
                                 <td>
                                     <?php if ((int)$u['id_usuario'] !== 1): ?>
-                                        <a class="btn-eliminar"
-                                           href="admin_borrar_usuario.php?id_usuario=<?php echo (int)$u['id_usuario']; ?>"
-                                           onclick="return confirm('¿Seguro que quieres eliminar este usuario y todos sus datos asociados (muebles, reseñas, favoritos)?');">
-                                            Eliminar
-                                        </a>
+                                        <form action="admin_borrar_usuario.php" method="post" style="margin:0;">
+    <input type="hidden" name="id_usuario" value="<?php echo (int)$u['id_usuario']; ?>">
+    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+    <button class="btn-eliminar" type="submit" onclick="return confirm('Confirmar eliminacion de usuario y datos asociados?');">
+        Eliminar
+    </button>
+</form>
                                     <?php else: ?>
                                         -
                                     <?php endif; ?>
@@ -247,11 +249,13 @@ $es_admin = (!empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1);
                                     </a>
                                 </td>
                                 <td>
-                                    <a class="btn-eliminar"
-                                       href="admin_borrar_mueble.php?id_mueble=<?php echo (int)$m['id_mueble']; ?>"
-                                       onclick="return confirm('¿Seguro que quieres eliminar este mueble y sus reseñas/favoritos?');">
-                                        Eliminar
-                                    </a>
+                                    <form action="admin_borrar_mueble.php" method="post" style="margin:0;">
+    <input type="hidden" name="id_mueble" value="<?php echo (int)$m['id_mueble']; ?>">
+    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+    <button class="btn-eliminar" type="submit" onclick="return confirm('Confirmar eliminacion de mueble y datos relacionados?');">
+        Eliminar
+    </button>
+</form>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -292,11 +296,13 @@ $es_admin = (!empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1);
                                     echo number_format($precioRec, 2, ',', '.'); ?> €
                                 </td>
                                 <td>
-                                    <a class="btn-eliminar"
-                                       href="admin_borrar_recambio.php?id_recambio=<?php echo (int)$r['id_recambio']; ?>"
-                                       onclick="return confirm('¿Seguro que quieres eliminar este recambio 3D?');">
-                                        Eliminar
-                                    </a>
+                                    <form action="admin_borrar_recambio.php" method="post" style="margin:0;">
+    <input type="hidden" name="id_recambio" value="<?php echo (int)$r['id_recambio']; ?>">
+    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+    <button class="btn-eliminar" type="submit" onclick="return confirm('Confirmar eliminacion del recambio?');">
+        Eliminar
+    </button>
+</form>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -339,11 +345,13 @@ $es_admin = (!empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1);
                                 <td><?php echo htmlspecialchars($r['comentario']); ?></td>
                                 <td><?php echo htmlspecialchars($r['fecha_resena']); ?></td>
                                 <td>
-                                    <a class="btn-eliminar"
-                                       href="admin_borrar_resena.php?id_resena=<?php echo (int)$r['id_resena']; ?>"
-                                       onclick="return confirm('¿Seguro que quieres eliminar esta reseña?');">
-                                        Eliminar
-                                    </a>
+                                    <form action="admin_borrar_resena.php" method="post" style="margin:0;">
+    <input type="hidden" name="id_resena" value="<?php echo (int)$r['id_resena']; ?>">
+    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+    <button class="btn-eliminar" type="submit" onclick="return confirm('Confirmar eliminacion de la resena?');">
+        Eliminar
+    </button>
+</form>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -370,3 +378,4 @@ $es_admin = (!empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1);
 
 </body>
 </html>
+

@@ -205,11 +205,13 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                                    href="ver_mueble.php?id_mueble=<?php echo (int)$m['id_mueble']; ?>">
                                     Ver mueble
                                 </a>
-                                <a class="btn-eliminar"
-                                   href="eliminar_mueble.php?id_mueble=<?php echo (int)$m['id_mueble']; ?>"
-                                   onclick="return confirm('¿Seguro que quieres eliminar este mueble y sus reseñas/favoritos?');">
-                                    Eliminar
-                                </a>
+                                <form action="eliminar_mueble.php" method="post" style="margin:0;">
+    <input type="hidden" name="id_mueble" value="<?php echo (int)$m['id_mueble']; ?>">
+    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+    <button class="btn-eliminar" type="submit" onclick="return confirm('Confirmar eliminacion de mueble y datos relacionados?');">
+        Eliminar
+    </button>
+</form>
                             </div>
 
                         </article>
@@ -300,11 +302,13 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                             <p><small>Fecha reseña: <?php echo htmlspecialchars($r['fecha_resena']); ?></small></p>
 
                             <div class="tarjeta-footer">
-                                <a class="btn-eliminar"
-                                   href="eliminar_resena.php?id_resena=<?php echo (int)$r['id_resena']; ?>"
-                                   onclick="return confirm('¿Seguro que quieres eliminar esta reseña?');">
-                                    Eliminar reseña
-                                </a>
+                                <form action="eliminar_resena.php" method="post" style="margin:0;">
+    <input type="hidden" name="id_resena" value="<?php echo (int)$r['id_resena']; ?>">
+    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+    <button class="btn-eliminar" type="submit" onclick="return confirm('Confirmar eliminacion de resena?');">
+        Eliminar resena
+    </button>
+</form>
                             </div>
                         </article>
                     <?php endwhile; ?>
@@ -394,3 +398,4 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
 </body>
 </html>
+

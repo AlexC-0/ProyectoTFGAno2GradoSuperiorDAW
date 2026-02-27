@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 
 // Solo admin
@@ -7,13 +7,23 @@ if (!isset($_SESSION['es_admin']) || (int)$_SESSION['es_admin'] !== 1) {
     die("Acceso denegado");
 }
 
-// Comprobar que llega el usuario
-if (!isset($_GET['id_usuario'])) {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: admin.php?seccion=usuarios");
     exit;
 }
 
-$id_usuario = (int)$_GET['id_usuario'];
+if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+    header("Location: admin.php?seccion=usuarios");
+    exit;
+}
+
+// Comprobar que llega el usuario
+if (!isset($_POST['id_usuario'])) {
+    header("Location: admin.php?seccion=usuarios");
+    exit;
+}
+
+$id_usuario = (int)$_POST['id_usuario'];
 
 // Opcional: evitar eliminar al admin principal (id 1)
 if ($id_usuario === 1) {

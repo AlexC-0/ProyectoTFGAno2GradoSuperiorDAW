@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 
 // Solo admin
@@ -7,13 +7,23 @@ if (!isset($_SESSION['es_admin']) || (int)$_SESSION['es_admin'] !== 1) {
     die("Acceso denegado");
 }
 
-// Comprobar que llega el mueble
-if (!isset($_GET['id_mueble'])) {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: admin.php?seccion=muebles");
     exit;
 }
 
-$id_mueble = (int)$_GET['id_mueble'];
+if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+    header("Location: admin.php?seccion=muebles");
+    exit;
+}
+
+// Comprobar que llega el mueble
+if (!isset($_POST['id_mueble'])) {
+    header("Location: admin.php?seccion=muebles");
+    exit;
+}
+
+$id_mueble = (int)$_POST['id_mueble'];
 
 // 1) Buscar el mueble para confirmar que existe
 $sql_mueble = "SELECT id_mueble

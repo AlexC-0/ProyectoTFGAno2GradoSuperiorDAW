@@ -1,17 +1,27 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 
 if (!isset($_SESSION['es_admin']) || (int)$_SESSION['es_admin'] !== 1) {
     die("Acceso denegado");
 }
 
-if (!isset($_GET['id_recambio'])) {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: admin.php?seccion=recambios");
     exit;
 }
 
-$id_recambio = (int)$_GET['id_recambio'];
+if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+    header("Location: admin.php?seccion=recambios");
+    exit;
+}
+
+if (!isset($_POST['id_recambio'])) {
+    header("Location: admin.php?seccion=recambios");
+    exit;
+}
+
+$id_recambio = (int)$_POST['id_recambio'];
 
 $sql_rec = "SELECT id_recambio
             FROM recambios3d

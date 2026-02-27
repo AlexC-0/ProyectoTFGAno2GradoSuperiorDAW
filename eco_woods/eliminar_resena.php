@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 
 // Comprobar login
@@ -11,13 +11,23 @@ if (!isset($_SESSION['usuario_id'])) {
 $id_usuario_sesion = (int)$_SESSION['usuario_id'];
 $es_admin          = !empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1;
 
-// Comprobar que llega la reseña
-if (!isset($_GET['id_resena'])) {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: index.php");
     exit;
 }
 
-$id_resena = (int)$_GET['id_resena'];
+if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+    header("Location: index.php");
+    exit;
+}
+
+// Comprobar que llega la reseña
+if (!isset($_POST['id_resena'])) {
+    header("Location: index.php");
+    exit;
+}
+
+$id_resena = (int)$_POST['id_resena'];
 
 // 1) Buscar la reseña para saber de quién es y a qué mueble pertenece
 $sql_resena = "SELECT id_resena, id_usuario, id_mueble

@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 
 // Comprobar login
@@ -11,13 +11,23 @@ if (!isset($_SESSION['usuario_id'])) {
 $id_usuario_sesion = (int)$_SESSION['usuario_id'];
 $es_admin          = !empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1;
 
-// Comprobar que llega el mueble
-if (!isset($_GET['id_mueble'])) {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: index.php");
     exit;
 }
 
-$id_mueble = (int)$_GET['id_mueble'];
+if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+    header("Location: index.php");
+    exit;
+}
+
+// Comprobar que llega el mueble
+if (!isset($_POST['id_mueble'])) {
+    header("Location: index.php");
+    exit;
+}
+
+$id_mueble = (int)$_POST['id_mueble'];
 
 // 1) Buscar el mueble para saber de quién es
 $sql_mueble = "SELECT id_mueble, id_usuario
