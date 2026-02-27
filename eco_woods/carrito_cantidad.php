@@ -1,23 +1,28 @@
 <?php
-session_start();
-require_once "conexion.php";
+require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/http.php';
+require_once __DIR__ . '/includes/validators.php';
+require_once 'conexion.php';
 
-header('Content-Type: application/json; charset=utf-8');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    ew_json_error('Metodo no permitido.', 405);
+}
 
-if (!isset($_SESSION['usuario_id'])) {
-    http_response_code(401);
-    echo json_encode(["ok" => false, "message" => "Debes iniciar sesión."]);
-    exit;
+if (!ew_is_logged_in()) {
+    ew_json_error('Debes iniciar sesion.', 401);
+}
+
+if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+    ew_json_error('Sesion expirada. Recarga la pagina e intentalo de nuevo.', 419);
 }
 
 $id_usuario = (int)$_SESSION['usuario_id'];
-$id_item = isset($_POST['id_item']) ? (int)$_POST['id_item'] : 0;
-$accion = $_POST['accion'] ?? '';
+$id_item = ew_post_int('id_item');
+$accion = ew_post_string('accion');
 
 if ($id_item <= 0 || ($accion !== 'mas' && $accion !== 'menos')) {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "message" => "Datos no válidos."]);
-    exit;
+    ew_json_error('Datos no validos.', 400);
 }
 
 $sql_carrito = "SELECT id_carrito FROM carritos
@@ -25,10 +30,8 @@ $sql_carrito = "SELECT id_carrito FROM carritos
                 LIMIT 1";
 $res_carrito = mysqli_query($conexion, $sql_carrito);
 
-if (!$res_carrito || mysqli_num_rows($res_carrito) == 0) {
-    http_response_code(404);
-    echo json_encode(["ok" => false, "message" => "No tienes carrito activo."]);
-    exit;
+if (!$res_carrito || mysqli_num_rows($res_carrito) === 0) {
+    ew_json_error('No tienes carrito activo.', 404);
 }
 
 $fila_carrito = mysqli_fetch_assoc($res_carrito);
@@ -44,37 +47,27 @@ $sql_item = "SELECT ci.id_item, ci.cantidad, ci.id_recambio, ci.id_mueble,
              LIMIT 1";
 $res_item = mysqli_query($conexion, $sql_item);
 
-if (!$res_item || mysqli_num_rows($res_item) == 0) {
-    http_response_code(404);
-    echo json_encode(["ok" => false, "message" => "El item no existe en tu carrito."]);
-    exit;
+if (!$res_item || mysqli_num_rows($res_item) === 0) {
+    ew_json_error('El item no existe en tu carrito.', 404);
 }
 
 $item = mysqli_fetch_assoc($res_item);
 $cantidad = (int)$item['cantidad'];
-
-if ($accion === 'mas') {
-    $cantidad_nueva = $cantidad + 1;
-} else {
-    $cantidad_nueva = $cantidad - 1;
-}
+$cantidad_nueva = ($accion === 'mas') ? ($cantidad + 1) : ($cantidad - 1);
 
 if ($cantidad_nueva <= 0) {
     $sql_del = "DELETE FROM carrito_items WHERE id_item = $id_item AND id_carrito = $id_carrito";
     $ok_del = mysqli_query($conexion, $sql_del);
 
     if (!$ok_del) {
-        http_response_code(500);
-        echo json_encode(["ok" => false, "message" => "Error al eliminar el producto."]);
-        exit;
+        ew_json_error('Error al eliminar el producto.', 500);
     }
 
-    echo json_encode([
-        "ok" => true,
-        "eliminado" => true,
-        "message" => "Producto eliminado del carrito."
+    ew_json([
+        'ok' => true,
+        'eliminado' => true,
+        'message' => 'Producto eliminado del carrito.',
     ]);
-    exit;
 }
 
 $sql_up = "UPDATE carrito_items
@@ -83,12 +76,10 @@ $sql_up = "UPDATE carrito_items
 $ok_up = mysqli_query($conexion, $sql_up);
 
 if (!$ok_up) {
-    http_response_code(500);
-    echo json_encode(["ok" => false, "message" => "Error al actualizar la cantidad."]);
-    exit;
+    ew_json_error('Error al actualizar la cantidad.', 500);
 }
 
-$precio = 0;
+$precio = 0.0;
 if (!empty($item['id_recambio'])) {
     $precio = (float)$item['precio_recambio'];
 } elseif (!empty($item['id_mueble'])) {
@@ -96,10 +87,10 @@ if (!empty($item['id_recambio'])) {
 }
 $subtotal = $precio * $cantidad_nueva;
 
-echo json_encode([
-    "ok" => true,
-    "eliminado" => false,
-    "cantidad" => $cantidad_nueva,
-    "subtotal" => $subtotal,
-    "message" => "Cantidad actualizada."
+ew_json([
+    'ok' => true,
+    'eliminado' => false,
+    'cantidad' => $cantidad_nueva,
+    'subtotal' => $subtotal,
+    'message' => 'Cantidad actualizada.',
 ]);

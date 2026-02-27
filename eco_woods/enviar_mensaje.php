@@ -1,11 +1,9 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/auth.php';
 
 // Solo usuarios logueados
-if (!isset($_SESSION['usuario_id'])) {
-    header("Location: login.php");
-    exit;
-}
+ew_require_login('login.php');
 
 require 'conexion.php';
 
@@ -44,7 +42,9 @@ $errores = [];
 $exito   = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+    if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+        $errores[] = "Sesion expirada. Recarga la pagina e intentalo de nuevo.";
+    }
     $asunto = trim($_POST['asunto'] ?? '');
     $cuerpo = trim($_POST['cuerpo'] ?? '');
 
@@ -141,6 +141,7 @@ if (empty($asunto)) {
 
         <form action="enviar_mensaje.php?id_mueble=<?php echo (int)$id_mueble; ?>"
               method="post" class="formulario">
+            <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
 
             <p>
                 <label for="asunto">Asunto</label><br>

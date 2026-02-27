@@ -231,10 +231,11 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                                    href="ver_mueble.php?id_mueble=<?php echo (int)$fav['id_mueble']; ?>">
                                     Ver mueble
                                 </a>
-                                <a class="btn-fav es-favorito"
-                                   href="toggle_favorito.php?id_mueble=<?php echo (int)$fav['id_mueble']; ?>">
-                                    ★ Quitar de favoritos
-                                </a>
+                                <form action="toggle_favorito.php" method="post" style="margin:0;">
+    <input type="hidden" name="id_mueble" value="<?php echo (int)$fav['id_mueble']; ?>">
+    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+    <button type="submit" class="btn-fav es-favorito">Quitar de favoritos</button>
+</form>
                             </div>
 
                         </article>
@@ -352,5 +353,9 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
 </body>
 </html>
+
+
+
+
 
 

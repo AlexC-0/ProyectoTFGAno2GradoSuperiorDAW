@@ -1,13 +1,6 @@
 <?php
-require '../conexion.php';
-
-// Indicamos que la respuesta es JSON
-header('Content-Type: application/json; charset=utf-8');
-
-$respuesta = [
-    'ok'      => false,
-    'muebles' => []
-];
+require_once __DIR__ . '/../conexion.php';
+require_once __DIR__ . '/../includes/http.php';
 
 $sql = "SELECT m.id_mueble,
                m.titulo,
@@ -26,21 +19,15 @@ $sql = "SELECT m.id_mueble,
         FROM muebles m
         JOIN usuarios u ON m.id_usuario = u.id_usuario
         ORDER BY m.fecha_publicacion DESC";
-
 $resultado = mysqli_query($conexion, $sql);
 
+$muebles = [];
 if ($resultado && mysqli_num_rows($resultado) > 0) {
     while ($fila = mysqli_fetch_assoc($resultado)) {
         $fila['id_mueble'] = (int)$fila['id_mueble'];
-        $fila['precio']    = (float)$fila['precio'];
-
-        $respuesta['muebles'][] = $fila;
+        $fila['precio'] = (float)$fila['precio'];
+        $muebles[] = $fila;
     }
-
-    $respuesta['ok'] = true;
-} else {
-    $respuesta['ok'] = true;
-    $respuesta['muebles'] = [];
 }
 
-echo json_encode($respuesta);
+ew_json(['ok' => true, 'muebles' => $muebles]);

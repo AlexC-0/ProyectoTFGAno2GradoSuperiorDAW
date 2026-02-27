@@ -1,31 +1,13 @@
 <?php
-require '../conexion.php';
+require_once __DIR__ . '/../conexion.php';
+require_once __DIR__ . '/../includes/http.php';
+require_once __DIR__ . '/../includes/validators.php';
 
-// Indicamos que la respuesta es JSON
-header('Content-Type: application/json; charset=utf-8');
-
-$respuesta = [
-    'ok'     => false,
-    'mueble' => null,
-    'error'  => ''
-];
-
-// Comprobar que llega id_mueble por GET
-if (!isset($_GET['id_mueble'])) {
-    $respuesta['error'] = 'Parámetro id_mueble obligatorio';
-    echo json_encode($respuesta);
-    exit;
-}
-
-$id_mueble = (int)$_GET['id_mueble'];
-
+$id_mueble = ew_get_int('id_mueble');
 if ($id_mueble <= 0) {
-    $respuesta['error'] = 'id_mueble no válido';
-    echo json_encode($respuesta);
-    exit;
+    ew_json(['ok' => false, 'mueble' => null, 'error' => 'Parametro id_mueble obligatorio'], 400);
 }
 
-// Consulta del mueble (un solo registro)
 $sql = "SELECT m.id_mueble,
                m.id_usuario,
                m.titulo,
@@ -41,29 +23,22 @@ $sql = "SELECT m.id_mueble,
                m.imagen3,
                m.imagen4,
                m.imagen5,
-               u.nombre   AS nombre_vendedor,
-               u.email    AS email_vendedor,
+               u.nombre AS nombre_vendedor,
+               u.email AS email_vendedor,
                u.telefono AS telefono_vendedor
         FROM muebles m
         JOIN usuarios u ON m.id_usuario = u.id_usuario
         WHERE m.id_mueble = $id_mueble
         LIMIT 1";
-
 $resultado = mysqli_query($conexion, $sql);
 
-if ($resultado && mysqli_num_rows($resultado) === 1) {
-    $fila = mysqli_fetch_assoc($resultado);
-
-    // Conversión de tipos básicos
-    $fila['id_mueble']   = (int)$fila['id_mueble'];
-    $fila['id_usuario']  = (int)$fila['id_usuario'];
-    $fila['precio']      = (float)$fila['precio'];
-
-    $respuesta['ok']     = true;
-    $respuesta['mueble'] = $fila;
-} else {
-    $respuesta['ok']    = false;
-    $respuesta['error'] = 'Mueble no encontrado';
+if (!$resultado || mysqli_num_rows($resultado) !== 1) {
+    ew_json(['ok' => false, 'mueble' => null, 'error' => 'Mueble no encontrado'], 404);
 }
 
-echo json_encode($respuesta);
+$fila = mysqli_fetch_assoc($resultado);
+$fila['id_mueble'] = (int)$fila['id_mueble'];
+$fila['id_usuario'] = (int)$fila['id_usuario'];
+$fila['precio'] = (float)$fila['precio'];
+
+ew_json(['ok' => true, 'mueble' => $fila, 'error' => '']);

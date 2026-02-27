@@ -1,22 +1,27 @@
 <?php
-session_start();
-require_once "conexion.php";
+require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/http.php';
+require_once __DIR__ . '/includes/validators.php';
+require_once 'conexion.php';
 
-header('Content-Type: application/json; charset=utf-8');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    ew_json_error('Metodo no permitido.', 405);
+}
 
-if (!isset($_SESSION['usuario_id'])) {
-    http_response_code(401);
-    echo json_encode(["ok" => false, "message" => "Debes iniciar sesión."]);
-    exit;
+if (!ew_is_logged_in()) {
+    ew_json_error('Debes iniciar sesion.', 401);
+}
+
+if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+    ew_json_error('Sesion expirada. Recarga la pagina e intentalo de nuevo.', 419);
 }
 
 $id_usuario = (int)$_SESSION['usuario_id'];
-$id_item = isset($_POST['id_item']) ? (int)$_POST['id_item'] : 0;
+$id_item = ew_post_int('id_item');
 
 if ($id_item <= 0) {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "message" => "Datos no válidos."]);
-    exit;
+    ew_json_error('Datos no validos.', 400);
 }
 
 $sql_carrito = "SELECT id_carrito FROM carritos
@@ -24,10 +29,8 @@ $sql_carrito = "SELECT id_carrito FROM carritos
                 LIMIT 1";
 $res_carrito = mysqli_query($conexion, $sql_carrito);
 
-if (!$res_carrito || mysqli_num_rows($res_carrito) == 0) {
-    http_response_code(404);
-    echo json_encode(["ok" => false, "message" => "No tienes carrito activo."]);
-    exit;
+if (!$res_carrito || mysqli_num_rows($res_carrito) === 0) {
+    ew_json_error('No tienes carrito activo.', 404);
 }
 
 $fila_carrito = mysqli_fetch_assoc($res_carrito);
@@ -38,15 +41,11 @@ $sql_del = "DELETE FROM carrito_items
 $ok_del = mysqli_query($conexion, $sql_del);
 
 if (!$ok_del) {
-    http_response_code(500);
-    echo json_encode(["ok" => false, "message" => "Error al eliminar el producto."]);
-    exit;
+    ew_json_error('Error al eliminar el producto.', 500);
 }
 
 if (mysqli_affected_rows($conexion) === 0) {
-    http_response_code(404);
-    echo json_encode(["ok" => false, "message" => "El item no existe en tu carrito."]);
-    exit;
+    ew_json_error('El item no existe en tu carrito.', 404);
 }
 
-echo json_encode(["ok" => true, "message" => "Producto eliminado del carrito."]);
+ew_json_ok('Producto eliminado del carrito.');

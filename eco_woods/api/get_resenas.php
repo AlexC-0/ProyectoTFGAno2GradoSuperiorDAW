@@ -1,31 +1,13 @@
 <?php
-require '../conexion.php';
+require_once __DIR__ . '/../conexion.php';
+require_once __DIR__ . '/../includes/http.php';
+require_once __DIR__ . '/../includes/validators.php';
 
-// Indicamos que la respuesta es JSON
-header('Content-Type: application/json; charset=utf-8');
-
-$respuesta = [
-    'ok'      => false,
-    'resenas' => [],
-    'error'   => ''
-];
-
-// Comprobar que llega id_mueble por GET
-if (!isset($_GET['id_mueble'])) {
-    $respuesta['error'] = 'Parámetro id_mueble obligatorio';
-    echo json_encode($respuesta);
-    exit;
-}
-
-$id_mueble = (int)$_GET['id_mueble'];
-
+$id_mueble = ew_get_int('id_mueble');
 if ($id_mueble <= 0) {
-    $respuesta['error'] = 'id_mueble no válido';
-    echo json_encode($respuesta);
-    exit;
+    ew_json(['ok' => false, 'resenas' => [], 'error' => 'Parametro id_mueble obligatorio'], 400);
 }
 
-// Consulta de reseñas del mueble
 $sql = "SELECT r.id_resena,
                r.id_mueble,
                r.id_usuario,
@@ -37,24 +19,17 @@ $sql = "SELECT r.id_resena,
         JOIN usuarios u ON r.id_usuario = u.id_usuario
         WHERE r.id_mueble = $id_mueble
         ORDER BY r.fecha_resena DESC";
-
 $resultado = mysqli_query($conexion, $sql);
 
+$resenas = [];
 if ($resultado && mysqli_num_rows($resultado) > 0) {
     while ($fila = mysqli_fetch_assoc($resultado)) {
-        $fila['id_resena']  = (int)$fila['id_resena'];
-        $fila['id_mueble']  = (int)$fila['id_mueble'];
+        $fila['id_resena'] = (int)$fila['id_resena'];
+        $fila['id_mueble'] = (int)$fila['id_mueble'];
         $fila['id_usuario'] = (int)$fila['id_usuario'];
         $fila['puntuacion'] = (int)$fila['puntuacion'];
-
-        $respuesta['resenas'][] = $fila;
+        $resenas[] = $fila;
     }
-
-    $respuesta['ok'] = true;
-} else {
-    // Sin reseñas no es un error como tal
-    $respuesta['ok']      = true;
-    $respuesta['resenas'] = [];
 }
 
-echo json_encode($respuesta);
+ew_json(['ok' => true, 'resenas' => $resenas, 'error' => '']);

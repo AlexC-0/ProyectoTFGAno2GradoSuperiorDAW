@@ -1,41 +1,25 @@
 <?php
 require_once __DIR__ . '/includes/bootstrap.php';
-require_once "conexion.php";
+require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/http.php';
+require_once __DIR__ . '/includes/validators.php';
+require_once 'conexion.php';
 
-header('Content-Type: application/json; charset=utf-8');
-
-function isAjaxRequest() {
-    return (
-        !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
-    );
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    ew_json_error('Metodo no permitido.', 405);
 }
 
-if (!isset($_SESSION['usuario_id'])) {
-    http_response_code(401);
-    echo json_encode([
-        "ok" => false,
-        "message" => "Debes iniciar sesión para usar favoritos."
-    ]);
-    exit;
+if (!ew_is_logged_in()) {
+    ew_json_error('Debes iniciar sesion para usar favoritos.', 401);
 }
 
+if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+    ew_json_error('Sesion expirada. Recarga la pagina e intentalo de nuevo.', 419);
+}
+
+$source = $_POST;
 $id_usuario = (int)$_SESSION['usuario_id'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !csrf_validate($_POST['csrf_token'] ?? null)) {
-    http_response_code(419);
-    echo json_encode([
-        "ok" => false,
-        "message" => "Sesion expirada. Recarga la pagina e intentalo de nuevo."
-    ]);
-    exit;
-}
-
-$source = ($_SERVER['REQUEST_METHOD'] === 'POST') ? $_POST : $_GET;
-
-/* ============================
-   DETERMINAR TIPO FAVORITO
-   ============================ */
 $tipo = null;
 $id_producto = 0;
 
@@ -46,26 +30,13 @@ if (isset($source['id_mueble'])) {
     $tipo = 'recambio';
     $id_producto = (int)$source['id_recambio'];
 } else {
-    http_response_code(400);
-    echo json_encode([
-        "ok" => false,
-        "message" => "Producto no especificado."
-    ]);
-    exit;
+    ew_json_error('Producto no especificado.', 400);
 }
 
 if ($id_producto <= 0) {
-    http_response_code(400);
-    echo json_encode([
-        "ok" => false,
-        "message" => "Producto no válido."
-    ]);
-    exit;
+    ew_json_error('Producto no valido.', 400);
 }
 
-/* ============================
-   VALIDAR EXISTENCIA
-   ============================ */
 if ($tipo === 'mueble') {
     $sql_check = "SELECT id_mueble FROM muebles WHERE id_mueble = $id_producto LIMIT 1";
 } else {
@@ -74,86 +45,48 @@ if ($tipo === 'mueble') {
 
 $res_check = mysqli_query($conexion, $sql_check);
 if (!$res_check || mysqli_num_rows($res_check) === 0) {
-    http_response_code(404);
-    echo json_encode([
-        "ok" => false,
-        "message" => "El producto no existe."
-    ]);
-    exit;
+    ew_json_error('El producto no existe.', 404);
 }
 
-/* ============================
-   TOGGLE
-   ============================ */
 if ($tipo === 'mueble') {
-
-    $sql_exist = "SELECT 1 FROM favoritos 
-                 WHERE id_usuario = $id_usuario AND id_mueble = $id_producto
-                 LIMIT 1";
+    $sql_exist = "SELECT 1 FROM favoritos WHERE id_usuario = $id_usuario AND id_mueble = $id_producto LIMIT 1";
     $res_exist = mysqli_query($conexion, $sql_exist);
 
     if ($res_exist && mysqli_num_rows($res_exist) > 0) {
-        $sql_del = "DELETE FROM favoritos 
-                    WHERE id_usuario = $id_usuario AND id_mueble = $id_producto
-                    LIMIT 1";
+        $sql_del = "DELETE FROM favoritos WHERE id_usuario = $id_usuario AND id_mueble = $id_producto LIMIT 1";
         $ok = mysqli_query($conexion, $sql_del);
-
         if (!$ok) {
-            http_response_code(500);
-            echo json_encode(["ok"=>false,"message"=>"Error al quitar de favoritos."]);
-            exit;
+            ew_json_error('Error al quitar de favoritos.', 500);
         }
-
-        echo json_encode(["ok"=>true,"action"=>"removed","message"=>"Quitado de favoritos."]);
-        exit;
-    } else {
-        $sql_ins = "INSERT INTO favoritos (id_usuario, id_mueble, fecha_guardado)
-                    VALUES ($id_usuario, $id_producto, NOW())";
-        $ok = mysqli_query($conexion, $sql_ins);
-
-        if (!$ok) {
-            http_response_code(500);
-            echo json_encode(["ok"=>false,"message"=>"Error al añadir a favoritos."]);
-            exit;
-        }
-
-        echo json_encode(["ok"=>true,"action"=>"added","message"=>"Añadido a favoritos."]);
-        exit;
+        ew_json_ok('Quitado de favoritos.', ['action' => 'removed']);
     }
 
-} else { // recambio
-
-    $sql_exist = "SELECT 1 FROM favoritos 
-                 WHERE id_usuario = $id_usuario AND id_recambio = $id_producto
-                 LIMIT 1";
-    $res_exist = mysqli_query($conexion, $sql_exist);
-
-    if ($res_exist && mysqli_num_rows($res_exist) > 0) {
-        $sql_del = "DELETE FROM favoritos 
-                    WHERE id_usuario = $id_usuario AND id_recambio = $id_producto
-                    LIMIT 1";
-        $ok = mysqli_query($conexion, $sql_del);
-
-        if (!$ok) {
-            http_response_code(500);
-            echo json_encode(["ok"=>false,"message"=>"Error al quitar de favoritos."]);
-            exit;
-        }
-
-        echo json_encode(["ok"=>true,"action"=>"removed","message"=>"Quitado de favoritos."]);
-        exit;
-    } else {
-        $sql_ins = "INSERT INTO favoritos (id_usuario, id_recambio, fecha_guardado)
-                    VALUES ($id_usuario, $id_producto, NOW())";
-        $ok = mysqli_query($conexion, $sql_ins);
-
-        if (!$ok) {
-            http_response_code(500);
-            echo json_encode(["ok"=>false,"message"=>"Error al añadir a favoritos."]);
-            exit;
-        }
-
-        echo json_encode(["ok"=>true,"action"=>"added","message"=>"Añadido a favoritos."]);
-        exit;
+    $sql_ins = "INSERT INTO favoritos (id_usuario, id_mueble, fecha_guardado)
+                VALUES ($id_usuario, $id_producto, NOW())";
+    $ok = mysqli_query($conexion, $sql_ins);
+    if (!$ok) {
+        ew_json_error('Error al anadir a favoritos.', 500);
     }
+    ew_json_ok('Anadido a favoritos.', ['action' => 'added']);
 }
+
+$sql_exist = "SELECT 1 FROM favoritos WHERE id_usuario = $id_usuario AND id_recambio = $id_producto LIMIT 1";
+$res_exist = mysqli_query($conexion, $sql_exist);
+
+if ($res_exist && mysqli_num_rows($res_exist) > 0) {
+    $sql_del = "DELETE FROM favoritos WHERE id_usuario = $id_usuario AND id_recambio = $id_producto LIMIT 1";
+    $ok = mysqli_query($conexion, $sql_del);
+    if (!$ok) {
+        ew_json_error('Error al quitar de favoritos.', 500);
+    }
+    ew_json_ok('Quitado de favoritos.', ['action' => 'removed']);
+}
+
+$sql_ins = "INSERT INTO favoritos (id_usuario, id_recambio, fecha_guardado)
+            VALUES ($id_usuario, $id_producto, NOW())";
+$ok = mysqli_query($conexion, $sql_ins);
+if (!$ok) {
+    ew_json_error('Error al anadir a favoritos.', 500);
+}
+
+ew_json_ok('Anadido a favoritos.', ['action' => 'added']);

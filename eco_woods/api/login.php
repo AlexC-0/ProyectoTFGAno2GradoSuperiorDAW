@@ -1,51 +1,40 @@
 <?php
-require '../conexion.php';
-
-header('Content-Type: application/json; charset=utf-8');
-
-$respuesta = [
-    'ok'      => false,
-    'errores' => [],
-    'usuario' => null
-];
+require_once __DIR__ . '/../conexion.php';
+require_once __DIR__ . '/../includes/http.php';
+require_once __DIR__ . '/../includes/validators.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    $respuesta['errores'][] = 'Método no permitido. Usa POST.';
-    echo json_encode($respuesta);
-    exit;
+    ew_json(['ok' => false, 'errores' => ['Metodo no permitido. Usa POST.'], 'usuario' => null], 405);
 }
 
-$email    = trim($_POST['email'] ?? '');
-$password = $_POST['password'] ?? '';
+$email = ew_post_string('email');
+$password = (string)($_POST['password'] ?? '');
 
 if ($email === '' || $password === '') {
-    $respuesta['errores'][] = 'Debes introducir email y contraseña.';
-    echo json_encode($respuesta);
-    exit;
+    ew_json(['ok' => false, 'errores' => ['Debes introducir email y contrasena.'], 'usuario' => null], 400);
 }
 
-// Mismo SQL que en login.php (incluyendo es_admin)
-$sql = "SELECT id_usuario, nombre, email, password, es_admin 
-        FROM usuarios 
+$sql = "SELECT id_usuario, nombre, email, password, es_admin
+        FROM usuarios
         WHERE email = ?";
-
 $stmt = $conexion->prepare($sql);
-$stmt->bind_param("s", $email);
+$stmt->bind_param('s', $email);
 $stmt->execute();
 $resultado = $stmt->get_result();
-$usuario   = $resultado->fetch_assoc();
+$usuario = $resultado->fetch_assoc();
 $stmt->close();
 
-if ($usuario && password_verify($password, $usuario['password'])) {
-    $respuesta['ok'] = true;
-    $respuesta['usuario'] = [
-        'id_usuario' => (int)$usuario['id_usuario'],
-        'nombre'     => $usuario['nombre'],
-        'email'      => $usuario['email'],
-        'es_admin'   => (int)$usuario['es_admin']
-    ];
-} else {
-    $respuesta['errores'][] = 'Email o contraseña incorrectos.';
+if (!$usuario || !password_verify($password, $usuario['password'])) {
+    ew_json(['ok' => false, 'errores' => ['Email o contrasena incorrectos.'], 'usuario' => null], 401);
 }
 
-echo json_encode($respuesta);
+ew_json([
+    'ok' => true,
+    'errores' => [],
+    'usuario' => [
+        'id_usuario' => (int)$usuario['id_usuario'],
+        'nombre' => (string)$usuario['nombre'],
+        'email' => (string)$usuario['email'],
+        'es_admin' => (int)$usuario['es_admin'],
+    ],
+]);

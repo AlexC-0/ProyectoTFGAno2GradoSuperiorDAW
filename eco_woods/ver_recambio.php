@@ -204,6 +204,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
             <h3>Escribe una reseña</h3>
 
             <form id="formResena" action="add_resena_recambio.php?id_recambio=<?php echo $id_recambio; ?>" method="post" class="formulario">
+                <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
                 <p>
                     <label>Puntuación (1 a 5):<br>
                         <select name="puntuacion">

@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/layout.php';
 require_once "conexion.php";
 
 $carrito_vacio = true;
@@ -48,48 +49,7 @@ if (isset($_SESSION['usuario_id'])) {
 </head>
 <body>
 
-<header>
-    <div class="contenedor">
-
-    <h1 style="display:flex; align-items:center;">
-        <img src="uploads/Verde.png"
-            alt="ECO & WOODS"
-            style="height:180px; width:auto; object-fit:contain; display:block;">
-    </h1>
-
-        <nav>
-            <a href="index.php">Inicio</a>
-            <a href="muebles.php">Muebles</a>
-            <a href="recambios.php">Recambios 3D</a>
-
-            <a href="ver_carrito.php" class="nav-icon" aria-label="Carrito">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
-                </svg>
-            </a>
-
-            <?php if (isset($_SESSION['usuario_id'])): ?>
-
-                <?php if (!empty($_SESSION['es_admin']) && $_SESSION['es_admin'] == 1): ?>
-                    <a href="publicar.php">Publicar</a>
-                    <a href="admin.php">Panel Admin</a>
-                <?php else: ?>
-                    <a href="publicar.php">Publicar mueble</a>
-                <?php endif; ?>
-
-                <a href="mi_perfil.php">Mi perfil</a>
-                <span class="saludo">
-                    Hola, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?>
-                </span>
-                <a href="logout.php">Cerrar sesión</a>
-            <?php else: ?>
-                <a href="login.php">Login</a>
-                <a href="registro.php">Registro</a>
-            <?php endif; ?>
-
-        </nav>
-    </div>
-</header>
+<?php ew_render_header(); ?>
 
 <main>
     <div class="contenedor">
@@ -185,11 +145,7 @@ if (isset($_SESSION['usuario_id'])) {
     </div>
 </main>
 
-<footer>
-    <div class="contenedor">
-        GR-Inn - Proyecto Trabajo Fin de Grado
-    </div>
-</footer>
+<?php ew_render_footer(); ?>
 
 <button id="btnTop" onclick="scrollToTop()">▲</button>
 <script src="js/app.js"></script>
@@ -197,6 +153,7 @@ if (isset($_SESSION['usuario_id'])) {
 <script>
 (function () {
     const toast = document.getElementById('toastCarrito');
+    const csrfToken = <?php echo json_encode(csrf_token()); ?>;
 
     function showToast(text, ok=true) {
         toast.textContent = text;
@@ -241,7 +198,7 @@ if (isset($_SESSION['usuario_id'])) {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: 'id_item=' + encodeURIComponent(id) + '&accion=' + encodeURIComponent(accion)
+                    body: 'id_item=' + encodeURIComponent(id) + '&accion=' + encodeURIComponent(accion) + '&csrf_token=' + encodeURIComponent(csrfToken)
                 });
 
                 const data = await resp.json().catch(() => null);
@@ -294,7 +251,7 @@ if (isset($_SESSION['usuario_id'])) {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: 'id_item=' + encodeURIComponent(id)
+                    body: 'id_item=' + encodeURIComponent(id) + '&csrf_token=' + encodeURIComponent(csrfToken)
                 });
 
                 const data = await resp.json().catch(() => null);
@@ -322,3 +279,4 @@ if (isset($_SESSION['usuario_id'])) {
 
 </body>
 </html>
+

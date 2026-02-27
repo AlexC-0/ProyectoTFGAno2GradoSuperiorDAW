@@ -1,61 +1,50 @@
 <?php
-session_start();
-require_once "conexion.php";
-
-header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/http.php';
+require_once __DIR__ . '/includes/validators.php';
+require_once 'conexion.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['ok' => false, 'message' => 'Método no permitido.']);
-    exit;
+    ew_json_error('Metodo no permitido.', 405);
 }
 
-if (!isset($_SESSION['usuario_id'])) {
-    http_response_code(401);
-    echo json_encode(['ok' => false, 'message' => 'Debes iniciar sesión.']);
-    exit;
+if (!ew_is_logged_in()) {
+    ew_json_error('Debes iniciar sesion.', 401);
 }
 
-if (!isset($_GET['id_recambio'])) {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'message' => 'Recambio no especificado.']);
-    exit;
+if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+    ew_json_error('Sesion expirada. Recarga la pagina e intentalo de nuevo.', 419);
 }
 
-$id_usuario  = (int)$_SESSION['usuario_id'];
-$id_recambio = (int)$_GET['id_recambio'];
+$id_usuario = (int)$_SESSION['usuario_id'];
+$id_recambio = ew_get_int('id_recambio');
+$puntuacion = ew_post_int('puntuacion');
+$comentario = ew_post_string('comentario');
 
-$puntuacion = isset($_POST['puntuacion']) ? (int)$_POST['puntuacion'] : 0;
-$comentario = trim($_POST['comentario'] ?? '');
+if ($id_recambio <= 0) {
+    ew_json_error('Recambio no especificado.', 400);
+}
 
 if ($puntuacion < 1 || $puntuacion > 5 || $comentario === '') {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'message' => 'Puntuación (1-5) y comentario obligatorio.']);
-    exit;
+    ew_json_error('Puntuacion (1-5) y comentario obligatorio.', 400);
 }
 
 $comentario_esc = mysqli_real_escape_string($conexion, $comentario);
-
 $sql = "INSERT INTO resenas_recambios (id_usuario, id_recambio, puntuacion, comentario)
         VALUES ($id_usuario, $id_recambio, $puntuacion, '$comentario_esc')";
-
 $ok = mysqli_query($conexion, $sql);
 
 if (!$ok) {
-    http_response_code(500);
-    echo json_encode(['ok' => false, 'message' => 'Error al guardar la reseña: ' . mysqli_error($conexion)]);
-    exit;
+    ew_json_error('Error al guardar la resena: ' . mysqli_error($conexion), 500);
 }
 
-$nombre_usuario = $_SESSION['usuario_nombre'] ?? 'Usuario';
-
-echo json_encode([
-    'ok' => true,
-    'message' => 'Reseña guardada correctamente.',
+$nombre_usuario = (string)($_SESSION['usuario_nombre'] ?? 'Usuario');
+ew_json_ok('Resena guardada correctamente.', [
     'resena' => [
         'nombre_usuario' => $nombre_usuario,
         'puntuacion' => $puntuacion,
         'comentario' => $comentario,
-        'fecha_resena' => date('Y-m-d H:i:s')
-    ]
+        'fecha_resena' => date('Y-m-d H:i:s'),
+    ],
 ]);
