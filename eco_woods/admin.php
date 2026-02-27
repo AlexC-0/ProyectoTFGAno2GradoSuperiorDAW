@@ -1,16 +1,11 @@
 <?php
 require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/layout.php';
+require_once __DIR__ . '/includes/auth.php';
 require 'conexion.php';
 
-// Solo admins pueden entrar aquí
-if (
-    !isset($_SESSION['usuario_id']) ||
-    empty($_SESSION['es_admin']) ||
-    (int)$_SESSION['es_admin'] !== 1
-) {
-    header("Location: index.php");
-    exit;
-}
+// Solo admins pueden entrar aqui
+ew_require_admin('index.php');
 
 // Sección actual del panel
 $seccion = $_GET['seccion'] ?? 'usuarios';
@@ -54,7 +49,7 @@ if ($seccion === 'usuarios') {
 
 }
 
-$es_admin = (!empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1);
+$es_admin = ew_is_admin();
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -65,50 +60,7 @@ $es_admin = (!empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1);
 </head>
 <body>
 
-<header>
-    <div class="contenedor">
-
-<h1 style="display:flex; align-items:center;">
-    <img src="uploads/Verde.png"
-         alt="ECO & WOODS"
-         style="height:180px; width:auto; object-fit:contain; display:block;">
-</h1>
-
-        
-        <nav>
-            <a href="index.php">Inicio</a>
-            <a href="muebles.php">Muebles</a>
-            <a href="recambios.php">Recambios 3D</a>
-
-            <!-- Carrito como icono -->
-            <a href="ver_carrito.php" class="nav-icon" aria-label="Carrito">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
-                </svg>
-            </a>
-
-            <?php if (isset($_SESSION['usuario_id'])): ?>
-
-                <?php if ($es_admin): ?>
-                    <a href="publicar.php">Publicar</a>
-                    <a href="admin.php">Panel Admin</a>
-                <?php else: ?>
-                    <a href="publicar.php">Publicar mueble</a>
-                <?php endif; ?>
-
-                <span class="saludo">
-                    Hola, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?>
-                </span>
-                <a href="mi_perfil.php">Mi perfil</a>
-                <a href="logout.php">Cerrar sesión</a>
-
-            <?php else: ?>
-                <a href="login.php">Login</a>
-                <a href="registro.php">Registro</a>
-            <?php endif; ?>
-        </nav>
-    </div>
-</header>
+<?php ew_render_header(['active' => 'admin']); ?>
 
 <main>
     <div class="contenedor">
@@ -367,15 +319,13 @@ $es_admin = (!empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1);
     </div>
 </main>
 
-<footer>
-    <div class="contenedor">
-        GR-Inn - Proyecto Trabajo Fin de Grado
-    </div>
-</footer>
+<?php ew_render_footer(); ?>
 
 <button id="btnTop" onclick="scrollToTop()">▲</button>
 <script src="js/app.js"></script>
 
 </body>
 </html>
+
+
 

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/layout.php';
 require 'conexion.php';
 
 $errores = [];
@@ -49,22 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
-<header>
-    <div class="contenedor">
-
-<h1 style="display:flex; align-items:center;">
-    <img src="uploads/Verde.png"
-         alt="ECO & WOODS"
-         style="height:180px; width:auto; object-fit:contain; display:block;">
-</h1>
-        
-        <nav>
-            <a href="index.php">Inicio</a>
-            <a href="login.php">Login</a>
-            <a href="registro.php">Registro</a>
-        </nav>
-    </div>
-</header>
+<?php ew_render_header(['mode' => 'auth', 'active' => 'login']); ?>
 
 <main>
     <div class="contenedor">
@@ -101,14 +87,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </main>
 
-<footer>
-    <div class="contenedor">
-        &copy; <?php echo date('Y'); ?> ECO & WOODS
-    </div>
-</footer>
+<?php ew_render_footer(); ?>
 
 <button id="btnTop" onclick="scrollToTop()">▲</button>
 <script src="js/app.js"></script>
 
 </body>
 </html>
+

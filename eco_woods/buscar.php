@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/layout.php';
 require_once 'conexion.php';
 
 $q = trim($_GET['q'] ?? '');
@@ -46,29 +47,7 @@ if ($q === '' && $ubicacion === '') {
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<header>
-    <div class="contenedor">
-        <h1>ECO & WOODS</h1>
-        <nav>
-            <a href="index.php">Inicio</a>
-            <a href="muebles.php">Muebles</a>
-            <a href="recambios.php">Recambios 3D</a>
-            <a href="ver_carrito.php">Carrito</a>
-            <a href="publicar.php">Publicar mueble</a>
-
-            <?php if (isset($_SESSION['usuario_id'])): ?>
-                <a href="mi_perfil.php">Mi perfil</a>
-                <span class="saludo">
-                    Hola, <?php echo e($_SESSION['usuario_nombre']); ?>
-                </span>
-                <a href="logout.php">Cerrar sesion</a>
-            <?php else: ?>
-                <a href="login.php">Login</a>
-                <a href="registro.php">Registro</a>
-            <?php endif; ?>
-        </nav>
-    </div>
-</header>
+<?php ew_render_header(['active' => 'muebles', 'brand_alt' => 'ECO & WOODS']); ?>
 
 <main>
     <div class="contenedor">
@@ -101,13 +80,10 @@ if ($q === '' && $ubicacion === '') {
     </div>
 </main>
 
-<footer>
-    <div class="contenedor">
-        ECO & WOODS - Proyecto Trabajo Fin de Grado
-    </div>
-</footer>
+<?php ew_render_footer(); ?>
 
 <button id="btnTop" onclick="scrollToTop()">^</button>
 <script src="js/app.js"></script>
 </body>
 </html>
+
