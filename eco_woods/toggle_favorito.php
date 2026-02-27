@@ -5,6 +5,7 @@ require_once __DIR__ . '/includes/http.php';
 require_once __DIR__ . '/includes/validators.php';
 require_once 'conexion.php';
 
+// POST-only para evitar cambios de estado por URL (GET).
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ew_json_error('Metodo no permitido.', 405);
 }
@@ -20,6 +21,8 @@ if (!csrf_validate($_POST['csrf_token'] ?? null)) {
 $source = $_POST;
 $id_usuario = (int)$_SESSION['usuario_id'];
 
+// Endpoint unificado para favoritos de mueble/recambio.
+// Se determina tipo a partir de parametro recibido.
 $tipo = null;
 $id_producto = 0;
 
@@ -70,6 +73,8 @@ if ($tipo === 'mueble') {
     ew_json_ok('Anadido a favoritos.', ['action' => 'added']);
 }
 
+// Lado recambio con la misma estrategia de toggle:
+// existe -> delete, no existe -> insert.
 $sql_exist = "SELECT 1 FROM favoritos WHERE id_usuario = $id_usuario AND id_recambio = $id_producto LIMIT 1";
 $res_exist = mysqli_query($conexion, $sql_exist);
 

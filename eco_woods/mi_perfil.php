@@ -1,4 +1,5 @@
 <?php
+// Arranque base: sesión + utilidades, layout común y control de acceso.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/auth.php';
@@ -7,9 +8,11 @@ ew_require_login('login.php');
 
 require 'conexion.php';
 
+// Usuario autenticado del que se mostrará todo el panel personal.
 $id_usuario = (int) $_SESSION['usuario_id'];
 $es_admin = ew_is_admin();
 
+// Bloque de datos personales.
 $sql_usuario = "SELECT nombre, email, telefono, provincia, localidad, fecha_registro
                 FROM usuarios
                 WHERE id_usuario = $id_usuario
@@ -18,6 +21,7 @@ $sql_usuario = "SELECT nombre, email, telefono, provincia, localidad, fecha_regi
 $res_usuario = mysqli_query($conexion, $sql_usuario);
 $usuario = mysqli_fetch_assoc($res_usuario);
 
+// Publicaciones del usuario para gestión desde su perfil.
 $sql_muebles = "SELECT id_mueble, titulo, precio, provincia, localidad, estado, fecha_publicacion, categoria, imagen
                 FROM muebles
                 WHERE id_usuario = $id_usuario
@@ -25,6 +29,7 @@ $sql_muebles = "SELECT id_mueble, titulo, precio, provincia, localidad, estado, 
 
 $res_muebles = mysqli_query($conexion, $sql_muebles);
 
+// Reseñas escritas por el usuario.
 $sql_resenas = "SELECT r.*, m.titulo AS titulo_mueble
                 FROM resenas r
                 JOIN muebles m ON r.id_mueble = m.id_mueble
@@ -33,6 +38,7 @@ $sql_resenas = "SELECT r.*, m.titulo AS titulo_mueble
 
 $res_resenas = mysqli_query($conexion, $sql_resenas);
 
+// Favoritos guardados por el usuario.
 $sql_favoritos = "SELECT f.fecha_guardado,
                          m.id_mueble, m.titulo, m.precio, m.provincia,
                          m.localidad, m.estado, m.categoria, m.imagen
@@ -43,6 +49,7 @@ $sql_favoritos = "SELECT f.fecha_guardado,
 
 $res_favoritos = mysqli_query($conexion, $sql_favoritos);
 
+// Bandeja de entrada de mensajes del usuario.
 $sql_recibidos = "SELECT msg.id_mensaje, msg.asunto, msg.cuerpo, msg.fecha_envio, msg.leido,
                          u.nombre AS nombre_remitente,
                          m.titulo AS titulo_mueble,
@@ -55,6 +62,7 @@ $sql_recibidos = "SELECT msg.id_mensaje, msg.asunto, msg.cuerpo, msg.fecha_envio
 
 $res_recibidos = mysqli_query($conexion, $sql_recibidos);
 
+// Bandeja de salida para trazabilidad de conversaciones.
 $sql_enviados = "SELECT msg.id_mensaje, msg.asunto, msg.cuerpo, msg.fecha_envio, msg.leido,
                         u.nombre AS nombre_destinatario,
                         m.titulo AS titulo_mueble,
@@ -164,12 +172,12 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                                     Ver mueble
                                 </a>
                                 <form action="eliminar_mueble.php" method="post" style="margin:0;">
-    <input type="hidden" name="id_mueble" value="<?php echo (int)$m['id_mueble']; ?>">
-    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
-    <button class="btn-eliminar" type="submit" onclick="return confirm('Confirmar eliminacion de mueble y datos relacionados?');">
-        Eliminar
-    </button>
-</form>
+                                    <input type="hidden" name="id_mueble" value="<?php echo (int)$m['id_mueble']; ?>">
+                                    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+                                    <button class="btn-eliminar" type="submit" onclick="return confirm('Confirmar eliminacion de mueble y datos relacionados?');">
+                                        Eliminar
+                                    </button>
+                                </form>
                             </div>
 
                         </article>
@@ -232,10 +240,10 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                                     Ver mueble
                                 </a>
                                 <form action="toggle_favorito.php" method="post" style="margin:0;">
-    <input type="hidden" name="id_mueble" value="<?php echo (int)$fav['id_mueble']; ?>">
-    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
-    <button type="submit" class="btn-fav es-favorito">Quitar de favoritos</button>
-</form>
+                                    <input type="hidden" name="id_mueble" value="<?php echo (int)$fav['id_mueble']; ?>">
+                                    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+                                    <button type="submit" class="btn-fav es-favorito">Quitar de favoritos</button>
+                                </form>
                             </div>
 
                         </article>
@@ -262,12 +270,12 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
                             <div class="tarjeta-footer">
                                 <form action="eliminar_resena.php" method="post" style="margin:0;">
-    <input type="hidden" name="id_resena" value="<?php echo (int)$r['id_resena']; ?>">
-    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
-    <button class="btn-eliminar" type="submit" onclick="return confirm('Confirmar eliminacion de resena?');">
-        Eliminar resena
-    </button>
-</form>
+                                    <input type="hidden" name="id_resena" value="<?php echo (int)$r['id_resena']; ?>">
+                                    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+                                    <button class="btn-eliminar" type="submit" onclick="return confirm('Confirmar eliminacion de resena?');">
+                                        Eliminar resena
+                                    </button>
+                                </form>
                             </div>
                         </article>
                     <?php endwhile; ?>

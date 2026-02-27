@@ -5,6 +5,8 @@ require_once __DIR__ . '/includes/http.php';
 require_once __DIR__ . '/includes/validators.php';
 require_once 'conexion.php';
 
+// Eliminacion directa de item de carrito.
+// Mismas garantias de seguridad que el resto de endpoints de estado.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ew_json_error('Metodo no permitido.', 405);
 }

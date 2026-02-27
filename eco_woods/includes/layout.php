@@ -1,13 +1,22 @@
 <?php
 declare(strict_types=1);
 
+// Renderizador comun de cabecera:
+// centraliza navbar, marca y estado de sesion para evitar duplicacion.
 function ew_render_header(array $options = []): void
 {
+    // mode:
+    // - app  -> navegacion completa de la aplicacion
+    // - auth -> navegacion minima para login/registro
     $mode = $options['mode'] ?? 'app';
+    // active se usa para marcar visualmente la seccion activa.
     $active = $options['active'] ?? '';
+    // Permite personalizar ALT de logotipo segun contexto de pagina.
     $brandAlt = $options['brand_alt'] ?? 'ECO & WOODS';
+    // showCart permite ocultar icono carrito en paginas concretas.
     $showCart = (bool)($options['show_cart'] ?? true);
 
+    // Estado de autenticacion y rol para decidir opciones del menu.
     $isLogged = isset($_SESSION['usuario_id']);
     $isAdmin = !empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1;
     ?>
@@ -54,6 +63,9 @@ function ew_render_header(array $options = []): void
 
 function ew_render_footer(array $options = []): void
 {
+    // variant:
+    // - simple -> texto base
+    // - full   -> texto + iconos/contacto
     $variant = $options['variant'] ?? 'simple';
     ?>
 <footer>

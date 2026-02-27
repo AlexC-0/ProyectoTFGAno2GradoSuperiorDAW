@@ -5,6 +5,10 @@ require_once __DIR__ . '/includes/http.php';
 require_once __DIR__ . '/includes/validators.php';
 require_once 'conexion.php';
 
+// Este endpoint modifica estado (carrito), por eso:
+// - solo acepta POST
+// - exige sesion de usuario
+// - exige token CSRF valido
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ew_json_error('Metodo no permitido.', 405);
 }
@@ -19,6 +23,8 @@ if (!csrf_validate($_POST['csrf_token'] ?? null)) {
 
 $id_usuario = (int)$_SESSION['usuario_id'];
 
+// Compatibilidad con esquemas donde puede faltar una columna historica.
+// Se comprueba en runtime para responder de forma controlada.
 function columnExists($conexion, $tabla, $columna): bool
 {
     $tabla_esc = mysqli_real_escape_string($conexion, $tabla);
@@ -31,6 +37,8 @@ function columnExists($conexion, $tabla, $columna): bool
 $tipo = null;
 $id_producto = 0;
 
+// El endpoint admite mueble o recambio con el mismo flujo.
+// La validacion de tipo evita duplicar controllers.
 if (isset($_POST['id_recambio'])) {
     $tipo = 'recambio';
     $id_producto = ew_post_int('id_recambio');
@@ -63,6 +71,8 @@ if ($tipo === 'recambio') {
     }
 }
 
+// Se reutiliza/crea carrito activo por usuario para simplificar UX:
+// el usuario siempre "anade" sobre su carrito actual.
 $sql_carrito = "SELECT id_carrito FROM carritos
                 WHERE id_usuario = $id_usuario AND estado = 'activo'
                 LIMIT 1";
@@ -83,6 +93,8 @@ if ($res_carrito && mysqli_num_rows($res_carrito) > 0) {
 }
 
 if ($tipo === 'recambio') {
+    // Si ya existe el item, se incrementa cantidad.
+    // Si no existe, se inserta.
     $sql_item = "SELECT id_item, cantidad FROM carrito_items
                  WHERE id_carrito = $id_carrito AND id_recambio = $id_producto AND (id_mueble IS NULL OR id_mueble = 0)
                  LIMIT 1";
@@ -116,6 +128,7 @@ if ($tipo === 'recambio') {
     ew_json_ok('Recambio anadido al carrito.');
 }
 
+// Bloque equivalente para muebles.
 $sql_item = "SELECT id_item, cantidad FROM carrito_items
              WHERE id_carrito = $id_carrito AND id_mueble = $id_producto AND (id_recambio IS NULL OR id_recambio = 0)
              LIMIT 1";

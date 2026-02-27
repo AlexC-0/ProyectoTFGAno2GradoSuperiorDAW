@@ -1,8 +1,10 @@
 <?php
+// Bootstrap + layout para sesión, utilidades compartidas y cabecera/pie unificados.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once "conexion.php";
 
+// Comprobación defensiva de columnas: permite tolerar esquemas con migraciones parciales.
 function columnExists($conexion, $tabla, $columna) {
     $tabla_esc = mysqli_real_escape_string($conexion, $tabla);
     $col_esc = mysqli_real_escape_string($conexion, $columna);
@@ -15,8 +17,10 @@ if (!isset($_GET['id_recambio'])) {
     die("Recambio no especificado.");
 }
 
+// Identificador de recambio tipado para evitar inyección por querystring.
 $id_recambio = (int)$_GET['id_recambio'];
 
+// Verificación dinámica de columnas de imágenes opcionales.
 $col_img1 = columnExists($conexion, 'recambios3d', 'imagen');
 $col_img2 = columnExists($conexion, 'recambios3d', 'imagen2');
 $col_img3 = columnExists($conexion, 'recambios3d', 'imagen3');
@@ -40,6 +44,7 @@ $sql_lista = "SELECT rr.*, u.nombre AS nombre_usuario
 
 $res_resenas = mysqli_query($conexion, $sql_lista);
 
+// Se construye una colección única de imágenes combinando columna principal y extras.
 $imagenes = [];
 
 if ($col_img1 && !empty($recambio['imagen'])) {
@@ -204,6 +209,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
             <h3>Escribe una reseña</h3>
 
             <form id="formResena" action="add_resena_recambio.php?id_recambio=<?php echo $id_recambio; ?>" method="post" class="formulario">
+                <!-- Token CSRF exigido por add_resena_recambio.php -->
                 <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
                 <p>
                     <label>Puntuación (1 a 5):<br>
@@ -245,6 +251,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 
 <script>
 (function () {
+    // Flags y tokens exportados desde PHP para controlar UX en cliente.
     const loggedIn = <?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>;
     const csrfToken = <?php echo json_encode(csrf_token()); ?>;
 
@@ -266,6 +273,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 
     async function addToCarrito(id) {
         try {
+            // POST con CSRF y respuesta JSON unificada del backend.
             const resp = await fetch('add_carrito.php', {
                 method: 'POST',
                 headers: {
@@ -308,6 +316,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
     }
 
     function getShareData() {
+        // Datos reutilizables para compartir en múltiples canales.
         const url = window.location.href;
         const titulo = <?php echo json_encode($recambio['nombre'] ?? 'Recambio'); ?>;
         const texto = `Mira este anuncio en ECO & WOODS: ${titulo}`;
@@ -355,6 +364,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
             const d = getShareData();
 
             if (navigator.share) {
+                // En móvil, Web Share API ofrece UX nativa.
                 try {
                     await navigator.share({ title: d.titulo, text: d.texto, url: d.url });
                     return;
@@ -363,6 +373,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 
             const ok = await copyLink(d.url);
             if (ok) {
+                // Fallback: copia enlace y abre Instagram para continuar flujo manual.
                 openPopup('https://www.instagram.com/');
             }
         });
@@ -381,6 +392,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
         if (btn) btn.disabled = true;
 
         try {
+            // FormData permite enviar textarea/select sin serialización manual.
             const resp = await fetch(url, {
                 method: 'POST',
                 body: formData,
@@ -412,6 +424,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 
             const r = data.resena;
 
+            // Render inmediato en cliente para evitar recarga de página.
             const art = document.createElement('article');
             art.className = 'tarjeta';
 

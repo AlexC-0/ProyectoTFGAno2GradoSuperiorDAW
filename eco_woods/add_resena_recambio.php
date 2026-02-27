@@ -5,6 +5,8 @@ require_once __DIR__ . '/includes/http.php';
 require_once __DIR__ . '/includes/validators.php';
 require_once 'conexion.php';
 
+// Endpoint AJAX para publicar resena de recambio.
+// Se aplica POST + sesion + CSRF para evitar envios forzados.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ew_json_error('Metodo no permitido.', 405);
 }
@@ -40,6 +42,8 @@ if (!$ok) {
 }
 
 $nombre_usuario = (string)($_SESSION['usuario_nombre'] ?? 'Usuario');
+// Se devuelve payload listo para pintar la nueva resena en frontend
+// sin recargar la pagina completa.
 ew_json_ok('Resena guardada correctamente.', [
     'resena' => [
         'nombre_usuario' => $nombre_usuario,

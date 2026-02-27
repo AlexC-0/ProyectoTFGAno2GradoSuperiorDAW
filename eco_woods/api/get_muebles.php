@@ -1,7 +1,9 @@
 <?php
+// Carga conexión y helper de respuesta JSON uniforme.
 require_once __DIR__ . '/../conexion.php';
 require_once __DIR__ . '/../includes/http.php';
 
+// Consulta pública de catálogo: trae muebles con datos de vendedor y medios para listado.
 $sql = "SELECT m.id_mueble,
                m.titulo,
                m.precio,
@@ -21,6 +23,7 @@ $sql = "SELECT m.id_mueble,
         ORDER BY m.fecha_publicacion DESC";
 $resultado = mysqli_query($conexion, $sql);
 
+// Normalizamos tipos para que la API sea estable en frontend (int/float en vez de strings SQL).
 $muebles = [];
 if ($resultado && mysqli_num_rows($resultado) > 0) {
     while ($fila = mysqli_fetch_assoc($resultado)) {
@@ -30,4 +33,5 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
     }
 }
 
+// Respuesta consistente para frontend: siempre incluye bandera ok y colección.
 ew_json(['ok' => true, 'muebles' => $muebles]);

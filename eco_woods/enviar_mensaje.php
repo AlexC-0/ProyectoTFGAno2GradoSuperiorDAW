@@ -1,5 +1,7 @@
 <?php
+// Inicializa sesión y utilidades compartidas (escape HTML, token CSRF, etc.).
 require_once __DIR__ . '/includes/bootstrap.php';
+// Helper para validar autenticación antes de ejecutar lógica de negocio.
 require_once __DIR__ . '/includes/auth.php';
 
 // Solo usuarios logueados
@@ -7,8 +9,10 @@ ew_require_login('login.php');
 
 require 'conexion.php';
 
+// Usuario autenticado que actúa como remitente del mensaje.
 $id_usuario_actual = (int) $_SESSION['usuario_id'];
 
+// La vista requiere un mueble objetivo: redirigimos si no llega por query.
 if (!isset($_GET['id_mueble'])) {
     header("Location: muebles.php");
     exit;
@@ -16,7 +20,7 @@ if (!isset($_GET['id_mueble'])) {
 
 $id_mueble = (int) $_GET['id_mueble'];
 
-// Cargar datos del mueble y del vendedor
+// Carga del mueble y su vendedor para mostrar contexto y resolver destinatario.
 $sql_mueble = "SELECT m.id_mueble, m.titulo, m.id_usuario AS id_vendedor, u.nombre AS nombre_vendedor
                FROM muebles m
                JOIN usuarios u ON m.id_usuario = u.id_usuario
@@ -40,11 +44,15 @@ if ($id_vendedor === $id_usuario_actual) {
 
 $errores = [];
 $exito   = "";
+$asunto  = '';
+$cuerpo  = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Protege contra envíos cross-site no autorizados.
     if (!csrf_validate($_POST['csrf_token'] ?? null)) {
         $errores[] = "Sesion expirada. Recarga la pagina e intentalo de nuevo.";
     }
+    // Normalizamos entradas antes de validarlas.
     $asunto = trim($_POST['asunto'] ?? '');
     $cuerpo = trim($_POST['cuerpo'] ?? '');
 
@@ -53,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errores)) {
+        // Escapado SQL para evitar inyección en la sentencia INSERT.
         $asunto_esc = mysqli_real_escape_string($conexion, $asunto);
         $cuerpo_esc = mysqli_real_escape_string($conexion, $cuerpo);
 
@@ -65,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($ok) {
             $exito = "Mensaje enviado correctamente.";
+            // Limpieza de campos para no reenviar accidentalmente al refrescar.
             $asunto = $cuerpo = '';
         } else {
             $errores[] = "Error al enviar el mensaje. Inténtalo de nuevo.";
@@ -72,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Asunto por defecto
+// Asunto sugerido para reducir fricción al usuario.
 $asunto_por_defecto = "Consulta sobre: " . $datos_mueble['titulo'];
 if (empty($asunto)) {
     $asunto = $asunto_por_defecto;
@@ -141,6 +151,7 @@ if (empty($asunto)) {
 
         <form action="enviar_mensaje.php?id_mueble=<?php echo (int)$id_mueble; ?>"
               method="post" class="formulario">
+            <!-- Token anti-CSRF: obliga a que el POST salga de esta sesión -->
             <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
 
             <p>

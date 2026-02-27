@@ -1,13 +1,16 @@
 <?php
+// Bootstrap inicia sesión y helpers globales; layout evita duplicar header/footer.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once "conexion.php";
 
+// Estado base para render estable cuando el usuario no tiene carrito.
 $carrito_vacio = true;
 $res_items = null;
 $id_carrito = 0;
 
 if (isset($_SESSION['usuario_id'])) {
+    // El carrito se vincula al usuario autenticado de la sesión actual.
     $id_usuario = (int) $_SESSION['usuario_id'];
 
     $sql_carrito = "SELECT id_carrito FROM carritos
@@ -17,6 +20,7 @@ if (isset($_SESSION['usuario_id'])) {
     $res_carrito = mysqli_query($conexion, $sql_carrito);
 
     if ($res_carrito && mysqli_num_rows($res_carrito) > 0) {
+        // Si existe carrito activo, obtenemos sus líneas de detalle.
         $carrito_vacio = false;
         $fila_carrito = mysqli_fetch_assoc($res_carrito);
         $id_carrito = (int)$fila_carrito['id_carrito'];
@@ -93,14 +97,17 @@ if (isset($_SESSION['usuario_id'])) {
                     $precio = 0;
 
                     if (!empty($fila['id_recambio'])) {
+                        // Linea de recambio.
                         $tipo = 'Recambio 3D';
                         $nombre = $fila['nombre_recambio'];
                         $precio = (float)$fila['precio_recambio'];
                     } elseif (!empty($fila['id_mueble'])) {
+                        // Linea de mueble.
                         $tipo = 'Mueble';
                         $nombre = $fila['titulo_mueble'];
                         $precio = (float)$fila['precio_mueble'];
                     } else {
+                        // Defensa ante datos incompletos en DB.
                         continue;
                     }
 
@@ -152,7 +159,9 @@ if (isset($_SESSION['usuario_id'])) {
 
 <script>
 (function () {
+    // Toast de feedback para operaciones asíncronas del carrito.
     const toast = document.getElementById('toastCarrito');
+    // Token CSRF usado en todos los POST AJAX.
     const csrfToken = <?php echo json_encode(csrf_token()); ?>;
 
     function showToast(text, ok=true) {
@@ -172,6 +181,7 @@ if (isset($_SESSION['usuario_id'])) {
     }
 
     function recalcTotal() {
+        // Recalcula total leyendo subtotales actuales en el DOM.
         let total = 0;
         document.querySelectorAll('[id^="sub_"]').forEach(el => {
             const raw = (el.textContent || '0').replace('.', '').replace(',', '.');
@@ -191,6 +201,7 @@ if (isset($_SESSION['usuario_id'])) {
             btn.disabled = true;
 
             try {
+                // Actualiza cantidad de una línea y devuelve nuevo subtotal.
                 const resp = await fetch('carrito_cantidad.php', {
                     method: 'POST',
                     headers: {
@@ -244,6 +255,7 @@ if (isset($_SESSION['usuario_id'])) {
             btn.disabled = true;
 
             try {
+                // Elimina una línea del carrito por id_item.
                 const resp = await fetch('carrito_eliminar.php', {
                     method: 'POST',
                     headers: {

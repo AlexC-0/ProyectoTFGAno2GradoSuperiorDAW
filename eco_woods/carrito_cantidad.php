@@ -5,6 +5,8 @@ require_once __DIR__ . '/includes/http.php';
 require_once __DIR__ . '/includes/validators.php';
 require_once 'conexion.php';
 
+// Endpoint de ajuste de cantidad (+/-) en carrito.
+// Se mantiene en POST por ser operacion con efecto en BD.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ew_json_error('Metodo no permitido.', 405);
 }
@@ -55,6 +57,7 @@ $item = mysqli_fetch_assoc($res_item);
 $cantidad = (int)$item['cantidad'];
 $cantidad_nueva = ($accion === 'mas') ? ($cantidad + 1) : ($cantidad - 1);
 
+// Si la cantidad resultante es <= 0 se elimina el item completo.
 if ($cantidad_nueva <= 0) {
     $sql_del = "DELETE FROM carrito_items WHERE id_item = $id_item AND id_carrito = $id_carrito";
     $ok_del = mysqli_query($conexion, $sql_del);
@@ -80,6 +83,8 @@ if (!$ok_up) {
 }
 
 $precio = 0.0;
+// Se calcula subtotal segun tipo de item para que el frontend
+// pueda recalcular el total sin recargar pagina.
 if (!empty($item['id_recambio'])) {
     $precio = (float)$item['precio_recambio'];
 } elseif (!empty($item['id_mueble'])) {

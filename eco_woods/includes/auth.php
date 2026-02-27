@@ -1,16 +1,20 @@
 <?php
 declare(strict_types=1);
 
+// Devuelve true si existe sesion autenticada.
 function ew_is_logged_in(): bool
 {
     return isset($_SESSION['usuario_id']);
 }
 
+// Devuelve true solo para roles admin.
 function ew_is_admin(): bool
 {
     return !empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1;
 }
 
+// Guardia de acceso para paginas privadas de usuario.
+// Redirige y corta ejecucion si no hay sesion.
 function ew_require_login(string $redirect = 'login.php'): void
 {
     if (!ew_is_logged_in()) {
@@ -19,6 +23,8 @@ function ew_require_login(string $redirect = 'login.php'): void
     }
 }
 
+// Guardia de acceso para paneles/admin endpoints.
+// Exige login + rol admin.
 function ew_require_admin(string $redirect = 'index.php'): void
 {
     if (!ew_is_logged_in() || !ew_is_admin()) {

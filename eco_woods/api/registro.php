@@ -3,6 +3,8 @@ require_once __DIR__ . '/../conexion.php';
 require_once __DIR__ . '/../includes/http.php';
 require_once __DIR__ . '/../includes/validators.php';
 
+// API de registro para consumo externo.
+// Se replica la misma logica de validacion del formulario web.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ew_json(['ok' => false, 'errores' => ['Metodo no permitido. Usa POST.'], 'mensaje' => ''], 405);
 }
@@ -16,6 +18,10 @@ $provincia = ew_post_string('provincia');
 $localidad = ew_post_string('localidad');
 
 $errores = [];
+// Validaciones de entrada:
+// - campos requeridos
+// - formato email
+// - confirmacion de contrasena
 if ($nombre === '' || $email === '' || $password === '' || $password2 === '') {
     $errores[] = 'Todos los campos obligatorios deben estar rellenos.';
 }

@@ -3,6 +3,8 @@ require_once __DIR__ . '/../conexion.php';
 require_once __DIR__ . '/../includes/http.php';
 require_once __DIR__ . '/../includes/validators.php';
 
+// API de login para cliente externo (app/web desacoplada).
+// No abre sesion PHP: devuelve datos de usuario en JSON.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ew_json(['ok' => false, 'errores' => ['Metodo no permitido. Usa POST.'], 'usuario' => null], 405);
 }
