@@ -9,6 +9,7 @@ Pantalla de publicacion de muebles y recambios.
 // Arranque común de sesión/utilidades + control de acceso.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/layout.php';
 
 // Solo usuarios autenticados pueden publicar.
 ew_require_login('login.php');
@@ -330,9 +331,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </header>
 
 <main>
-    <div class="contenedor">
+    <div class="contenedor publish-shell">
 
-        <div class="landing-acciones" style="margin-bottom:16px;">
+        <div class="landing-acciones cart-links">
             <a href="index.php" class="btn-ver">Volver al inicio</a>
         </div>
 

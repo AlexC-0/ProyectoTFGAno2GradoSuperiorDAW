@@ -82,7 +82,14 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
 <main>
     <div class="contenedor">
 
-        <h1>Listado de muebles</h1>
+        <section class="catalog-hero">
+            <p class="catalog-kicker">Catalogo de segunda mano</p>
+            <h1>Muebles disponibles</h1>
+            <p class="catalog-lead">
+                Filtra por categoria, precio o ubicacion para encontrar piezas que encajen contigo.
+                Puedes guardar favoritos y anadir productos al carrito desde el propio listado.
+            </p>
+        </section>
 
         <!-- Toast general (lo usamos para carrito + favoritos) -->
         <div id="toastGlobal" class="toast-carrito" style="display:none;"></div>
@@ -159,7 +166,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
         );
         if ($hayFiltros):
         ?>
-            <p><em>Mostrando resultados filtrados.</em></p>
+            <p class="catalog-meta"><em>Mostrando resultados filtrados.</em></p>
         <?php endif; ?>
 
         <?php if ($resultado && mysqli_num_rows($resultado) > 0): ?>
@@ -250,7 +257,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
 
         <?php else: ?>
 
-            <p>No se han encontrado muebles con los criterios seleccionados.</p>
+            <p class="catalog-empty">No se han encontrado muebles con los criterios seleccionados.</p>
 
         <?php endif; ?>
 

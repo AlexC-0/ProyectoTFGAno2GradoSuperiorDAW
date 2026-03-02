@@ -119,16 +119,16 @@ $loggedIn = isset($_SESSION['usuario_id']);
 <main>
     <div class="contenedor">
 
-        <p>
+        <div class="detail-nav">
             <a href="index.php" class="btn-ver">Volver al inicio</a>
             <a href="muebles.php" class="btn-ver">Volver al listado de muebles</a>
-        </p>
+        </div>
 
         <!-- Toast / mensaje flotante -->
         <div id="toastCarrito" class="toast-carrito" style="display:none;"></div>
 
         <!-- Tarjeta principal del mueble -->
-        <article class="tarjeta">
+        <article class="tarjeta detail-shell">
 
             <?php if (!empty($mueble['imagen'])): ?>
                 <img
@@ -159,56 +159,45 @@ $loggedIn = isset($_SESSION['usuario_id']);
             <p><strong>Vendedor:</strong> <?php echo htmlspecialchars($mueble['nombre_vendedor']); ?></p>
             <p><strong>Fecha de publicación:</strong> <?php echo htmlspecialchars($mueble['fecha_publicacion']); ?></p>
 
-            <div class="tarjeta-footer" style="display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap; margin-top:14px;">
+            <div class="tarjeta-footer detail-actions">
 
                 <!-- IZQUIERDA: COMPARTIR -->
-                <div style="display:flex; flex-direction:column; align-items:flex-start; gap:8px;">
-                    <div style="background:#1F3D2A; color:#fff; padding:8px 12px; border-radius:10px; font-weight:700;">
+                <div class="share-panel">
+                    <div class="share-title">
                         Compartir:
                     </div>
 
-                    <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-start;">
+                    <div class="share-actions">
                         <button type="button"
                                 class="btn-share btn-share-mail"
                                 aria-label="Compartir por email"
-                                style="background:#1F3D2A; border-radius:999px; padding:10px 12px; border:none; cursor:pointer; color:#fff;">
+                               >
                             ✉️ Email
                         </button>
 
                         <button type="button"
                                 class="btn-share btn-share-whatsapp"
                                 aria-label="Compartir por WhatsApp"
-                                style="background:#1F3D2A; border-radius:999px; padding:10px 12px; border:none; cursor:pointer; color:#fff;">
+                               >
                             💬 WhatsApp
                         </button>
 
                         <button type="button"
                                 class="btn-share btn-share-instagram"
                                 aria-label="Compartir en Instagram"
-                                style="background:#1F3D2A; border-radius:999px; padding:10px 12px; border:none; cursor:pointer; color:#fff;">
+                               >
                             📷 Instagram
                         </button>
                     </div>
                 </div>
 
                 <!-- DERECHA: CARRITO -->
-                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+                <div class="detail-cart">
                     <button type="button"
                             class="btn-carrito-icono btn-carrito-mueble"
                             data-id="<?php echo (int)$id_mueble; ?>"
                             aria-label="Añadir mueble al carrito"
-                            style="
-                                background:#4F6F52;
-                                border-radius:50%;
-                                width:60px;
-                                height:60px;
-                                border:none;
-                                cursor:pointer;
-                                color:#fff;
-                                display:flex;
-                                align-items:center;
-                                justify-content:center;
-                            ">
+                           >
                         <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="margin-left:-7px;">
                             <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
                         </svg>
@@ -223,7 +212,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
 
                 if ($id_usuario_sesion !== $id_vendedor) {
                     ?>
-                    <p style="text-align:right; margin-top:22px;">
+                    <p class="detail-contact">
                         <a class="btn-ver"
                            href="enviar_mensaje.php?id_mueble=<?php echo (int)$id_mueble; ?>">
                             Contactar con el vendedor
@@ -534,5 +523,6 @@ $loggedIn = isset($_SESSION['usuario_id']);
 
 </body>
 </html>
+
 
 

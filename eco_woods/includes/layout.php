@@ -29,8 +29,8 @@ function ew_render_header(array $options = []): void
     ?>
 <header>
     <div class="contenedor">
-        <h1 style="display:flex; align-items:center;">
-            <img src="uploads/Verde.png" alt="<?php echo e($brandAlt); ?>" style="height:180px; width:auto; object-fit:contain; display:block;">
+        <h1 class="brand-wrap">
+            <img src="uploads/Verde.png" alt="<?php echo e($brandAlt); ?>" class="brand-logo">
         </h1>
         <nav>
             <a href="index.php" class="<?php echo ($active === 'index') ? 'activo' : ''; ?>">Inicio</a>

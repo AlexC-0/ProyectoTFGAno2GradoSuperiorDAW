@@ -66,8 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php ew_render_header(['mode' => 'auth', 'active' => 'login']); ?>
 
 <main>
-    <div class="contenedor">
+    <div class="contenedor auth-shell">
 
+        <p class="catalog-kicker">Acceso de usuario</p>
         <h2>Iniciar sesion</h2>
 
         <?php if (!empty($errores)): ?>
@@ -105,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php ew_render_footer(); ?>
 
-<button id="btnTop" onclick="scrollToTop()">?</button>
+<button id="btnTop" onclick="scrollToTop()">▲</button>
 <script src="js/app.js"></script>
 
 </body>

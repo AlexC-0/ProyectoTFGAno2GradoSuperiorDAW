@@ -57,7 +57,14 @@ $resultado = mysqli_query($conexion, $sql);
 <main>
     <div class="contenedor">
 
-        <h1>Recambios 3D</h1>
+        <section class="catalog-hero">
+            <p class="catalog-kicker">Reparacion y mantenimiento</p>
+            <h1>Recambios 3D</h1>
+            <p class="catalog-lead">
+                Piezas orientadas a ampliar la vida util de muebles y componentes.
+                Puedes anadir al carrito o guardar favoritos directamente desde el catalogo.
+            </p>
+        </section>
 
         <div id="toastGlobal" class="toast-carrito" style="display:none;"></div>
 
@@ -170,7 +177,7 @@ $resultado = mysqli_query($conexion, $sql);
             </div>
 
         <?php else: ?>
-            <p>De momento no hay recambios 3D disponibles en el catálogo.</p>
+            <p class="catalog-empty">De momento no hay recambios 3D disponibles en el catalogo.</p>
         <?php endif; ?>
 
     </div>
@@ -281,6 +288,7 @@ $resultado = mysqli_query($conexion, $sql);
 
 </body>
 </html>
+
 
 
 

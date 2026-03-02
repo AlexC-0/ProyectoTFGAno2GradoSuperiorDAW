@@ -63,11 +63,11 @@ if (isset($_SESSION['usuario_id'])) {
 <?php ew_render_header(); ?>
 
 <main>
-    <div class="contenedor">
+    <div class="contenedor cart-shell">
 
         <h1>Carrito de productos</h1>
 
-        <div class="landing-acciones" style="margin-bottom:16px;">
+        <div class="landing-acciones cart-links">
             <a href="index.php" class="btn-ver">Volver al inicio</a>
             <a href="muebles.php" class="btn-ver">Seguir viendo productos</a>
         </div>
@@ -87,7 +87,7 @@ if (isset($_SESSION['usuario_id'])) {
 
                 $total = 0;
 
-                echo "<table border='1' cellpadding='5' cellspacing='0' style='width:100%;max-width:900px;'>";
+                echo "<table class='tabla-carrito'>";
                 echo "<tr>
                         <th>Tipo</th>
                         <th>Producto</th>
@@ -128,7 +128,7 @@ if (isset($_SESSION['usuario_id'])) {
                     echo "<td>" . htmlspecialchars($nombre) . "</td>";
                     echo "<td>" . number_format($precio, 2, ',', '.') . " €</td>";
 
-                    echo "<td style='white-space:nowrap;'>";
+                    echo "<td class='cell-cantidad'>";
                     echo "  <button type='button' class='btn-cant' data-id='$id_item' data-accion='menos'>−</button>";
                     echo "  <span class='cant-num' id='cant_$id_item' style='display:inline-block;min-width:26px;text-align:center;'>" . $cantidad . "</span>";
                     echo "  <button type='button' class='btn-cant' data-id='$id_item' data-accion='mas'>+</button>";
@@ -136,7 +136,7 @@ if (isset($_SESSION['usuario_id'])) {
 
                     echo "<td><span id='sub_$id_item'>" . number_format($subtotal, 2, ',', '.') . "</span> €</td>";
 
-                    echo "<td style='white-space:nowrap;'>";
+                    echo "<td class='cell-acciones'>";
                     echo "  <button type='button' class='btn-del' data-id='$id_item'>Eliminar</button>";
                     echo "</td>";
 
@@ -149,7 +149,7 @@ if (isset($_SESSION['usuario_id'])) {
                       </tr>";
                 echo "</table>";
 
-                echo "<p style='margin-top:16px;'>";
+                echo "<p class='cart-checkout'>";
                 echo "  <a href='finalizar_compra.php' class='btn-ver'>Finalizar compra</a>";
                 echo "</p>";
             }
