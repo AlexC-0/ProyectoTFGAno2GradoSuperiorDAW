@@ -1,34 +1,51 @@
 <?php
-session_start();
-require_once "conexion.php";
+// Flujo transaccional de cierre de carrito:
+// - requiere login
+// - solo confirma compra por POST + CSRF
+// - GET muestra pantalla de confirmacion sin mutar estado
+require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/layout.php';
+require_once __DIR__ . '/includes/auth.php';
 
-if (!isset($_SESSION['usuario_id'])) {
-    header("Location: login.php");
-    exit;
-}
+ew_require_login('login.php');
+require 'conexion.php';
 
 $id_usuario = (int)$_SESSION['usuario_id'];
-
-$sql_carrito = "SELECT id_carrito FROM carritos
-                WHERE id_usuario = $id_usuario AND estado = 'activo'
-                LIMIT 1";
-$res_carrito = mysqli_query($conexion, $sql_carrito);
-
 $finalizado = false;
+$mensaje = '';
 
-if ($res_carrito && mysqli_num_rows($res_carrito) > 0) {
-    $fila = mysqli_fetch_assoc($res_carrito);
-    $id_carrito = (int)$fila['id_carrito'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+        $mensaje = 'Sesion expirada. Recarga la pagina e intentalo de nuevo.';
+    } else {
+        $sql_carrito = "SELECT id_carrito FROM carritos
+                        WHERE id_usuario = $id_usuario AND estado = 'activo'
+                        LIMIT 1";
+        $res_carrito = mysqli_query($conexion, $sql_carrito);
 
-    $sql_items = "SELECT id_item FROM carrito_items WHERE id_carrito = $id_carrito LIMIT 1";
-    $res_items = mysqli_query($conexion, $sql_items);
+        if ($res_carrito && mysqli_num_rows($res_carrito) > 0) {
+            $fila = mysqli_fetch_assoc($res_carrito);
+            $id_carrito = (int)$fila['id_carrito'];
 
-    if ($res_items && mysqli_num_rows($res_items) > 0) {
-        $sql_close = "UPDATE carritos SET estado = 'finalizado' WHERE id_carrito = $id_carrito";
-        $ok = mysqli_query($conexion, $sql_close);
+            // No cerramos carritos vacios para no registrar compras nulas.
+            $sql_items = "SELECT id_item FROM carrito_items WHERE id_carrito = $id_carrito LIMIT 1";
+            $res_items = mysqli_query($conexion, $sql_items);
 
-        if ($ok) {
-            $finalizado = true;
+            if ($res_items && mysqli_num_rows($res_items) > 0) {
+                $sql_close = "UPDATE carritos SET estado = 'finalizado' WHERE id_carrito = $id_carrito";
+                $ok = mysqli_query($conexion, $sql_close);
+
+                if ($ok) {
+                    $finalizado = true;
+                    $mensaje = 'Compra finalizada (modo prueba).';
+                } else {
+                    $mensaje = 'No se pudo finalizar la compra. Intentalo de nuevo.';
+                }
+            } else {
+                $mensaje = 'No puedes finalizar un carrito vacio.';
+            }
+        } else {
+            $mensaje = 'No tienes carrito activo para finalizar.';
         }
     }
 }
@@ -42,45 +59,36 @@ if ($res_carrito && mysqli_num_rows($res_carrito) > 0) {
 </head>
 <body>
 
-<header>
-    <div class="contenedor">
-        <h1>ECO & WOODS</h1>
-        <nav>
-            <a href="index.php">Inicio</a>
-            <a href="muebles.php">Muebles</a>
-            <a href="recambios.php">Recambios 3D</a>
-            <a href="ver_carrito.php" class="nav-icon" aria-label="Carrito">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
-                </svg>
-            </a>
-            <a href="mi_perfil.php">Mi perfil</a>
-            <a href="logout.php">Cerrar sesión</a>
-        </nav>
-    </div>
-</header>
+<?php ew_render_header(['active' => 'carrito']); ?>
 
 <main>
     <div class="contenedor">
         <h1>Finalizar compra</h1>
 
         <?php if ($finalizado): ?>
-            <p><strong>Compra finalizada (modo prueba).</strong></p>
-            <p>Esto es una simulación: en el futuro aquí iría el pago, dirección, etc.</p>
+            <p><strong><?php echo e($mensaje); ?></strong></p>
+            <p>Esto es una simulacion: aqui iria el pago, direccion y confirmacion final.</p>
             <p><a href="index.php">Volver al inicio</a></p>
         <?php else: ?>
-            <p>No se ha podido finalizar la compra (puede que el carrito esté vacío o no tengas carrito activo).</p>
+            <?php if ($mensaje !== ''): ?>
+                <p><strong><?php echo e($mensaje); ?></strong></p>
+            <?php endif; ?>
+
+            <p>Vas a cerrar tu carrito activo en modo prueba.</p>
+
+            <form action="finalizar_compra.php" method="post" class="formulario">
+                <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+                <p>
+                    <button type="submit">Confirmar finalizacion</button>
+                </p>
+            </form>
+
             <p><a href="ver_carrito.php">Volver al carrito</a></p>
         <?php endif; ?>
-
     </div>
 </main>
 
-<footer>
-    <div class="contenedor">
-        ECO & WOODS - Proyecto Trabajo Fin de Grado
-    </div>
-</footer>
+<?php ew_render_footer(); ?>
 
 <button id="btnTop" onclick="scrollToTop()">▲</button>
 <script src="js/app.js"></script>

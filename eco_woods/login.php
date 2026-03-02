@@ -1,41 +1,48 @@
 <?php
+// Bootstrap: sesion/utilidades globales; layout para header/footer consistente.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require 'conexion.php';
 
+// Acumula errores de validacion/autenticacion para mostrarlos en bloque.
 $errores = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email    = trim($_POST['email'] ?? '');
+    // CSRF protege el formulario de login frente a envios externos no legitimos.
+    if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+        $errores[] = "Sesion expirada. Recarga la pagina e intentalo de nuevo.";
+    }
+
+    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
     if ($email === '' || $password === '') {
-        $errores[] = "Debes introducir email y contraseña.";
-    } else {
-        // OJO: ahora también traemos es_admin
-        $sql = "SELECT id_usuario, nombre, email, password, es_admin 
-                FROM usuarios 
+        $errores[] = "Debes introducir email y contrasena.";
+    } elseif (empty($errores)) {
+        // Se trae tambien es_admin para persistir rol en sesion.
+        $sql = "SELECT id_usuario, nombre, email, password, es_admin
+                FROM usuarios
                 WHERE email = ?";
         $stmt = $conexion->prepare($sql);
-        $stmt->bind_param("s", $email);
+        $stmt->bind_param('s', $email);
         $stmt->execute();
         $resultado = $stmt->get_result();
         $usuario = $resultado->fetch_assoc();
         $stmt->close();
 
         if ($usuario && password_verify($password, $usuario['password'])) {
+            // Renueva el identificador de sesion para mitigar session fixation.
             session_regenerate_id(true);
-            $_SESSION['usuario_id']     = $usuario['id_usuario'];
+            $_SESSION['usuario_id'] = $usuario['id_usuario'];
             $_SESSION['usuario_nombre'] = $usuario['nombre'];
-            $_SESSION['usuario_email']  = $usuario['email'];
-            // NUEVO: guardar si es admin o no
-            $_SESSION['es_admin']       = (int)$usuario['es_admin'];
+            $_SESSION['usuario_email'] = $usuario['email'];
+            $_SESSION['es_admin'] = (int) $usuario['es_admin'];
 
-            header("Location: index.php");
+            header('Location: index.php');
             exit;
-        } else {
-            $errores[] = "Email o contraseña incorrectos.";
         }
+
+        $errores[] = "Email o contrasena incorrectos.";
     }
 }
 ?>
@@ -45,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login - ECO & WOODS</title>
-    <!-- Unificamos CSS con el resto del proyecto -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -55,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <main>
     <div class="contenedor">
 
-        <h2>Iniciar sesión</h2>
+        <h2>Iniciar sesion</h2>
 
         <?php if (!empty($errores)): ?>
             <div class="mensaje error">
@@ -68,6 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form action="login.php" method="post" class="formulario">
+            <!-- Token anti-CSRF para validar origen del formulario -->
+            <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+
             <p>
                 <label for="email">Email</label><br>
                 <input type="email" name="email" id="email" required
@@ -75,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </p>
 
             <p>
-                <label for="password">Contraseña</label><br>
+                <label for="password">Contrasena</label><br>
                 <input type="password" name="password" id="password" required>
             </p>
 
@@ -89,9 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php ew_render_footer(); ?>
 
-<button id="btnTop" onclick="scrollToTop()">▲</button>
+<button id="btnTop" onclick="scrollToTop()">?</button>
 <script src="js/app.js"></script>
 
 </body>
 </html>
-

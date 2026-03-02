@@ -1,4 +1,5 @@
 <?php
+// Bootstrap/layout para sesion y estructura visual compartida.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require 'conexion.php';
@@ -54,7 +55,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    $id_usuario = (int) $_SESSION['usuario_id'];
+    if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+        $mensaje_resena = "Sesion expirada. Recarga la pagina e intentalo de nuevo.";
+    } else {
+        $id_usuario = (int) $_SESSION['usuario_id'];
 
     $puntuacion = $_POST['puntuacion'] ?? '';
     $comentario = $_POST['comentario'] ?? '';
@@ -79,6 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     } else {
         $mensaje_resena = "Debes indicar una puntuación entre 1 y 5 y escribir un comentario.";
+    }
     }
 }
 
@@ -288,6 +293,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
             <h3>Escribe una reseña</h3>
 
             <form action="ver_mueble.php?id_mueble=<?php echo $id_mueble; ?>" method="post" class="formulario">
+                <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
                 <p>
                     <label>Puntuación (1 a 5):<br>
                         <select name="puntuacion">

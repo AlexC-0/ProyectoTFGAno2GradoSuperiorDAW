@@ -1,21 +1,24 @@
 <?php
-session_start();
+// Vista de mensaje + respuesta:
+// - acceso autenticado
+// - solo remitente/destinatario puede leer
+// - respuesta por POST protegido con CSRF
+require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/layout.php';
+require_once __DIR__ . '/includes/auth.php';
 
-if (!isset($_SESSION['usuario_id'])) {
-    header("Location: login.php");
-    exit;
-}
-
+ew_require_login('login.php');
 require 'conexion.php';
 
 $id_usuario_actual = (int)$_SESSION['usuario_id'];
+$errores = [];
+$exito = '';
 
-if (!isset($_GET['id'])) {
-    header("Location: mi_perfil.php");
+$id_mensaje = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+if ($id_mensaje <= 0) {
+    header('Location: mi_perfil.php');
     exit;
 }
-
-$id_mensaje = (int)$_GET['id'];
 
 $sql = "SELECT msg.*,
                ur.nombre AS nombre_remitente,
@@ -28,56 +31,49 @@ $sql = "SELECT msg.*,
         LEFT JOIN muebles m ON msg.id_mueble = m.id_mueble
         WHERE msg.id_mensaje = $id_mensaje
         LIMIT 1";
-
 $res = mysqli_query($conexion, $sql);
 
 if (!$res || mysqli_num_rows($res) === 0) {
-    die("El mensaje no existe.");
+    header('Location: mi_perfil.php');
+    exit;
 }
 
 $mensaje = mysqli_fetch_assoc($res);
-
-$id_remitente    = (int)$mensaje['id_remitente'];
+$id_remitente = (int)$mensaje['id_remitente'];
 $id_destinatario = (int)$mensaje['id_destinatario'];
 
+// ACL estricta: solo participantes del hilo pueden visualizarlo.
 if ($id_usuario_actual !== $id_remitente && $id_usuario_actual !== $id_destinatario) {
-    die("No tienes permiso para ver este mensaje.");
+    header('Location: mi_perfil.php');
+    exit;
 }
 
+// Marcado de leido solo cuando el receptor abre el mensaje.
 if ($id_usuario_actual === $id_destinatario && (int)$mensaje['leido'] === 0) {
     $sql_leido = "UPDATE mensajes SET leido = 1 WHERE id_mensaje = $id_mensaje LIMIT 1";
     mysqli_query($conexion, $sql_leido);
 }
 
-$errores = [];
-$exito   = "";
-
-if ($id_usuario_actual === $id_remitente) {
-    $id_destinatario_respuesta = $id_destinatario;
-} else {
-    $id_destinatario_respuesta = $id_remitente;
-}
-
+$id_destinatario_respuesta = ($id_usuario_actual === $id_remitente) ? $id_destinatario : $id_remitente;
 $id_mueble_asociado = !empty($mensaje['id_mueble']) ? (int)$mensaje['id_mueble'] : null;
 
-$asunto_original = $mensaje['asunto'];
-if (strpos($asunto_original, 'RE: ') === 0) {
-    $asunto_respuesta = $asunto_original;
-} else {
-    $asunto_respuesta = 'RE: ' . $asunto_original;
-}
+$asunto_original = (string)$mensaje['asunto'];
+$asunto_respuesta = (strpos($asunto_original, 'RE: ') === 0) ? $asunto_original : ('RE: ' . $asunto_original);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $cuerpo = trim($_POST['cuerpo'] ?? '');
+    if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+        $errores[] = 'Sesion expirada. Recarga la pagina e intentalo de nuevo.';
+    }
 
+    $cuerpo = trim($_POST['cuerpo'] ?? '');
     if ($cuerpo === '') {
-        $errores[] = "El mensaje de respuesta no puede estar vacío.";
+        $errores[] = 'El mensaje de respuesta no puede estar vacio.';
     }
 
     if (empty($errores)) {
         $cuerpo_esc = mysqli_real_escape_string($conexion, $cuerpo);
         $asunto_esc = mysqli_real_escape_string($conexion, $asunto_respuesta);
-        $id_destino = $id_destinatario_respuesta;
+        $id_destino = (int)$id_destinatario_respuesta;
 
         $sql_resp = "INSERT INTO mensajes
                      (id_remitente, id_destinatario, id_mueble, asunto, cuerpo)
@@ -87,11 +83,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      '$asunto_esc', '$cuerpo_esc')";
 
         $ok = mysqli_query($conexion, $sql_resp);
-
         if ($ok) {
-            $exito = "Respuesta enviada correctamente.";
+            $exito = 'Respuesta enviada correctamente.';
         } else {
-            $errores[] = "Error al enviar la respuesta. Inténtalo de nuevo.";
+            $errores[] = 'Error al enviar la respuesta. Intentalo de nuevo.';
         }
     }
 }
@@ -105,67 +100,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
-<header>
-    <div class="contenedor">
-
-        <h1 style="display:flex; align-items:center;">
-            <img src="uploads/Verde.png"
-                 alt="ECO & WOODS"
-                 style="height:180px; width:auto; object-fit:contain; display:block;">
-        </h1>
-
-        <nav>
-            <a href="index.php">Inicio</a>
-            <a href="muebles.php">Muebles</a>
-            <a href="recambios.php">Recambios 3D</a>
-            <a href="ver_carrito.php">Carrito</a>
-            <a href="publicar.php">Publicar mueble</a>
-
-            <?php if (isset($_SESSION['usuario_id'])): ?>
-                <span class="saludo">
-                    Hola, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?>
-                </span>
-                <a href="mi_perfil.php">Mi perfil</a>
-                <a href="logout.php">Cerrar sesión</a>
-            <?php else: ?>
-                <a href="login.php">Login</a>
-                <a href="registro.php">Registro</a>
-            <?php endif; ?>
-        </nav>
-    </div>
-</header>
+<?php ew_render_header(['active' => 'perfil']); ?>
 
 <main>
     <div class="contenedor">
-
         <div style="margin-bottom:20px;">
             <a href="mi_perfil.php" class="btn">Volver a mi perfil</a>
         </div>
 
         <article class="tarjeta">
-            <h1><?php echo htmlspecialchars($mensaje['asunto']); ?></h1>
-
+            <h1><?php echo e($mensaje['asunto']); ?></h1>
             <p>
-                <strong>De:</strong>
-                <?php echo htmlspecialchars($mensaje['nombre_remitente']); ?><br>
-                <strong>Para:</strong>
-                <?php echo htmlspecialchars($mensaje['nombre_destinatario']); ?><br>
-                <strong>Fecha:</strong>
-                <?php echo htmlspecialchars($mensaje['fecha_envio']); ?>
+                <strong>De:</strong> <?php echo e($mensaje['nombre_remitente']); ?><br>
+                <strong>Para:</strong> <?php echo e($mensaje['nombre_destinatario']); ?><br>
+                <strong>Fecha:</strong> <?php echo e($mensaje['fecha_envio']); ?>
             </p>
 
             <?php if (!empty($mensaje['titulo_mueble']) && !empty($mensaje['id_mueble'])): ?>
                 <p>
                     <strong>Mueble relacionado:</strong>
                     <a href="ver_mueble.php?id_mueble=<?php echo (int)$mensaje['id_mueble']; ?>">
-                        <?php echo htmlspecialchars($mensaje['titulo_mueble']); ?>
+                        <?php echo e($mensaje['titulo_mueble']); ?>
                     </a>
                 </p>
             <?php endif; ?>
 
             <hr>
-
-            <p><?php echo nl2br(htmlspecialchars($mensaje['cuerpo'])); ?></p>
+            <p><?php echo nl2br(e($mensaje['cuerpo'])); ?></p>
         </article>
 
         <hr>
@@ -176,26 +137,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mensaje error">
                 <ul>
                     <?php foreach ($errores as $e): ?>
-                        <li><?php echo htmlspecialchars($e); ?></li>
+                        <li><?php echo e($e); ?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
         <?php endif; ?>
 
-        <?php if ($exito !== ""): ?>
-            <div class="mensaje exito">
-                <?php echo htmlspecialchars($exito); ?>
-            </div>
+        <?php if ($exito !== ''): ?>
+            <div class="mensaje exito"><?php echo e($exito); ?></div>
         <?php endif; ?>
 
-        <form action="ver_mensaje.php?id=<?php echo (int)$id_mensaje; ?>"
-              method="post" class="formulario">
+        <form action="ver_mensaje.php?id=<?php echo (int)$id_mensaje; ?>" method="post" class="formulario">
+            <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
 
             <p>
                 <label>Asunto</label><br>
-                <input type="text"
-                       value="<?php echo htmlspecialchars($asunto_respuesta); ?>"
-                       disabled>
+                <input type="text" value="<?php echo e($asunto_respuesta); ?>" disabled>
             </p>
 
             <p>
@@ -206,17 +163,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p>
                 <button type="submit">Enviar respuesta</button>
             </p>
-
         </form>
-
     </div>
 </main>
 
-<footer>
-    <div class="contenedor">
-        ECO & WOODS - Proyecto Trabajo Fin de Grado
-    </div>
-</footer>
+<?php ew_render_footer(); ?>
 
 <button id="btnTop" onclick="scrollToTop()">▲</button>
 <script src="js/app.js"></script>

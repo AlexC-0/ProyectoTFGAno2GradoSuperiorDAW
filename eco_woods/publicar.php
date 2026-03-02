@@ -1,12 +1,10 @@
 <?php
-session_start();
+// Arranque común de sesión/utilidades + control de acceso.
+require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/auth.php';
 
-// Solo usuarios logueados pueden publicar
-if (!isset($_SESSION['usuario_id'])) {
-    header("Location: login.php");
-    exit;
-}
-
+// Solo usuarios autenticados pueden publicar.
+ew_require_login('login.php');
 require 'conexion.php';
 
 function columnExists($conexion, $tabla, $columna) {
@@ -34,6 +32,10 @@ if ($es_admin) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Protege formularios de alta de contenido frente a envíos externos.
+    if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+        $errores[] = "Sesion expirada. Recarga la pagina e intentalo de nuevo.";
+    }
 
     $id_usuario = (int) $_SESSION['usuario_id'];
 
@@ -351,6 +353,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php if ($es_admin): ?>
             <form action="publicar.php" method="post" class="formulario">
+                <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
                 <p>
                     <label for="tipo_publicacion"><strong>¿Qué quieres publicar?</strong></label><br>
                     <select name="tipo_publicacion" id="tipo_publicacion" onchange="this.form.submit()">
@@ -364,6 +367,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if (!$es_admin || $tipo_publicacion === 'mueble'): ?>
 
             <form action="publicar.php" method="post" class="formulario formulario-dos-columnas" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
 
                 <?php if ($es_admin): ?>
                     <input type="hidden" name="tipo_publicacion" value="mueble">
@@ -453,6 +457,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h2>Publicar recambio 3D</h2>
 
             <form action="publicar.php" method="post" class="formulario" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
 
                 <input type="hidden" name="tipo_publicacion" value="recambio">
 

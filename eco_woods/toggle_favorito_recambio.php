@@ -1,186 +1,91 @@
 <?php
-session_start();
-require_once "conexion.php";
+// Dependencias comunes: sesión/utilidades, auth y helpers HTTP/validación.
+require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/http.php';
+require_once __DIR__ . '/includes/validators.php';
+require_once 'conexion.php';
 
-function tableExists($conexion, $tabla) {
+// Este endpoint modifica estado, por tanto se limita a POST.
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    ew_json_error('Metodo no permitido.', 405);
+}
+
+if (!ew_is_logged_in()) {
+    ew_json_error('Debes iniciar sesion para usar favoritos.', 401);
+}
+
+if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+    ew_json_error('Sesion expirada. Recarga la pagina e intentalo de nuevo.', 419);
+}
+
+// Verifica existencia de tabla para evitar errores SQL opacos.
+function tableExists(mysqli $conexion, string $tabla): bool
+{
     $tabla_esc = mysqli_real_escape_string($conexion, $tabla);
     $sql = "SHOW TABLES LIKE '$tabla_esc'";
     $res = mysqli_query($conexion, $sql);
     return ($res && mysqli_num_rows($res) > 0);
 }
 
-function isAjaxRequest() {
-    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-        return true;
-    }
-    $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
-    if (strpos($accept, 'application/json') !== false) {
-        return true;
-    }
-    return false;
-}
-
-$ajax = isAjaxRequest();
-
-if ($ajax) {
-    header('Content-Type: application/json; charset=utf-8');
-}
-
-// Login obligatorio
-if (!isset($_SESSION['usuario_id'])) {
-    if ($ajax) {
-        http_response_code(401);
-        echo json_encode([
-            "ok" => false,
-            "message" => "Debes iniciar sesión para usar favoritos."
-        ]);
-        exit;
-    } else {
-        header("Location: login.php");
-        exit;
-    }
+if (!tableExists($conexion, 'favoritos_recambios')) {
+    ew_json_error('La tabla favoritos_recambios aun no existe en la base de datos.', 501);
 }
 
 $id_usuario = (int)$_SESSION['usuario_id'];
+$id_recambio = ew_post_int('id_recambio');
 
-// ID recambio obligatorio
-if (!isset($_GET['id_recambio'])) {
-    if ($ajax) {
-        http_response_code(400);
-        echo json_encode([
-            "ok" => false,
-            "message" => "Recambio no especificado."
-        ]);
-        exit;
-    } else {
-        die("Recambio no especificado.");
-    }
-}
-
-$id_recambio = (int)$_GET['id_recambio'];
 if ($id_recambio <= 0) {
-    if ($ajax) {
-        http_response_code(400);
-        echo json_encode([
-            "ok" => false,
-            "message" => "Recambio no válido."
-        ]);
-        exit;
-    } else {
-        die("Recambio no válido.");
-    }
+    ew_json_error('Recambio no valido.', 400);
 }
 
-// Comprobar que el recambio existe
+// Validación previa para no insertar referencias huérfanas.
 $sql_check = "SELECT id_recambio FROM recambios3d WHERE id_recambio = $id_recambio LIMIT 1";
 $res_check = mysqli_query($conexion, $sql_check);
-
-if (!$res_check || mysqli_num_rows($res_check) == 0) {
-    if ($ajax) {
-        http_response_code(404);
-        echo json_encode([
-            "ok" => false,
-            "message" => "El recambio no existe."
-        ]);
-        exit;
-    } else {
-        die("El recambio no existe.");
-    }
+if (!$res_check || mysqli_num_rows($res_check) === 0) {
+    ew_json_error('El recambio no existe.', 404);
 }
 
-// Comprobar que existe la tabla favoritos_recambios (todavía no la vas a crear)
-if (!tableExists($conexion, 'favoritos_recambios')) {
-    if ($ajax) {
-        http_response_code(501);
-        echo json_encode([
-            "ok" => false,
-            "message" => "La tabla favoritos_recambios aún no existe en la base de datos."
-        ]);
-        exit;
-    } else {
-        die("La tabla favoritos_recambios aún no existe en la base de datos.");
-    }
-}
-
-// ¿Ya está en favoritos?
 $sql_exist = "SELECT id_favorito
               FROM favoritos_recambios
               WHERE id_usuario = $id_usuario AND id_recambio = $id_recambio
               LIMIT 1";
-
 $res_exist = mysqli_query($conexion, $sql_exist);
 
 if ($res_exist && mysqli_num_rows($res_exist) > 0) {
-
-    // Quitar de favoritos
     $fila = mysqli_fetch_assoc($res_exist);
     $id_favorito = (int)$fila['id_favorito'];
 
     $sql_del = "DELETE FROM favoritos_recambios WHERE id_favorito = $id_favorito";
     $ok_del = mysqli_query($conexion, $sql_del);
-
     if (!$ok_del) {
-        if ($ajax) {
-            http_response_code(500);
-            echo json_encode([
-                "ok" => false,
-                "message" => "Error al quitar de favoritos."
-            ]);
-            exit;
-        } else {
-            die("Error al quitar de favoritos.");
-        }
+        ew_json_error('Error al quitar de favoritos.', 500);
     }
 
-    if ($ajax) {
-        echo json_encode([
-            "ok" => true,
-            "es_favorito" => false,
-            "message" => "Quitado de favoritos."
-        ]);
-        exit;
-    } else {
-        header("Location: recambios.php");
-        exit;
-    }
+    ew_json([
+        'ok' => true,
+        'es_favorito' => false,
+        'message' => 'Quitado de favoritos.'
+    ]);
+}
 
-} else {
+// Inserción principal; fallback por compatibilidad si falta columna fecha_guardado.
+$sql_ins = "INSERT INTO favoritos_recambios (id_usuario, id_recambio, fecha_guardado)
+            VALUES ($id_usuario, $id_recambio, NOW())";
+$ok_ins = mysqli_query($conexion, $sql_ins);
 
-    // Añadir a favoritos
-    $sql_ins = "INSERT INTO favoritos_recambios (id_usuario, id_recambio, fecha_guardado)
-                VALUES ($id_usuario, $id_recambio, NOW())";
+if (!$ok_ins) {
+    $sql_ins2 = "INSERT INTO favoritos_recambios (id_usuario, id_recambio)
+                 VALUES ($id_usuario, $id_recambio)";
+    $ok_ins2 = mysqli_query($conexion, $sql_ins2);
 
-    $ok_ins = mysqli_query($conexion, $sql_ins);
-
-    if (!$ok_ins) {
-        // Si la tabla aún no tiene fecha_guardado, reintentamos sin esa columna
-        $sql_ins2 = "INSERT INTO favoritos_recambios (id_usuario, id_recambio)
-                     VALUES ($id_usuario, $id_recambio)";
-        $ok_ins2 = mysqli_query($conexion, $sql_ins2);
-
-        if (!$ok_ins2) {
-            if ($ajax) {
-                http_response_code(500);
-                echo json_encode([
-                    "ok" => false,
-                    "message" => "Error al añadir a favoritos."
-                ]);
-                exit;
-            } else {
-                die("Error al añadir a favoritos.");
-            }
-        }
-    }
-
-    if ($ajax) {
-        echo json_encode([
-            "ok" => true,
-            "es_favorito" => true,
-            "message" => "Añadido a favoritos."
-        ]);
-        exit;
-    } else {
-        header("Location: recambios.php");
-        exit;
+    if (!$ok_ins2) {
+        ew_json_error('Error al anadir a favoritos.', 500);
     }
 }
+
+ew_json([
+    'ok' => true,
+    'es_favorito' => true,
+    'message' => 'Anadido a favoritos.'
+]);

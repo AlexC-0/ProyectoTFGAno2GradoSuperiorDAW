@@ -1,8 +1,10 @@
 <?php
+// Arranque base: sesión/utilidades y componentes de layout comunes.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once "conexion.php";
 
+// Cache local de favoritos del usuario autenticado para pintar estado inicial de botones.
 $favoritos_usuario = [];
 
 if (isset($_SESSION['usuario_id'])) {
@@ -25,6 +27,7 @@ $precio_min       = trim($_GET['precio_min'] ?? '');
 $precio_max       = trim($_GET['precio_max'] ?? '');
 $ubicacion_filtro = trim($_GET['ubicacion'] ?? '');
 
+// Base de consulta incremental. Se va enriqueciendo según filtros activos.
 $sql = "SELECT * FROM muebles WHERE 1";
 
 if ($q !== '') {
@@ -52,6 +55,7 @@ if ($ubicacion_filtro !== '') {
     $sql .= " AND (provincia LIKE '%$ubi_esc%' OR localidad LIKE '%$ubi_esc%')";
 }
 
+// Orden cronológico inverso para mostrar primero lo más reciente.
 $sql .= " ORDER BY fecha_publicacion DESC";
 $resultado = mysqli_query($conexion, $sql);
 
@@ -253,7 +257,9 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
 
 <script>
 (function () {
+    // Toast reutilizable para feedback de carrito y favoritos.
     const toast = document.getElementById('toastGlobal');
+    // Token CSRF emitido por backend para POST asíncronos.
     const csrfToken = <?php echo json_encode(csrf_token()); ?>;
 
     function showToast(text, ok=true) {
@@ -268,7 +274,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
         }, 2200);
     }
 
-    // Carrito muebles
+    // Alta de mueble en carrito sin recargar la página.
     const botonesCarrito = document.querySelectorAll('.btn-carrito-mueble');
     botonesCarrito.forEach(btn => {
         btn.addEventListener('click', async () => {
@@ -305,7 +311,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
         });
     });
 
-    // Favoritos (sin recargar)
+    // Toggle de favoritos sin recargar.
     const botonesFav = document.querySelectorAll('.js-fav');
     botonesFav.forEach(a => {
         a.addEventListener('click', async (ev) => {

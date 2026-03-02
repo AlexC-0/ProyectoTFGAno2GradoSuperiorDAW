@@ -1,4 +1,5 @@
 <?php
+// Arranque comun y helper de autorizacion para panel admin.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/auth.php';

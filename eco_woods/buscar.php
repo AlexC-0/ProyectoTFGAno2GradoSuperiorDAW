@@ -1,8 +1,10 @@
 <?php
+// Bootstrap/layout para sesion y rendering comun.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once 'conexion.php';
 
+// Parametros de busqueda libre (texto + ubicacion).
 $q = trim($_GET['q'] ?? '');
 $ubicacion = trim($_GET['ubicacion'] ?? '');
 
@@ -11,6 +13,7 @@ if ($q === '' && $ubicacion === '') {
     $hay_resultados = false;
     $resultado = null;
 } else {
+    // Consulta incremental segun filtros activos.
     $sql = "SELECT * FROM muebles WHERE 1=1";
 
     if ($q !== '') {

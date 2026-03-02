@@ -10,7 +10,6 @@ require 'conexion.php';
 
 // Usuario autenticado del que se mostrará todo el panel personal.
 $id_usuario = (int) $_SESSION['usuario_id'];
-$es_admin = ew_is_admin();
 
 // Bloque de datos personales.
 $sql_usuario = "SELECT nombre, email, telefono, provincia, localidad, fecha_registro

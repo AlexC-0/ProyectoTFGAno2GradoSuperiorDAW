@@ -1,15 +1,13 @@
 <?php
 require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/auth.php';
+
+// Endpoint privado: requiere usuario autenticado.
+ew_require_login('login.php');
 require 'conexion.php';
 
-// Comprobar login
-if (!isset($_SESSION['usuario_id'])) {
-    header("Location: login.php");
-    exit;
-}
-
 $id_usuario_sesion = (int)$_SESSION['usuario_id'];
-$es_admin          = !empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1;
+$es_admin          = ew_is_admin();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: index.php");

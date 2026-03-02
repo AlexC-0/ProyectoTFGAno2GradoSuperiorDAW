@@ -1,5 +1,7 @@
 <?php
+// Bootstrap: sesión + utilidades compartidas (escape, CSRF, etc.).
 require_once __DIR__ . '/includes/bootstrap.php';
+// Layout común para reutilizar cabecera y pie en toda la web.
 require_once __DIR__ . '/includes/layout.php';
 ?>
 <!DOCTYPE html>
@@ -11,7 +13,10 @@ require_once __DIR__ . '/includes/layout.php';
 </head>
 <body>
 
-<?php ew_render_header(['active' => 'index', 'brand_alt' => 'GR-Inn']); ?>
+<?php
+// Cabecera pública de portada. active=index marca estado visual de navegación.
+ew_render_header(['active' => 'index', 'brand_alt' => 'GR-Inn']);
+?>
 
 <main>
     <div class="contenedor">

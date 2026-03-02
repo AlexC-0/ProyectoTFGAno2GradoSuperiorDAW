@@ -1,8 +1,10 @@
 <?php
+// Bootstrap/layout para sesión y estructura visual consistente.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once "conexion.php";
 
+// Verifica columnas opcionales de imágenes; permite convivir con distintos estados de esquema.
 function columnExists($conexion, $tabla, $columna) {
     $tabla_esc = mysqli_real_escape_string($conexion, $tabla);
     $col_esc = mysqli_real_escape_string($conexion, $columna);
@@ -17,6 +19,7 @@ $col_img3 = columnExists($conexion, 'recambios3d', 'imagen3');
 $col_img4 = columnExists($conexion, 'recambios3d', 'imagen4');
 $col_img5 = columnExists($conexion, 'recambios3d', 'imagen5');
 
+// Favoritos de recambios para pintar estado inicial del botón en cada tarjeta.
 $favoritos_recambios = [];
 if (isset($_SESSION['usuario_id'])) {
     $id_usuario_fav = (int) $_SESSION['usuario_id'];
@@ -70,6 +73,7 @@ $resultado = mysqli_query($conexion, $sql);
                         foreach ($candidatas as $cand) {
                             if ($cand === '') continue;
 
+                            // Compatibilidad con guardados antiguos separados por ';'.
                             if (strpos($cand, ';') !== false) {
                                 $partes = array_filter(array_map('trim', explode(';', $cand)));
                                 if (!empty($partes)) {
@@ -83,6 +87,7 @@ $resultado = mysqli_query($conexion, $sql);
                         }
 
                         $descripcion = (string)($fila['descripcion'] ?? '');
+                        // Limitamos preview para homogeneidad visual en el grid.
                         if (mb_strlen($descripcion) > 100) {
                             $descripcion = mb_substr($descripcion, 0, 97) . '...';
                         }
@@ -137,7 +142,7 @@ $resultado = mysqli_query($conexion, $sql);
                             <?php if (isset($_SESSION['usuario_id'])): ?>
                                 <button type="button"
                                         class="btn-fav <?php echo $esFav ? 'es-favorito' : ''; ?> btn-fav-recambio"
-                                        data-url="toggle_favorito_recambio.php?id_recambio=<?php echo $idRec; ?>">
+                                        data-id="<?php echo $idRec; ?>">
                                     <?php echo $esFav ? '★ Quitar de favoritos' : '☆ Añadir a favoritos'; ?>
                                 </button>
 
@@ -171,6 +176,7 @@ $resultado = mysqli_query($conexion, $sql);
 
 <script>
 (function () {
+    // Feedback no intrusivo para acciones de carrito/favoritos.
     const toast = document.getElementById('toastGlobal');
     const csrfToken = <?php echo json_encode(csrf_token()); ?>;
 
@@ -223,25 +229,21 @@ $resultado = mysqli_query($conexion, $sql);
 
     document.querySelectorAll('.btn-fav-recambio').forEach(btn => {
         btn.addEventListener('click', async () => {
-            const url = btn.getAttribute('data-url');
-            if (!url) return;
+            const id = btn.getAttribute('data-id');
+            if (!id) return;
 
             btn.disabled = true;
 
             try {
-                const resp = await fetch(url, {
-                    method: 'GET',
+                const resp = await fetch('toggle_favorito_recambio.php', {
+                    method: 'POST',
                     headers: {
                         'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: 'id_recambio=' + encodeURIComponent(id) + '&csrf_token=' + encodeURIComponent(csrfToken)
                 });
-
-                const ctype = resp.headers.get('content-type') || '';
-                if (!ctype.includes('application/json')) {
-                    window.location.href = url;
-                    return;
-                }
 
                 const data = await resp.json().catch(() => null);
 
@@ -261,7 +263,7 @@ $resultado = mysqli_query($conexion, $sql);
                 }
 
             } catch (e) {
-                window.location.href = url;
+                showToast('Error de conexion en favoritos.', false);
             } finally {
                 btn.disabled = false;
             }
@@ -272,4 +274,5 @@ $resultado = mysqli_query($conexion, $sql);
 
 </body>
 </html>
+
 
