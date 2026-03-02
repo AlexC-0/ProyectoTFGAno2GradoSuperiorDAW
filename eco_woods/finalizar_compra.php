@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Confirmacion y cierre de carrito en modo prueba.
+- GET solo muestra confirmacion, no cambia estado.
+- POST con CSRF finaliza carrito activo no vacio.
+- Deja flujo preparado para integrar pago real en futuro.
+*/
 // Flujo transaccional de cierre de carrito:
 // - requiere login
 // - solo confirma compra por POST + CSRF
@@ -95,3 +102,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
+

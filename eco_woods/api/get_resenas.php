@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+API de resenas por mueble.
+- Exige id de mueble valido para consultar.
+- Devuelve autor, puntuacion y contenido ordenado por fecha.
+- Facilita carga dinamica de bloque social en detalle.
+*/
 // Dependencias comunes: conexión, salida JSON y validadores de entrada.
 require_once __DIR__ . '/../conexion.php';
 require_once __DIR__ . '/../includes/http.php';
@@ -38,3 +45,4 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
 
 // Siempre devolvemos la misma estructura para simplificar el consumo en frontend.
 ew_json(['ok' => true, 'resenas' => $resenas, 'error' => '']);
+

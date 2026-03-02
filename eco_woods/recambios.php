@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Catalogo de recambios 3D con favoritos y carrito.
+- Renderiza tarjetas y selecciona imagen representativa.
+- Integra acciones asincronas de carrito y favoritos.
+- Alinea frontend con seguridad y respuestas del backend.
+*/
 // Bootstrap/layout para sesión y estructura visual consistente.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
@@ -274,5 +281,6 @@ $resultado = mysqli_query($conexion, $sql);
 
 </body>
 </html>
+
 
 

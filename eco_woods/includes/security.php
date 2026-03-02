@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Este archivo concentra reglas de seguridad reutilizables.
+- Gestiona token CSRF para formularios y acciones sensibles.
+- Aporta funciones para validar origen legitimo de peticiones.
+- Su objetivo es unificar proteccion y reducir errores por duplicacion.
+*/
 declare(strict_types=1);
 
 // Escape HTML centralizado para evitar XSS en vistas.
@@ -26,3 +33,4 @@ function csrf_validate(?string $token): bool
     $sessionToken = $_SESSION['csrf_token'] ?? '';
     return is_string($token) && $sessionToken !== '' && hash_equals($sessionToken, $token);
 }
+

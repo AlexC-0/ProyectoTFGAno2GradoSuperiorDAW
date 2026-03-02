@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Pantalla de publicacion de muebles y recambios.
+- Requiere login y valida formularios con CSRF.
+- Permite rol admin para publicar tambien recambios 3D.
+- Gestiona carga de imagenes, validacion y guardado en base de datos.
+*/
 // Arranque común de sesión/utilidades + control de acceso.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
@@ -528,3 +535,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
+

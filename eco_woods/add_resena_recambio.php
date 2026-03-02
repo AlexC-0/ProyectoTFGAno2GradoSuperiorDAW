@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Endpoint para crear resenas de recambios.
+- Exige sesion activa y validacion CSRF.
+- Valida puntuacion y comentario antes de insertar.
+- Responde en JSON para integracion dinamica en pantalla.
+*/
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/http.php';
@@ -52,3 +59,4 @@ ew_json_ok('Resena guardada correctamente.', [
         'fecha_resena' => date('Y-m-d H:i:s'),
     ],
 ]);
+

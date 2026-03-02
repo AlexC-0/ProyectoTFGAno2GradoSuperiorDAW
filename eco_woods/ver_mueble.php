@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Detalle completo de un mueble.
+- Muestra datos del anuncio, galeria y vendedor.
+- Permite resenas, compartir y alta en carrito.
+- Controla envio de resenas con validacion de sesion y token.
+*/
 // Bootstrap/layout para sesion y estructura visual compartida.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
@@ -527,4 +534,5 @@ $loggedIn = isset($_SESSION['usuario_id']);
 
 </body>
 </html>
+
 

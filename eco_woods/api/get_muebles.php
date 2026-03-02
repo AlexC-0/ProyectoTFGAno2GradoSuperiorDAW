@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+API de listado de muebles.
+- Devuelve catalogo ordenado con datos relevantes.
+- Normaliza tipos numericos para consumo frontend.
+- Respuesta estable para listados y filtros.
+*/
 // Carga conexión y helper de respuesta JSON uniforme.
 require_once __DIR__ . '/../conexion.php';
 require_once __DIR__ . '/../includes/http.php';
@@ -35,3 +42,4 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
 
 // Respuesta consistente para frontend: siempre incluye bandera ok y colección.
 ew_json(['ok' => true, 'muebles' => $muebles]);
+

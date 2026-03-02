@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+API de registro de nuevos usuarios.
+- Valida campos obligatorios y formato de email.
+- Evita duplicados y aplica cifrado de contrasena.
+- Devuelve respuesta JSON clara para integraciones.
+*/
 require_once __DIR__ . '/../conexion.php';
 require_once __DIR__ . '/../includes/http.php';
 require_once __DIR__ . '/../includes/validators.php';
@@ -64,3 +71,4 @@ if (!$stmt_insert->execute()) {
 $stmt_insert->close();
 
 ew_json(['ok' => true, 'errores' => [], 'mensaje' => 'Registro completado correctamente. Ya puedes iniciar sesion.']);
+

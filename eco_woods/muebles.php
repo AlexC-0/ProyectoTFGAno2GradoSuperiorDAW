@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Listado de muebles con filtros y acciones de usuario.
+- Construye busqueda por texto, categoria, precio y ubicacion.
+- Muestra favoritos y carrito con acciones asincronas.
+- Mantiene coherencia entre interfaz y endpoints protegidos.
+*/
 // Arranque base: sesión/utilidades y componentes de layout comunes.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
@@ -367,4 +374,5 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
 
 </body>
 </html>
+
 

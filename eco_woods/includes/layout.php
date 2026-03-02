@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Este archivo renderiza cabecera y pie comunes del sitio.
+- Centraliza navegacion, marca activa y variantes visuales.
+- Evita repetir HTML estructural en cada pagina.
+- Mantiene una experiencia coherente en todo el proyecto.
+*/
 declare(strict_types=1);
 
 // Renderizador comun de cabecera:
@@ -95,3 +102,4 @@ function ew_render_footer(array $options = []): void
 </footer>
 <?php
 }
+

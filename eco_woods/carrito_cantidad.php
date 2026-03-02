@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Endpoint para ajustar cantidad de un item del carrito.
+- Requiere login, POST y CSRF.
+- Permite accion mas/menos con validacion de pertenencia.
+- Devuelve subtotal y estado para actualizar la interfaz.
+*/
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/http.php';
@@ -99,3 +106,4 @@ ew_json([
     'subtotal' => $subtotal,
     'message' => 'Cantidad actualizada.',
 ]);
+

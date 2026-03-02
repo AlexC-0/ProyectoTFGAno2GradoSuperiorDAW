@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Este archivo normaliza respuestas HTTP y JSON.
+- Permite devolver exito o error con formato estable.
+- Facilita que frontend y backend hablen el mismo idioma.
+- Reduce codigo repetido en endpoints y APIs.
+*/
 declare(strict_types=1);
 
 // Helper de salida JSON centralizada.
@@ -26,3 +33,4 @@ function ew_json_error(string $message, int $status = 400, array $extra = []): v
 {
     ew_json(array_merge(['ok' => false, 'message' => $message], $extra), $status);
 }
+

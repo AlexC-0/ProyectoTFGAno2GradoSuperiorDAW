@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+API de login para clientes externos o frontend asincrono.
+- Valida credenciales y devuelve estado de autenticacion.
+- Mantiene formato JSON estable para consumo seguro.
+- Alineada con reglas de sesion del proyecto.
+*/
 require_once __DIR__ . '/../conexion.php';
 require_once __DIR__ . '/../includes/http.php';
 require_once __DIR__ . '/../includes/validators.php';
@@ -40,3 +47,4 @@ ew_json([
         'es_admin' => (int)$usuario['es_admin'],
     ],
 ]);
+

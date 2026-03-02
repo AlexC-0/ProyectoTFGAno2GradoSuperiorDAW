@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+API de detalle individual de mueble.
+- Recibe id y devuelve anuncio completo si existe.
+- Incluye validaciones de entrada y salida consistente.
+- Base para vistas de detalle o clientes externos.
+*/
 require_once __DIR__ . '/../conexion.php';
 require_once __DIR__ . '/../includes/http.php';
 require_once __DIR__ . '/../includes/validators.php';
@@ -45,3 +52,4 @@ $fila['id_usuario'] = (int)$fila['id_usuario'];
 $fila['precio'] = (float)$fila['precio'];
 
 ew_json(['ok' => true, 'mueble' => $fila, 'error' => '']);
+

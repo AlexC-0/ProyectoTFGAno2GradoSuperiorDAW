@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Formulario de inicio de sesion.
+- Valida credenciales y crea sesion de usuario.
+- Incluye proteccion CSRF y regeneracion de sesion.
+- Guarda rol para habilitar vistas y permisos posteriores.
+*/
 // Bootstrap: sesion/utilidades globales; layout para header/footer consistente.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
@@ -103,3 +110,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
+

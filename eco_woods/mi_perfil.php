@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Area personal del usuario autenticado.
+- Reune datos de cuenta, publicaciones, favoritos y resenas.
+- Incluye bandeja de mensajes recibidos y enviados.
+- Agrupa acciones de gestion propias con controles de seguridad.
+*/
 // Arranque base: sesión + utilidades, layout común y control de acceso.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
@@ -360,6 +367,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
 </body>
 </html>
+
 
 
 

@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Este archivo inicializa la base comun del proyecto.
+- Arranca la sesion de forma segura y consistente para todas las paginas.
+- Carga utilidades compartidas (escape, csrf, helpers basicos).
+- Evita que cada archivo tenga que repetir arranque y configuracion manual.
+*/
 declare(strict_types=1);
 
 // Punto unico de arranque para sesiones y utilidades de seguridad.
@@ -26,3 +33,4 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Carga de helpers comunes de seguridad (escape HTML, CSRF, etc.).
 require_once __DIR__ . '/security.php';
+

@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+API de listado de recambios 3D.
+- Sirve datos de catalogo para tarjetas y busquedas.
+- Normaliza ids y precios para evitar conversiones ambiguas.
+- Entrega respuesta uniforme incluso sin resultados.
+*/
 // Carga conexión a BD y helper de respuesta JSON para mantener formato homogéneo.
 require_once __DIR__ . '/../conexion.php';
 require_once __DIR__ . '/../includes/http.php';
@@ -26,3 +33,4 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
 
 // Respuesta consistente: flag de éxito + colección (vacía si no hay resultados).
 ew_json(['ok' => true, 'recambios' => $recambios]);
+

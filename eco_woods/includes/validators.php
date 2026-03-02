@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Este archivo contiene validadores de entrada reutilizables.
+- Lee enteros y cadenas de GET/POST de forma segura.
+- Reduce validaciones manuales repetidas por archivo.
+- Mejora claridad y mantenimiento de endpoints.
+*/
 declare(strict_types=1);
 
 // Lectura segura de enteros por POST.
@@ -19,3 +26,4 @@ function ew_post_string(string $key, string $default = ''): string
 {
     return isset($_POST[$key]) ? trim((string)$_POST[$key]) : $default;
 }
+

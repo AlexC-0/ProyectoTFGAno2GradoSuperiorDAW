@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Este archivo agrupa control de acceso y roles.
+- Verifica si hay sesion valida de usuario.
+- Distingue permisos de administrador y zonas privadas.
+- Se usa como guardia comun para bloquear accesos no autorizados.
+*/
 declare(strict_types=1);
 
 // Devuelve true si existe sesion autenticada.
@@ -32,3 +39,4 @@ function ew_require_admin(string $redirect = 'index.php'): void
         exit;
     }
 }
+

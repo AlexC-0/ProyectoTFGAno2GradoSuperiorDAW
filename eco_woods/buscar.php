@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Busqueda simple de muebles por texto y ubicacion.
+- Construye consulta incremental segun filtros recibidos.
+- Escapa entradas para reducir riesgo de inyeccion.
+- Presenta resultados con enlaces directos a detalle.
+*/
 // Bootstrap/layout para sesion y rendering comun.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
@@ -89,4 +96,5 @@ if ($q === '' && $ubicacion === '') {
 <script src="js/app.js"></script>
 </body>
 </html>
+
 

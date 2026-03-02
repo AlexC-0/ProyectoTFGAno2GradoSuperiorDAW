@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Panel de administracion del proyecto.
+- Restringe acceso solo a usuarios con rol admin.
+- Gestiona secciones de usuarios, muebles, recambios y resenas.
+- Incluye acciones de mantenimiento con confirmacion y seguridad.
+*/
 // Arranque comun y helper de autorizacion para panel admin.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
@@ -327,6 +334,7 @@ $es_admin = ew_is_admin();
 
 </body>
 </html>
+
 
 
 

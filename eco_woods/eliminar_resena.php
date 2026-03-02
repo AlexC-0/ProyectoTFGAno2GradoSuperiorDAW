@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Eliminacion de resena con reglas de autorizacion.
+- Requiere login, POST y CSRF.
+- Permite accion al autor de la resena o a un admin.
+- Redirige al contexto del mueble tras completar operacion.
+*/
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 
@@ -57,3 +64,4 @@ mysqli_query($conexion, $sql_del);
 // 4) Volver a la ficha del mueble
 header("Location: ver_mueble.php?id_mueble=" . $id_mueble);
 exit;
+

@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Endpoint unificado de favoritos para muebles y recambios.
+- Solo permite POST autenticado con CSRF.
+- Comprueba existencia del producto antes de actuar.
+- Ejecuta toggle anadir/quitar y devuelve estado final.
+*/
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/http.php';
@@ -95,3 +102,4 @@ if (!$ok) {
 }
 
 ew_json_ok('Anadido a favoritos.', ['action' => 'added']);
+

@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Formulario de alta de usuarios.
+- Valida datos minimos y formato de correo.
+- Evita duplicados por email y guarda password cifrada.
+- Incluye proteccion CSRF y mensajes claros de resultado.
+*/
 // Bootstrap: sesion/utilidades comunes y layout compartido.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
@@ -171,3 +178,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
+

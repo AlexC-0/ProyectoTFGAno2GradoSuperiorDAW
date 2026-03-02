@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Formulario para contactar con vendedor desde un anuncio.
+- Requiere login y evita autoenvio al propio vendedor.
+- Valida asunto/cuerpo y protege envio con CSRF.
+- Guarda la conversacion asociada al mueble correspondiente.
+*/
 // Inicializa sesión y utilidades compartidas (escape HTML, token CSRF, etc.).
 require_once __DIR__ . '/includes/bootstrap.php';
 // Helper para validar autenticación antes de ejecutar lógica de negocio.
@@ -187,3 +194,4 @@ if (empty($asunto)) {
 
 </body>
 </html>
+

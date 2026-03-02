@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Endpoint para eliminar un item concreto del carrito.
+- Requiere login, POST y CSRF.
+- Verifica que el item pertenece al carrito del usuario.
+- Devuelve respuesta JSON clara para feedback inmediato.
+*/
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/http.php';
@@ -51,3 +58,4 @@ if (mysqli_affected_rows($conexion) === 0) {
 }
 
 ew_json_ok('Producto eliminado del carrito.');
+

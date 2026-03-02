@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Endpoint para anadir muebles o recambios al carrito.
+- Requiere login, metodo POST y token CSRF valido.
+- Reutiliza o crea carrito activo segun sesion del usuario.
+- Inserta o incrementa cantidad y responde en JSON.
+*/
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/http.php';
@@ -160,3 +167,4 @@ if (!$ok_insert) {
 }
 
 ew_json_ok('Mueble anadido al carrito.');
+

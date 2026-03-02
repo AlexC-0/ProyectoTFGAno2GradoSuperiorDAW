@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Lectura de mensaje individual y respuesta en hilo.
+- Solo participantes del mensaje pueden acceder.
+- Marca como leido cuando corresponde al destinatario.
+- Permite responder por POST con validacion CSRF.
+*/
 // Vista de mensaje + respuesta:
 // - acceso autenticado
 // - solo remitente/destinatario puede leer
@@ -174,3 +181,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
+

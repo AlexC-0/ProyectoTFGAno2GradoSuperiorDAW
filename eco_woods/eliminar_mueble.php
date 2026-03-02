@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Eliminacion de mueble con control de permisos.
+- Solo permite accion por POST autenticado con CSRF.
+- Autoriza solo propietario o administrador.
+- Limpia datos relacionados para mantener integridad.
+*/
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 
@@ -67,3 +74,4 @@ if ($es_admin) {
     header("Location: mi_perfil.php");
 }
 exit;
+

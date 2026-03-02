@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Detalle completo de un recambio 3D.
+- Renderiza informacion del producto y galeria de imagenes.
+- Permite resenas y acciones de carrito con feedback visual.
+- Incluye formularios protegidos y consumo de endpoints estables.
+*/
 // Bootstrap + layout para sesión, utilidades compartidas y cabecera/pie unificados.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
@@ -463,4 +470,5 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 
 </body>
 </html>
+
 

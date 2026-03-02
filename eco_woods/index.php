@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Portada principal del proyecto.
+- Usa layout comun para mantener estructura global.
+- Presenta propuesta de valor y accesos rapidos del sitio.
+- Sirve como punto de entrada estable para navegacion.
+*/
 // Bootstrap: sesión + utilidades compartidas (escape, CSRF, etc.).
 require_once __DIR__ . '/includes/bootstrap.php';
 // Layout común para reutilizar cabecera y pie en toda la web.
@@ -96,4 +103,5 @@ ew_render_header(['active' => 'index', 'brand_alt' => 'GR-Inn']);
 <script src="js/app.js"></script>
 </body>
 </html>
+
 

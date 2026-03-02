@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Endpoint de favoritos especifico para recambios 3D.
+- Mantiene esquema seguro: login + POST + CSRF.
+- Verifica tabla y producto antes de modificar datos.
+- Devuelve resultado uniforme para frontend asincrono.
+*/
 // Dependencias comunes: sesión/utilidades, auth y helpers HTTP/validación.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
@@ -89,3 +96,4 @@ ew_json([
     'es_favorito' => true,
     'message' => 'Anadido a favoritos.'
 ]);
+

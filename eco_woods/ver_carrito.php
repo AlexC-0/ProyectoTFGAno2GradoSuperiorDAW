@@ -1,4 +1,11 @@
 <?php
+/*
+DOCUMENTACION_PASO4
+Vista de carrito activo del usuario.
+- Lista items de muebles/recambios, cantidades y subtotales.
+- Permite sumar, restar y eliminar sin recargar pagina.
+- Sincroniza UI con respuestas JSON del backend protegido.
+*/
 // Bootstrap inicia sesión y helpers globales; layout evita duplicar header/footer.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
@@ -291,4 +298,5 @@ if (isset($_SESSION['usuario_id'])) {
 
 </body>
 </html>
+
 
