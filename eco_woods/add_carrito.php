@@ -1,4 +1,10 @@
-<?php
+﻿<?php
+/*
+DOCUMENTACION_EXPLICATIVA_TFG
+Que hace: Recibe una peticion para meter un mueble o recambio en el carrito.
+Por que se hizo asi: Se valida sesion y token para evitar acciones no autorizadas y se usa SQL preparado para impedir inyecciones.
+Para que sirve: Permite que el usuario construya su pedido de forma segura y sin errores de duplicados.
+*/
 /*
 DOCUMENTACION_PASO4
 Endpoint para anadir muebles o recambios al carrito.
@@ -12,40 +18,79 @@ require_once __DIR__ . '/includes/http.php';
 require_once __DIR__ . '/includes/validators.php';
 require_once 'conexion.php';
 
-// Este endpoint modifica estado (carrito), por eso:
-// - solo acepta POST
-// - exige sesion de usuario
-// - exige token CSRF valido
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ew_json_error('Metodo no permitido.', 405);
 }
-
 if (!ew_is_logged_in()) {
     ew_json_error('Debes iniciar sesion para anadir al carrito.', 401);
 }
-
 if (!csrf_validate($_POST['csrf_token'] ?? null)) {
     ew_json_error('Sesion expirada. Recarga la pagina e intentalo de nuevo.', 419);
 }
 
 $id_usuario = (int)$_SESSION['usuario_id'];
 
-// Compatibilidad con esquemas donde puede faltar una columna historica.
-// Se comprueba en runtime para responder de forma controlada.
 function columnExists($conexion, $tabla, $columna): bool
 {
-    $tabla_esc = mysqli_real_escape_string($conexion, $tabla);
-    $col_esc = mysqli_real_escape_string($conexion, $columna);
-    $sql = "SHOW COLUMNS FROM `$tabla_esc` LIKE '$col_esc'";
-    $res = mysqli_query($conexion, $sql);
-    return ($res && mysqli_num_rows($res) > 0);
+    $stmt = mysqli_prepare(
+        $conexion,
+        "SELECT 1
+         FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE()
+           AND TABLE_NAME = ?
+           AND COLUMN_NAME = ?
+         LIMIT 1"
+    );
+    if (!$stmt) {
+        return false;
+    }
+    mysqli_stmt_bind_param($stmt, 'ss', $tabla, $columna);
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        return false;
+    }
+    $res = mysqli_stmt_get_result($stmt);
+    $ok = ($res && mysqli_num_rows($res) > 0);
+    mysqli_stmt_close($stmt);
+    return $ok;
+}
+
+function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array $params = [])
+{
+    $stmt = mysqli_prepare($conexion, $sql);
+    if (!$stmt) {
+        return false;
+    }
+
+    if ($types !== '') {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        return false;
+    }
+
+    $result = mysqli_stmt_get_result($stmt);
+    mysqli_stmt_close($stmt);
+    return $result;
+}
+
+function ew_stmt_execute(mysqli $conexion, string $sql, string $types, array $params): bool
+{
+    $stmt = mysqli_prepare($conexion, $sql);
+    if (!$stmt) {
+        return false;
+    }
+    mysqli_stmt_bind_param($stmt, $types, ...$params);
+    $ok = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    return $ok;
 }
 
 $tipo = null;
 $id_producto = 0;
 
-// El endpoint admite mueble o recambio con el mismo flujo.
-// La validacion de tipo evita duplicar controllers.
 if (isset($_POST['id_recambio'])) {
     $tipo = 'recambio';
     $id_producto = ew_post_int('id_recambio');
@@ -61,8 +106,12 @@ if ($id_producto <= 0) {
 }
 
 if ($tipo === 'recambio') {
-    $sql_check = "SELECT id_recambio FROM recambios3d WHERE id_recambio = $id_producto LIMIT 1";
-    $res_check = mysqli_query($conexion, $sql_check);
+    $res_check = ew_stmt_result(
+        $conexion,
+        "SELECT id_recambio FROM recambios3d WHERE id_recambio = ? LIMIT 1",
+        'i',
+        [$id_producto]
+    );
     if (!$res_check || mysqli_num_rows($res_check) === 0) {
         ew_json_error('El recambio no existe.', 404);
     }
@@ -70,98 +119,113 @@ if ($tipo === 'recambio') {
     if (!columnExists($conexion, 'carrito_items', 'id_mueble')) {
         ew_json_error('Tu base de datos aun no esta preparada para anadir muebles al carrito (falta la columna id_mueble en carrito_items).', 501);
     }
-
-    $sql_check = "SELECT id_mueble FROM muebles WHERE id_mueble = $id_producto LIMIT 1";
-    $res_check = mysqli_query($conexion, $sql_check);
+    $res_check = ew_stmt_result(
+        $conexion,
+        "SELECT id_mueble FROM muebles WHERE id_mueble = ? LIMIT 1",
+        'i',
+        [$id_producto]
+    );
     if (!$res_check || mysqli_num_rows($res_check) === 0) {
         ew_json_error('El mueble no existe.', 404);
     }
 }
 
-// Se reutiliza/crea carrito activo por usuario para simplificar UX:
-// el usuario siempre "anade" sobre su carrito actual.
-$sql_carrito = "SELECT id_carrito FROM carritos
-                WHERE id_usuario = $id_usuario AND estado = 'activo'
-                LIMIT 1";
-$res_carrito = mysqli_query($conexion, $sql_carrito);
+$res_carrito = ew_stmt_result(
+    $conexion,
+    "SELECT id_carrito FROM carritos WHERE id_usuario = ? AND estado = 'activo' LIMIT 1",
+    'i',
+    [$id_usuario]
+);
 
 if ($res_carrito && mysqli_num_rows($res_carrito) > 0) {
     $fila_carrito = mysqli_fetch_assoc($res_carrito);
     $id_carrito = (int)$fila_carrito['id_carrito'];
 } else {
-    $sql_nuevo = "INSERT INTO carritos (id_usuario, estado) VALUES ($id_usuario, 'activo')";
-    $ok_nuevo = mysqli_query($conexion, $sql_nuevo);
-
+    $ok_nuevo = ew_stmt_execute(
+        $conexion,
+        "INSERT INTO carritos (id_usuario, estado) VALUES (?, 'activo')",
+        'i',
+        [$id_usuario]
+    );
     if (!$ok_nuevo) {
         ew_json_error('Error al crear el carrito.', 500);
     }
-
     $id_carrito = (int)mysqli_insert_id($conexion);
 }
 
 if ($tipo === 'recambio') {
-    // Si ya existe el item, se incrementa cantidad.
-    // Si no existe, se inserta.
-    $sql_item = "SELECT id_item, cantidad FROM carrito_items
-                 WHERE id_carrito = $id_carrito AND id_recambio = $id_producto AND (id_mueble IS NULL OR id_mueble = 0)
-                 LIMIT 1";
-    $res_item = mysqli_query($conexion, $sql_item);
+    $res_item = ew_stmt_result(
+        $conexion,
+        "SELECT id_item, cantidad FROM carrito_items
+         WHERE id_carrito = ? AND id_recambio = ? AND (id_mueble IS NULL OR id_mueble = 0)
+         LIMIT 1",
+        'ii',
+        [$id_carrito, $id_producto]
+    );
 
     if ($res_item && mysqli_num_rows($res_item) > 0) {
         $fila_item = mysqli_fetch_assoc($res_item);
-        $nueva_cantidad = (int)$fila_item['cantidad'] + 1;
         $id_item = (int)$fila_item['id_item'];
+        $nueva_cantidad = (int)$fila_item['cantidad'] + 1;
 
-        $sql_update = "UPDATE carrito_items
-                       SET cantidad = $nueva_cantidad
-                       WHERE id_item = $id_item";
-        $ok_update = mysqli_query($conexion, $sql_update);
-
+        $ok_update = ew_stmt_execute(
+            $conexion,
+            "UPDATE carrito_items SET cantidad = ? WHERE id_item = ?",
+            'ii',
+            [$nueva_cantidad, $id_item]
+        );
         if (!$ok_update) {
             ew_json_error('Error al actualizar la cantidad.', 500);
         }
-
         ew_json_ok('Cantidad actualizada en el carrito.');
     }
 
-    $sql_insert = "INSERT INTO carrito_items (id_carrito, id_recambio, id_mueble, cantidad)
-                   VALUES ($id_carrito, $id_producto, NULL, 1)";
-    $ok_insert = mysqli_query($conexion, $sql_insert);
-
+    $ok_insert = ew_stmt_execute(
+        $conexion,
+        "INSERT INTO carrito_items (id_carrito, id_recambio, id_mueble, cantidad)
+         VALUES (?, ?, NULL, 1)",
+        'ii',
+        [$id_carrito, $id_producto]
+    );
     if (!$ok_insert) {
         ew_json_error('Error al anadir el recambio al carrito.', 500);
     }
-
     ew_json_ok('Recambio anadido al carrito.');
 }
 
-// Bloque equivalente para muebles.
-$sql_item = "SELECT id_item, cantidad FROM carrito_items
-             WHERE id_carrito = $id_carrito AND id_mueble = $id_producto AND (id_recambio IS NULL OR id_recambio = 0)
-             LIMIT 1";
-$res_item = mysqli_query($conexion, $sql_item);
+$res_item = ew_stmt_result(
+    $conexion,
+    "SELECT id_item, cantidad FROM carrito_items
+     WHERE id_carrito = ? AND id_mueble = ? AND (id_recambio IS NULL OR id_recambio = 0)
+     LIMIT 1",
+    'ii',
+    [$id_carrito, $id_producto]
+);
 
 if ($res_item && mysqli_num_rows($res_item) > 0) {
     $fila_item = mysqli_fetch_assoc($res_item);
-    $nueva_cantidad = (int)$fila_item['cantidad'] + 1;
     $id_item = (int)$fila_item['id_item'];
+    $nueva_cantidad = (int)$fila_item['cantidad'] + 1;
 
-    $sql_update = "UPDATE carrito_items
-                   SET cantidad = $nueva_cantidad
-                   WHERE id_item = $id_item";
-    $ok_update = mysqli_query($conexion, $sql_update);
-
+    $ok_update = ew_stmt_execute(
+        $conexion,
+        "UPDATE carrito_items SET cantidad = ? WHERE id_item = ?",
+        'ii',
+        [$nueva_cantidad, $id_item]
+    );
     if (!$ok_update) {
         ew_json_error('Error al actualizar la cantidad.', 500);
     }
-
     ew_json_ok('Cantidad actualizada en el carrito.');
 }
 
-$sql_insert = "INSERT INTO carrito_items (id_carrito, id_recambio, id_mueble, cantidad)
-               VALUES ($id_carrito, NULL, $id_producto, 1)";
-$ok_insert = mysqli_query($conexion, $sql_insert);
-
+$ok_insert = ew_stmt_execute(
+    $conexion,
+    "INSERT INTO carrito_items (id_carrito, id_recambio, id_mueble, cantidad)
+     VALUES (?, NULL, ?, 1)",
+    'ii',
+    [$id_carrito, $id_producto]
+);
 if (!$ok_insert) {
     ew_json_error('Error al anadir el mueble al carrito.', 500);
 }

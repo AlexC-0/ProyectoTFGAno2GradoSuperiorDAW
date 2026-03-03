@@ -1,4 +1,10 @@
-<?php
+﻿<?php
+/*
+DOCUMENTACION_EXPLICATIVA_TFG
+Que hace: Aplica filtros de busqueda sobre el catalogo de muebles.
+Por que se hizo asi: Construye condiciones de forma controlada para combinar flexibilidad y seguridad.
+Para que sirve: Permite encontrar rapido lo que el usuario necesita.
+*/
 /*
 DOCUMENTACION_PASO4
 Busqueda simple de muebles por texto y ubicacion.
@@ -11,6 +17,24 @@ require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once 'conexion.php';
 
+function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array $params = [])
+{
+    $stmt = mysqli_prepare($conexion, $sql);
+    if (!$stmt) {
+        return false;
+    }
+    if ($types !== '') {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        return false;
+    }
+    $result = mysqli_stmt_get_result($stmt);
+    mysqli_stmt_close($stmt);
+    return $result;
+}
+
 // Parametros de busqueda libre (texto + ubicacion).
 $q = trim($_GET['q'] ?? '');
 $ubicacion = trim($_GET['ubicacion'] ?? '');
@@ -22,19 +46,27 @@ if ($q === '' && $ubicacion === '') {
 } else {
     // Consulta incremental segun filtros activos.
     $sql = "SELECT * FROM muebles WHERE 1=1";
+    $types = '';
+    $params = [];
 
     if ($q !== '') {
-        $q_like = '%' . mysqli_real_escape_string($conexion, $q) . '%';
-        $sql .= " AND (titulo LIKE '$q_like' OR descripcion LIKE '$q_like')";
+        $q_like = '%' . $q . '%';
+        $sql .= " AND (titulo LIKE ? OR descripcion LIKE ?)";
+        $types .= 'ss';
+        $params[] = $q_like;
+        $params[] = $q_like;
     }
 
     if ($ubicacion !== '') {
-        $u_like = '%' . mysqli_real_escape_string($conexion, $ubicacion) . '%';
-        $sql .= " AND (provincia LIKE '$u_like' OR localidad LIKE '$u_like')";
+        $u_like = '%' . $ubicacion . '%';
+        $sql .= " AND (provincia LIKE ? OR localidad LIKE ?)";
+        $types .= 'ss';
+        $params[] = $u_like;
+        $params[] = $u_like;
     }
 
     $sql .= ' ORDER BY fecha_publicacion DESC';
-    $resultado = mysqli_query($conexion, $sql);
+    $resultado = ew_stmt_result($conexion, $sql, $types, $params);
 
     if (!$resultado) {
         die('Error en la busqueda: ' . mysqli_error($conexion));
@@ -96,5 +128,6 @@ if ($q === '' && $ubicacion === '') {
 <script src="js/app.js"></script>
 </body>
 </html>
+
 
 

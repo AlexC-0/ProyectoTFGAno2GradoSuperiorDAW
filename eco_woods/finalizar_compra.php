@@ -1,4 +1,10 @@
-<?php
+﻿<?php
+/*
+DOCUMENTACION_EXPLICATIVA_TFG
+Que hace: Cierra el proceso de compra y registra pedido.
+Por que se hizo asi: Se valida estado de carrito y se persiste con consultas seguras.
+Para que sirve: Convierte el carrito en una operacion final controlada.
+*/
 /*
 DOCUMENTACION_PASO4
 Confirmacion y cierre de carrito en modo prueba.
@@ -17,6 +23,36 @@ require_once __DIR__ . '/includes/auth.php';
 ew_require_login('login.php');
 require 'conexion.php';
 
+function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array $params = [])
+{
+    $stmt = mysqli_prepare($conexion, $sql);
+    if (!$stmt) {
+        return false;
+    }
+    if ($types !== '') {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        return false;
+    }
+    $result = mysqli_stmt_get_result($stmt);
+    mysqli_stmt_close($stmt);
+    return $result;
+}
+
+function ew_stmt_execute(mysqli $conexion, string $sql, string $types, array $params): bool
+{
+    $stmt = mysqli_prepare($conexion, $sql);
+    if (!$stmt) {
+        return false;
+    }
+    mysqli_stmt_bind_param($stmt, $types, ...$params);
+    $ok = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    return $ok;
+}
+
 $id_usuario = (int)$_SESSION['usuario_id'];
 $finalizado = false;
 $mensaje = '';
@@ -25,22 +61,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_validate($_POST['csrf_token'] ?? null)) {
         $mensaje = 'Sesion expirada. Recarga la pagina e intentalo de nuevo.';
     } else {
-        $sql_carrito = "SELECT id_carrito FROM carritos
-                        WHERE id_usuario = $id_usuario AND estado = 'activo'
-                        LIMIT 1";
-        $res_carrito = mysqli_query($conexion, $sql_carrito);
+        $res_carrito = ew_stmt_result(
+            $conexion,
+            "SELECT id_carrito FROM carritos
+             WHERE id_usuario = ? AND estado = 'activo'
+             LIMIT 1",
+            'i',
+            [$id_usuario]
+        );
 
         if ($res_carrito && mysqli_num_rows($res_carrito) > 0) {
             $fila = mysqli_fetch_assoc($res_carrito);
             $id_carrito = (int)$fila['id_carrito'];
 
             // No cerramos carritos vacios para no registrar compras nulas.
-            $sql_items = "SELECT id_item FROM carrito_items WHERE id_carrito = $id_carrito LIMIT 1";
-            $res_items = mysqli_query($conexion, $sql_items);
+            $res_items = ew_stmt_result(
+                $conexion,
+                "SELECT id_item FROM carrito_items WHERE id_carrito = ? LIMIT 1",
+                'i',
+                [$id_carrito]
+            );
 
             if ($res_items && mysqli_num_rows($res_items) > 0) {
-                $sql_close = "UPDATE carritos SET estado = 'finalizado' WHERE id_carrito = $id_carrito";
-                $ok = mysqli_query($conexion, $sql_close);
+                $ok = ew_stmt_execute(
+                    $conexion,
+                    "UPDATE carritos SET estado = 'finalizado' WHERE id_carrito = ?",
+                    'i',
+                    [$id_carrito]
+                );
 
                 if ($ok) {
                     $finalizado = true;
@@ -97,9 +145,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php ew_render_footer(); ?>
 
-<button id="btnTop" onclick="scrollToTop()">▲</button>
+<button id="btnTop" onclick="scrollToTop()">â–²</button>
 <script src="js/app.js"></script>
 
 </body>
 </html>
+
 

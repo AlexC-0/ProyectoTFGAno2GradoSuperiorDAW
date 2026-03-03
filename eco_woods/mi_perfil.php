@@ -1,4 +1,10 @@
-<?php
+﻿<?php
+/*
+DOCUMENTACION_EXPLICATIVA_TFG
+Que hace: Muestra datos personales, publicaciones y actividad del usuario.
+Por que se hizo asi: Concentra informacion clave del usuario en un solo punto.
+Para que sirve: Mejora la gestion de cuenta y la experiencia diaria.
+*/
 /*
 DOCUMENTACION_PASO4
 Area personal del usuario autenticado.
@@ -6,7 +12,7 @@ Area personal del usuario autenticado.
 - Incluye bandeja de mensajes recibidos y enviados.
 - Agrupa acciones de gestion propias con controles de seguridad.
 */
-// Arranque base: sesión + utilidades, layout común y control de acceso.
+// Arranque base: sesiÃ³n + utilidades, layout comÃºn y control de acceso.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/auth.php';
@@ -15,71 +21,107 @@ ew_require_login('login.php');
 
 require 'conexion.php';
 
-// Usuario autenticado del que se mostrará todo el panel personal.
+// Usuario autenticado del que se mostrarÃ¡ todo el panel personal.
 $id_usuario = (int) $_SESSION['usuario_id'];
 
+function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array $params = [])
+{
+    $stmt = mysqli_prepare($conexion, $sql);
+    if (!$stmt) {
+        return false;
+    }
+    if ($types !== '') {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        return false;
+    }
+    $result = mysqli_stmt_get_result($stmt);
+    mysqli_stmt_close($stmt);
+    return $result;
+}
+
 // Bloque de datos personales.
-$sql_usuario = "SELECT nombre, email, telefono, provincia, localidad, fecha_registro
-                FROM usuarios
-                WHERE id_usuario = $id_usuario
-                LIMIT 1";
+$res_usuario = ew_stmt_result(
+    $conexion,
+    "SELECT nombre, email, telefono, provincia, localidad, fecha_registro
+     FROM usuarios
+     WHERE id_usuario = ?
+     LIMIT 1",
+    'i',
+    [$id_usuario]
+);
+$usuario = $res_usuario ? mysqli_fetch_assoc($res_usuario) : null;
 
-$res_usuario = mysqli_query($conexion, $sql_usuario);
-$usuario = mysqli_fetch_assoc($res_usuario);
+// Publicaciones del usuario para gestion desde su perfil.
+$res_muebles = ew_stmt_result(
+    $conexion,
+    "SELECT id_mueble, titulo, precio, provincia, localidad, estado, fecha_publicacion, categoria, imagen
+     FROM muebles
+     WHERE id_usuario = ?
+     ORDER BY fecha_publicacion DESC",
+    'i',
+    [$id_usuario]
+);
 
-// Publicaciones del usuario para gestión desde su perfil.
-$sql_muebles = "SELECT id_mueble, titulo, precio, provincia, localidad, estado, fecha_publicacion, categoria, imagen
-                FROM muebles
-                WHERE id_usuario = $id_usuario
-                ORDER BY fecha_publicacion DESC";
-
-$res_muebles = mysqli_query($conexion, $sql_muebles);
-
-// Reseñas escritas por el usuario.
-$sql_resenas = "SELECT r.*, m.titulo AS titulo_mueble
-                FROM resenas r
-                JOIN muebles m ON r.id_mueble = m.id_mueble
-                WHERE r.id_usuario = $id_usuario
-                ORDER BY r.fecha_resena DESC";
-
-$res_resenas = mysqli_query($conexion, $sql_resenas);
+// Resenas escritas por el usuario.
+$res_resenas = ew_stmt_result(
+    $conexion,
+    "SELECT r.*, m.titulo AS titulo_mueble
+     FROM resenas r
+     JOIN muebles m ON r.id_mueble = m.id_mueble
+     WHERE r.id_usuario = ?
+     ORDER BY r.fecha_resena DESC",
+    'i',
+    [$id_usuario]
+);
 
 // Favoritos guardados por el usuario.
-$sql_favoritos = "SELECT f.fecha_guardado,
-                         m.id_mueble, m.titulo, m.precio, m.provincia,
-                         m.localidad, m.estado, m.categoria, m.imagen
-                  FROM favoritos f
-                  JOIN muebles m ON f.id_mueble = m.id_mueble
-                  WHERE f.id_usuario = $id_usuario
-                  ORDER BY f.fecha_guardado DESC";
-
-$res_favoritos = mysqli_query($conexion, $sql_favoritos);
+$res_favoritos = ew_stmt_result(
+    $conexion,
+    "SELECT f.fecha_guardado,
+            m.id_mueble, m.titulo, m.precio, m.provincia,
+            m.localidad, m.estado, m.categoria, m.imagen
+     FROM favoritos f
+     JOIN muebles m ON f.id_mueble = m.id_mueble
+     WHERE f.id_usuario = ?
+     ORDER BY f.fecha_guardado DESC",
+    'i',
+    [$id_usuario]
+);
 
 // Bandeja de entrada de mensajes del usuario.
-$sql_recibidos = "SELECT msg.id_mensaje, msg.asunto, msg.cuerpo, msg.fecha_envio, msg.leido,
-                         u.nombre AS nombre_remitente,
-                         m.titulo AS titulo_mueble,
-                         m.id_mueble AS id_mueble
-                  FROM mensajes msg
-                  JOIN usuarios u ON msg.id_remitente = u.id_usuario
-                  LEFT JOIN muebles m ON msg.id_mueble = m.id_mueble
-                  WHERE msg.id_destinatario = $id_usuario
-                  ORDER BY msg.fecha_envio DESC";
-
-$res_recibidos = mysqli_query($conexion, $sql_recibidos);
+$res_recibidos = ew_stmt_result(
+    $conexion,
+    "SELECT msg.id_mensaje, msg.asunto, msg.cuerpo, msg.fecha_envio, msg.leido,
+            u.nombre AS nombre_remitente,
+            m.titulo AS titulo_mueble,
+            m.id_mueble AS id_mueble
+     FROM mensajes msg
+     JOIN usuarios u ON msg.id_remitente = u.id_usuario
+     LEFT JOIN muebles m ON msg.id_mueble = m.id_mueble
+     WHERE msg.id_destinatario = ?
+     ORDER BY msg.fecha_envio DESC",
+    'i',
+    [$id_usuario]
+);
 
 // Bandeja de salida para trazabilidad de conversaciones.
-$sql_enviados = "SELECT msg.id_mensaje, msg.asunto, msg.cuerpo, msg.fecha_envio, msg.leido,
-                        u.nombre AS nombre_destinatario,
-                        m.titulo AS titulo_mueble,
-                        m.id_mueble AS id_mueble
-                 FROM mensajes msg
-                 JOIN usuarios u ON msg.id_destinatario = u.id_usuario
-                 LEFT JOIN muebles m ON msg.id_mueble = m.id_mueble
-                 WHERE msg.id_remitente = $id_usuario
-                 ORDER BY msg.fecha_envio DESC";
-
-$res_enviados = mysqli_query($conexion, $sql_enviados);
+$res_enviados = ew_stmt_result(
+    $conexion,
+    "SELECT msg.id_mensaje, msg.asunto, msg.cuerpo, msg.fecha_envio, msg.leido,
+            u.nombre AS nombre_destinatario,
+            m.titulo AS titulo_mueble,
+            m.id_mueble AS id_mueble
+     FROM mensajes msg
+     JOIN usuarios u ON msg.id_destinatario = u.id_usuario
+     LEFT JOIN muebles m ON msg.id_mueble = m.id_mueble
+     WHERE msg.id_remitente = ?
+     ORDER BY msg.fecha_envio DESC",
+    'i',
+    [$id_usuario]
+);
 
 $num_recibidos = $res_recibidos ? mysqli_num_rows($res_recibidos) : 0;
 $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
@@ -107,8 +149,8 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                 <div class="perfil-card perfil-card-estrecha perfil-card-centrada">
                     <p><strong>Nombre:</strong> <?php echo htmlspecialchars($usuario['nombre']); ?></p>
                     <p><strong>Email:</strong> <?php echo htmlspecialchars($usuario['email']); ?></p>
-                    <p><strong>Teléfono:</strong> <?php echo htmlspecialchars($usuario['telefono'] ?? ''); ?></p>
-                    <p><strong>Ubicación:</strong>
+                    <p><strong>TelÃ©fono:</strong> <?php echo htmlspecialchars($usuario['telefono'] ?? ''); ?></p>
+                    <p><strong>UbicaciÃ³n:</strong>
                         <?php
                             echo htmlspecialchars($usuario['provincia'] ?? '');
                             if (!empty($usuario['provincia']) && !empty($usuario['localidad'])) {
@@ -148,7 +190,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                                 <p class="tarjeta-precio">
                                     <?php
                                     $precio = (float)$m['precio'];
-                                    echo number_format($precio, 2, ',', '.'); ?> €
+                                    echo number_format($precio, 2, ',', '.'); ?> â‚¬
                                 </p>
                             </div>
 
@@ -190,7 +232,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                     <?php endwhile; ?>
                 </div>
             <?php else: ?>
-                <p>Todavía no has publicado ningún mueble.</p>
+                <p>TodavÃ­a no has publicado ningÃºn mueble.</p>
             <?php endif; ?>
         </section>
 
@@ -218,7 +260,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                                 <p class="tarjeta-precio">
                                     <?php
                                     $precio = (float)$fav['precio'];
-                                    echo number_format($precio, 2, ',', '.'); ?> €
+                                    echo number_format($precio, 2, ',', '.'); ?> â‚¬
                                 </p>
                             </div>
 
@@ -256,23 +298,23 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                     <?php endwhile; ?>
                 </div>
             <?php else: ?>
-                <p>Todavía no tienes muebles marcados como favoritos.</p>
+                <p>TodavÃ­a no tienes muebles marcados como favoritos.</p>
             <?php endif; ?>
         </section>
 
         <hr>
 
         <section class="bloque-mis-resenas">
-            <h2>Mis reseñas</h2>
+            <h2>Mis reseÃ±as</h2>
 
             <?php if ($res_resenas && mysqli_num_rows($res_resenas) > 0): ?>
                 <div class="listado-tarjetas">
                     <?php while ($r = mysqli_fetch_assoc($res_resenas)): ?>
                         <article class="tarjeta">
                             <p><strong>Mueble:</strong> <?php echo htmlspecialchars($r['titulo_mueble']); ?></p>
-                            <p><strong>Puntuación:</strong> <?php echo htmlspecialchars($r['puntuacion']); ?>/5</p>
+                            <p><strong>PuntuaciÃ³n:</strong> <?php echo htmlspecialchars($r['puntuacion']); ?>/5</p>
                             <p><strong>Comentario:</strong> <?php echo htmlspecialchars($r['comentario']); ?></p>
-                            <p><small>Fecha reseña: <?php echo htmlspecialchars($r['fecha_resena']); ?></small></p>
+                            <p><small>Fecha reseÃ±a: <?php echo htmlspecialchars($r['fecha_resena']); ?></small></p>
 
                             <div class="tarjeta-footer">
                                 <form action="eliminar_resena.php" method="post" style="margin:0;">
@@ -287,7 +329,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                     <?php endwhile; ?>
                 </div>
             <?php else: ?>
-                <p>Todavía no has escrito reseñas.</p>
+                <p>TodavÃ­a no has escrito reseÃ±as.</p>
             <?php endif; ?>
         </section>
 
@@ -306,7 +348,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                             <?php while ($msg = mysqli_fetch_assoc($res_recibidos)): ?>
                                 <li>
                                     <strong>De:</strong> <?php echo htmlspecialchars($msg['nombre_remitente']); ?>
-                                    — <small><?php echo htmlspecialchars($msg['fecha_envio']); ?></small>
+                                    â€” <small><?php echo htmlspecialchars($msg['fecha_envio']); ?></small>
 
                                     <?php if (!empty($msg['titulo_mueble'])): ?>
                                         <br>
@@ -334,7 +376,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                             <?php while ($msg = mysqli_fetch_assoc($res_enviados)): ?>
                                 <li>
                                     <strong>Para:</strong> <?php echo htmlspecialchars($msg['nombre_destinatario']); ?>
-                                    — <small><?php echo htmlspecialchars($msg['fecha_envio']); ?></small>
+                                    â€” <small><?php echo htmlspecialchars($msg['fecha_envio']); ?></small>
 
                                     <?php if (!empty($msg['titulo_mueble'])): ?>
                                         <br>
@@ -350,7 +392,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                             <?php endwhile; ?>
                         </ul>
                     <?php else: ?>
-                        <p>No has enviado mensajes todavía.</p>
+                        <p>No has enviado mensajes todavÃ­a.</p>
                     <?php endif; ?>
                 </div>
 
@@ -362,11 +404,12 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
 <?php ew_render_footer(); ?>
 
-<button id="btnTop" onclick="scrollToTop()">▲</button>
+<button id="btnTop" onclick="scrollToTop()">â–²</button>
 <script src="js/app.js"></script>
 
 </body>
 </html>
+
 
 
 

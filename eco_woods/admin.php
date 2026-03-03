@@ -1,4 +1,10 @@
-<?php
+﻿<?php
+/*
+DOCUMENTACION_EXPLICATIVA_TFG
+Que hace: Muestra el panel de administracion con listados de usuarios, productos y reseñas.
+Por que se hizo asi: Se separan secciones para que la gestion sea clara y se reduce el riesgo de errores al consultar datos.
+Para que sirve: Da control centralizado para moderar la plataforma.
+*/
 /*
 DOCUMENTACION_PASO4
 Panel de administracion del proyecto.
@@ -14,17 +20,34 @@ require 'conexion.php';
 
 // Solo admins pueden entrar aqui
 ew_require_admin('index.php');
+function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array $params = [])
+{
+    $stmt = mysqli_prepare($conexion, $sql);
+    if (!$stmt) {
+        return false;
+    }
+    if ($types !== '') {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        return false;
+    }
+    $result = mysqli_stmt_get_result($stmt);
+    mysqli_stmt_close($stmt);
+    return $result;
+}
 
-// Sección actual del panel
+// SecciÃ³n actual del panel
 $seccion = $_GET['seccion'] ?? 'usuarios';
 
-// Datos para cada sección
+// Datos para cada secciÃ³n
 if ($seccion === 'usuarios') {
 
     $sql_usuarios = "SELECT id_usuario, nombre, email, telefono, provincia, localidad, fecha_registro, es_admin
                      FROM usuarios
                      ORDER BY fecha_registro DESC";
-    $res_usuarios = mysqli_query($conexion, $sql_usuarios);
+    $res_usuarios = ew_stmt_result($conexion, $sql_usuarios);
 
 } elseif ($seccion === 'muebles') {
 
@@ -34,14 +57,14 @@ if ($seccion === 'usuarios') {
                     FROM muebles m
                     JOIN usuarios u ON m.id_usuario = u.id_usuario
                     ORDER BY m.fecha_publicacion DESC";
-    $res_muebles = mysqli_query($conexion, $sql_muebles);
+    $res_muebles = ew_stmt_result($conexion, $sql_muebles);
 
 } elseif ($seccion === 'recambios') {
 
     $sql_recambios = "SELECT id_recambio, nombre, descripcion, tipo, compatible_con, precio
                       FROM recambios3d
                       ORDER BY id_recambio DESC";
-    $res_recambios = mysqli_query($conexion, $sql_recambios);
+    $res_recambios = ew_stmt_result($conexion, $sql_recambios);
 
 } elseif ($seccion === 'resenas') {
 
@@ -53,7 +76,7 @@ if ($seccion === 'usuarios') {
                     JOIN usuarios u ON r.id_usuario = u.id_usuario
                     JOIN muebles m ON r.id_mueble = m.id_mueble
                     ORDER BY r.fecha_resena DESC";
-    $res_resenas = mysqli_query($conexion, $sql_resenas);
+    $res_resenas = ew_stmt_result($conexion, $sql_resenas);
 
 }
 
@@ -63,7 +86,7 @@ $es_admin = ew_is_admin();
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel de administración - ECO & WOODS</title>
+    <title>Panel de administraciÃ³n - ECO & WOODS</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -73,12 +96,12 @@ $es_admin = ew_is_admin();
 <main>
     <div class="contenedor">
 
-        <h1>Panel de administración</h1>
+        <h1>Panel de administraciÃ³n</h1>
         <p><strong>Usuario admin:</strong> <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?></p>
 
         <hr>
 
-        <!-- Submenú del panel -->
+        <!-- SubmenÃº del panel -->
         <nav class="submenu-admin">
             <a href="admin.php?seccion=usuarios"
                class="<?php echo ($seccion === 'usuarios') ? 'activo' : ''; ?>">
@@ -94,7 +117,7 @@ $es_admin = ew_is_admin();
             </a>
             <a href="admin.php?seccion=resenas"
                class="<?php echo ($seccion === 'resenas') ? 'activo' : ''; ?>">
-                Reseñas
+                ReseÃ±as
             </a>
         </nav>
 
@@ -112,8 +135,8 @@ $es_admin = ew_is_admin();
                             <th>ID</th>
                             <th>Nombre</th>
                             <th>Email</th>
-                            <th>Teléfono</th>
-                            <th>Ubicación</th>
+                            <th>TelÃ©fono</th>
+                            <th>UbicaciÃ³n</th>
                             <th>Fecha registro</th>
                             <th>Rol</th>
                             <th>Acciones</th>
@@ -172,13 +195,13 @@ $es_admin = ew_is_admin();
                         <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Título</th>
+                            <th>TÃ­tulo</th>
                             <th>Vendedor</th>
                             <th>Precio</th>
-                            <th>Categoría</th>
-                            <th>Ubicación</th>
+                            <th>CategorÃ­a</th>
+                            <th>UbicaciÃ³n</th>
                             <th>Estado</th>
-                            <th>Fecha publicación</th>
+                            <th>Fecha publicaciÃ³n</th>
                             <th>Ver</th>
                             <th>Acciones</th>
                         </tr>
@@ -192,7 +215,7 @@ $es_admin = ew_is_admin();
                                 <td>
                                     <?php
                                     $precio = (float)$m['precio'];
-                                    echo number_format($precio, 2, ',', '.'); ?> €
+                                    echo number_format($precio, 2, ',', '.'); ?> â‚¬
                                 </td>
                                 <td><?php echo htmlspecialchars($m['categoria'] ?? ''); ?></td>
                                 <td>
@@ -253,7 +276,7 @@ $es_admin = ew_is_admin();
                                 <td>
                                     <?php
                                     $precioRec = (float)$r['precio'];
-                                    echo number_format($precioRec, 2, ',', '.'); ?> €
+                                    echo number_format($precioRec, 2, ',', '.'); ?> â‚¬
                                 </td>
                                 <td>
                                     <form action="admin_borrar_recambio.php" method="post" style="margin:0;">
@@ -275,7 +298,7 @@ $es_admin = ew_is_admin();
 
         <?php elseif ($seccion === 'resenas'): ?>
 
-            <h2>Listado de reseñas</h2>
+            <h2>Listado de reseÃ±as</h2>
 
             <?php if ($res_resenas && mysqli_num_rows($res_resenas) > 0): ?>
                 <div class="tabla-admin">
@@ -285,7 +308,7 @@ $es_admin = ew_is_admin();
                             <th>ID</th>
                             <th>Mueble</th>
                             <th>Usuario</th>
-                            <th>Puntuación</th>
+                            <th>PuntuaciÃ³n</th>
                             <th>Comentario</th>
                             <th>Fecha</th>
                             <th>Acciones</th>
@@ -319,7 +342,7 @@ $es_admin = ew_is_admin();
                     </table>
                 </div>
             <?php else: ?>
-                <p>No hay reseñas registradas.</p>
+                <p>No hay reseÃ±as registradas.</p>
             <?php endif; ?>
 
         <?php endif; ?>
@@ -329,11 +352,13 @@ $es_admin = ew_is_admin();
 
 <?php ew_render_footer(); ?>
 
-<button id="btnTop" onclick="scrollToTop()">▲</button>
+<button id="btnTop" onclick="scrollToTop()">â–²</button>
 <script src="js/app.js"></script>
 
 </body>
 </html>
+
+
 
 
 

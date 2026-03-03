@@ -1,4 +1,10 @@
-<?php
+﻿<?php
+/*
+DOCUMENTACION_EXPLICATIVA_TFG
+Que hace: Muestra detalle completo de un mueble y reseñas asociadas.
+Por que se hizo asi: Carga datos relacionados con consultas preparadas para detalle fiable y seguro.
+Para que sirve: Da informacion suficiente para decidir la compra.
+*/
 /*
 DOCUMENTACION_PASO4
 Detalle completo de un mueble.
@@ -22,41 +28,49 @@ $id_mueble = (int) $_GET['id_mueble'];
 $sql_mueble = "SELECT m.*, u.nombre AS nombre_vendedor
                FROM muebles m
                JOIN usuarios u ON m.id_usuario = u.id_usuario
-               WHERE m.id_mueble = $id_mueble
+               WHERE m.id_mueble = ?
                LIMIT 1";
+$stmt_mueble = mysqli_prepare($conexion, $sql_mueble);
+if (!$stmt_mueble) {
+    die("Error al preparar la consulta del mueble.");
+}
+mysqli_stmt_bind_param($stmt_mueble, 'i', $id_mueble);
+mysqli_stmt_execute($stmt_mueble);
+$res_mueble = mysqli_stmt_get_result($stmt_mueble);
 
-$res_mueble = mysqli_query($conexion, $sql_mueble);
-
-if (!$res_mueble || mysqli_num_rows($res_mueble) == 0) {
+if (!$res_mueble || mysqli_num_rows($res_mueble) === 0) {
+    mysqli_stmt_close($stmt_mueble);
     die("El mueble no existe.");
 }
 
 $mueble = mysqli_fetch_assoc($res_mueble);
+mysqli_stmt_close($stmt_mueble);
 
 // ID del vendedor
 $id_vendedor = isset($mueble['id_usuario']) ? (int)$mueble['id_usuario'] : 0;
 
-// 3 BIS) Cargar recambios 3D compatibles con la categoría del mueble
+// 3 BIS) Cargar recambios 3D compatibles con la categoria del mueble
 $recambios_compatibles = null;
-
 if (!empty($mueble['categoria'])) {
-    $categoria = mysqli_real_escape_string($conexion, $mueble['categoria']);
-
+    $categoria_like = '%' . (string)$mueble['categoria'] . '%';
     $sql_recambios_compat = "SELECT * 
                              FROM recambios3d
-                             WHERE compatible_con LIKE '%$categoria%'
+                             WHERE compatible_con LIKE ?
                              ORDER BY precio ASC";
-
-    $res_recambios_compat = mysqli_query($conexion, $sql_recambios_compat);
-
-    if ($res_recambios_compat && mysqli_num_rows($res_recambios_compat) > 0) {
-        $recambios_compatibles = $res_recambios_compat;
+    $stmt_rec = mysqli_prepare($conexion, $sql_recambios_compat);
+    if ($stmt_rec) {
+        mysqli_stmt_bind_param($stmt_rec, 's', $categoria_like);
+        mysqli_stmt_execute($stmt_rec);
+        $res_recambios_compat = mysqli_stmt_get_result($stmt_rec);
+        if ($res_recambios_compat && mysqli_num_rows($res_recambios_compat) > 0) {
+            $recambios_compatibles = $res_recambios_compat;
+        }
+        mysqli_stmt_close($stmt_rec);
     }
 }
 
-// 2) Si llega el formulario de reseña (POST)
+// 2) Si llega el formulario de resena (POST)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
     if (!isset($_SESSION['usuario_id'])) {
         header("Location: login.php");
         exit;
@@ -66,42 +80,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mensaje_resena = "Sesion expirada. Recarga la pagina e intentalo de nuevo.";
     } else {
         $id_usuario = (int) $_SESSION['usuario_id'];
+        $puntuacion = (int)($_POST['puntuacion'] ?? 0);
+        $comentario = trim((string)($_POST['comentario'] ?? ''));
 
-    $puntuacion = $_POST['puntuacion'] ?? '';
-    $comentario = $_POST['comentario'] ?? '';
+        if ($puntuacion >= 1 && $puntuacion <= 5 && $comentario !== '') {
+            $sql_resena = "INSERT INTO resenas (id_usuario, id_mueble, puntuacion, comentario)
+                           VALUES (?, ?, ?, ?)";
+            $stmt_resena = mysqli_prepare($conexion, $sql_resena);
 
-    $puntuacion = (int) $puntuacion;
-    $comentario = trim($comentario);
+            if (!$stmt_resena) {
+                $mensaje_resena = "Error al preparar la resena.";
+            } else {
+                mysqli_stmt_bind_param($stmt_resena, 'iiis', $id_usuario, $id_mueble, $puntuacion, $comentario);
+                $ok_resena = mysqli_stmt_execute($stmt_resena);
+                mysqli_stmt_close($stmt_resena);
 
-    if ($puntuacion >= 1 && $puntuacion <= 5 && $comentario != '') {
-
-        $comentario_esc = mysqli_real_escape_string($conexion, $comentario);
-
-        $sql_resena = "INSERT INTO resenas (id_usuario, id_mueble, puntuacion, comentario)
-                       VALUES ($id_usuario, $id_mueble, $puntuacion, '$comentario_esc')";
-
-        $ok_resena = mysqli_query($conexion, $sql_resena);
-
-        if ($ok_resena) {
-            $mensaje_resena = "Reseña guardada correctamente.";
+                if ($ok_resena) {
+                    $mensaje_resena = "Resena guardada correctamente.";
+                } else {
+                    $mensaje_resena = "Error al guardar la resena.";
+                }
+            }
         } else {
-            $mensaje_resena = "Error al guardar la reseña: " . mysqli_error($conexion);
+            $mensaje_resena = "Debes indicar una puntuacion entre 1 y 5 y escribir un comentario.";
         }
-
-    } else {
-        $mensaje_resena = "Debes indicar una puntuación entre 1 y 5 y escribir un comentario.";
-    }
     }
 }
 
-// 3) Cargar reseñas del mueble
+// 3) Cargar resenas del mueble
 $sql_lista_resenas = "SELECT r.*, u.nombre AS nombre_usuario
                       FROM resenas r
                       JOIN usuarios u ON r.id_usuario = u.id_usuario
-                      WHERE r.id_mueble = $id_mueble
+                      WHERE r.id_mueble = ?
                       ORDER BY r.fecha_resena DESC";
-
-$res_resenas = mysqli_query($conexion, $sql_lista_resenas);
+$stmt_lista = mysqli_prepare($conexion, $sql_lista_resenas);
+if (!$stmt_lista) {
+    die("Error al preparar la consulta de resenas.");
+}
+mysqli_stmt_bind_param($stmt_lista, 'i', $id_mueble);
+mysqli_stmt_execute($stmt_lista);
+$res_resenas = mysqli_stmt_get_result($stmt_lista);
+mysqli_stmt_close($stmt_lista);
 
 $loggedIn = isset($_SESSION['usuario_id']);
 ?>
@@ -140,24 +159,24 @@ $loggedIn = isset($_SESSION['usuario_id']);
 
             <h1><?php echo htmlspecialchars($mueble['titulo']); ?></h1>
 
-            <p><strong>Descripción:</strong> <?php echo nl2br(htmlspecialchars($mueble['descripcion'])); ?></p>
+            <p><strong>DescripciÃ³n:</strong> <?php echo nl2br(htmlspecialchars($mueble['descripcion'])); ?></p>
             <p><strong>Precio:</strong>
                 <?php
                 $precio_mueble = (float)$mueble['precio'];
                 echo number_format($precio_mueble, 2, ',', '.');
-                ?> €
+                ?> â‚¬
             </p>
-            <p><strong>Ubicación:</strong>
+            <p><strong>UbicaciÃ³n:</strong>
                 <?php echo htmlspecialchars($mueble['provincia']); ?>
                 -
                 <?php echo htmlspecialchars($mueble['localidad']); ?>
             </p>
             <p><strong>Estado:</strong> <?php echo htmlspecialchars($mueble['estado']); ?></p>
             <?php if (!empty($mueble['categoria'])): ?>
-                <p><strong>Categoría:</strong> <?php echo htmlspecialchars($mueble['categoria']); ?></p>
+                <p><strong>CategorÃ­a:</strong> <?php echo htmlspecialchars($mueble['categoria']); ?></p>
             <?php endif; ?>
             <p><strong>Vendedor:</strong> <?php echo htmlspecialchars($mueble['nombre_vendedor']); ?></p>
-            <p><strong>Fecha de publicación:</strong> <?php echo htmlspecialchars($mueble['fecha_publicacion']); ?></p>
+            <p><strong>Fecha de publicaciÃ³n:</strong> <?php echo htmlspecialchars($mueble['fecha_publicacion']); ?></p>
 
             <div class="tarjeta-footer detail-actions">
 
@@ -172,21 +191,21 @@ $loggedIn = isset($_SESSION['usuario_id']);
                                 class="btn-share btn-share-mail"
                                 aria-label="Compartir por email"
                                >
-                            ✉️ Email
+                            âœ‰ï¸ Email
                         </button>
 
                         <button type="button"
                                 class="btn-share btn-share-whatsapp"
                                 aria-label="Compartir por WhatsApp"
                                >
-                            💬 WhatsApp
+                            ðŸ’¬ WhatsApp
                         </button>
 
                         <button type="button"
                                 class="btn-share btn-share-instagram"
                                 aria-label="Compartir en Instagram"
                                >
-                            📷 Instagram
+                            ðŸ“· Instagram
                         </button>
                     </div>
                 </div>
@@ -196,7 +215,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
                     <button type="button"
                             class="btn-carrito-icono btn-carrito-mueble"
                             data-id="<?php echo (int)$id_mueble; ?>"
-                            aria-label="Añadir mueble al carrito"
+                            aria-label="AÃ±adir mueble al carrito"
                            >
                         <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="margin-left:-7px;">
                             <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
@@ -223,7 +242,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
             } else {
                 ?>
                 <p>
-                    <strong>Inicia sesión para contactar con el vendedor.</strong><br>
+                    <strong>Inicia sesiÃ³n para contactar con el vendedor.</strong><br>
                     <a href="login.php">Ir a login</a>
                 </p>
                 <?php
@@ -240,7 +259,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
 
             if (!empty($imagenes_extra)): ?>
                 <hr>
-                <h2>Más fotos del mueble</h2>
+                <h2>MÃ¡s fotos del mueble</h2>
                 <div class="galeria-mueble">
                     <?php foreach ($imagenes_extra as $idx => $imgNombre): ?>
                         <img
@@ -256,7 +275,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
 
         <hr>
 
-        <h2>Reseñas</h2>
+        <h2>ReseÃ±as</h2>
 
         <?php
         if (!empty($mensaje_resena)) {
@@ -270,7 +289,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
                     <article class="tarjeta">
                         <p>
                             <strong><?php echo htmlspecialchars($res['nombre_usuario']); ?></strong>
-                            — Puntuación:
+                            â€” PuntuaciÃ³n:
                             <?php echo (int)$res['puntuacion']; ?>/5
                         </p>
                         <p><?php echo nl2br(htmlspecialchars($res['comentario'])); ?></p>
@@ -281,17 +300,17 @@ $loggedIn = isset($_SESSION['usuario_id']);
                 <?php endwhile; ?>
             </div>
         <?php else: ?>
-            <p>Este mueble aún no tiene reseñas.</p>
+            <p>Este mueble aÃºn no tiene reseÃ±as.</p>
         <?php endif; ?>
 
         <?php if (isset($_SESSION['usuario_id'])): ?>
 
-            <h3>Escribe una reseña</h3>
+            <h3>Escribe una reseÃ±a</h3>
 
             <form action="ver_mueble.php?id_mueble=<?php echo $id_mueble; ?>" method="post" class="formulario">
                 <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
                 <p>
-                    <label>Puntuación (1 a 5):<br>
+                    <label>PuntuaciÃ³n (1 a 5):<br>
                         <select name="puntuacion">
                             <option value="1">1 - Muy mal</option>
                             <option value="2">2 - Mejorable</option>
@@ -309,14 +328,14 @@ $loggedIn = isset($_SESSION['usuario_id']);
                 </p>
 
                 <p>
-                    <button type="submit">Enviar reseña</button>
+                    <button type="submit">Enviar reseÃ±a</button>
                 </p>
             </form>
 
         <?php else: ?>
 
-            <p><strong>Debes iniciar sesión para escribir una reseña.</strong></p>
-            <p><a href="login.php">Iniciar sesión</a></p>
+            <p><strong>Debes iniciar sesiÃ³n para escribir una reseÃ±a.</strong></p>
+            <p><a href="login.php">Iniciar sesiÃ³n</a></p>
 
         <?php endif; ?>
 
@@ -337,7 +356,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
                                 <?php
                                 $precio_rec = (float)$rec['precio'];
                                 echo number_format($precio_rec, 2, ',', '.');
-                                ?> €
+                                ?> â‚¬
                             </p>
                         </div>
 
@@ -362,7 +381,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
                             <button type="button"
                                     class="btn-carrito-icono btn-carrito-recambio"
                                     data-id="<?php echo (int)$rec['id_recambio']; ?>"
-                                    aria-label="Añadir recambio al carrito">
+                                    aria-label="AÃ±adir recambio al carrito">
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                     <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
                                 </svg>
@@ -373,7 +392,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
                 <?php endwhile; ?>
             </div>
         <?php else: ?>
-            <p>De momento no hay recambios 3D específicos para este tipo de mueble.</p>
+            <p>De momento no hay recambios 3D especÃ­ficos para este tipo de mueble.</p>
         <?php endif; ?>
 
     </div>
@@ -381,7 +400,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
 
 <?php ew_render_footer(); ?>
 
-<button id="btnTop" onclick="scrollToTop()">▲</button>
+<button id="btnTop" onclick="scrollToTop()">â–²</button>
 <script src="js/app.js"></script>
 
 <script>
@@ -417,14 +436,14 @@ $loggedIn = isset($_SESSION['usuario_id']);
             const data = await resp.json().catch(() => null);
 
             if (!resp.ok || !data || data.ok !== true) {
-                const msg = (data && data.message) ? data.message : 'No se pudo añadir al carrito.';
+                const msg = (data && data.message) ? data.message : 'No se pudo aÃ±adir al carrito.';
                 showToast(msg, false);
             } else {
                 showToast(data.message, true);
             }
 
         } catch (e) {
-            showToast('Error de conexión al añadir al carrito.', false);
+            showToast('Error de conexiÃ³n al aÃ±adir al carrito.', false);
         }
     }
 
@@ -472,7 +491,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
     async function copyLink(url) {
         try {
             await navigator.clipboard.writeText(url);
-            showToast('Enlace copiado. Pégalo donde quieras.', true);
+            showToast('Enlace copiado. PÃ©galo donde quieras.', true);
             return true;
         } catch (e) {
             showToast('No se pudo copiar el enlace.', false);
@@ -523,6 +542,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
 
 </body>
 </html>
+
 
 
 

@@ -1,4 +1,10 @@
-<?php
+﻿<?php
+/*
+DOCUMENTACION_EXPLICATIVA_TFG
+Que hace: Muestra el catalogo de recambios 3D y sus acciones principales.
+Por que se hizo asi: Detecta columnas opcionales para convivir con esquemas de BD distintos.
+Para que sirve: Permite usar recambios incluso si la instalacion no esta al 100% migrada.
+*/
 /*
 DOCUMENTACION_PASO4
 Catalogo de recambios 3D con favoritos y carrito.
@@ -6,18 +12,52 @@ Catalogo de recambios 3D con favoritos y carrito.
 - Integra acciones asincronas de carrito y favoritos.
 - Alinea frontend con seguridad y respuestas del backend.
 */
-// Bootstrap/layout para sesión y estructura visual consistente.
+// Bootstrap/layout para sesion y estructura visual consistente.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once "conexion.php";
 
-// Verifica columnas opcionales de imágenes; permite convivir con distintos estados de esquema.
+function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array $params = [])
+{
+    $stmt = mysqli_prepare($conexion, $sql);
+    if (!$stmt) {
+        return false;
+    }
+    if ($types !== '') {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        return false;
+    }
+    $result = mysqli_stmt_get_result($stmt);
+    mysqli_stmt_close($stmt);
+    return $result;
+}
+
+// Verifica columnas opcionales de imagenes; permite convivir con distintos estados de esquema.
 function columnExists($conexion, $tabla, $columna) {
-    $tabla_esc = mysqli_real_escape_string($conexion, $tabla);
-    $col_esc = mysqli_real_escape_string($conexion, $columna);
-    $sql = "SHOW COLUMNS FROM `$tabla_esc` LIKE '$col_esc'";
-    $res = mysqli_query($conexion, $sql);
-    return ($res && mysqli_num_rows($res) > 0);
+    $stmt = mysqli_prepare(
+        $conexion,
+        "SELECT 1
+         FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE()
+           AND TABLE_NAME = ?
+           AND COLUMN_NAME = ?
+         LIMIT 1"
+    );
+    if (!$stmt) {
+        return false;
+    }
+    mysqli_stmt_bind_param($stmt, 'ss', $tabla, $columna);
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        return false;
+    }
+    $res = mysqli_stmt_get_result($stmt);
+    $ok = ($res && mysqli_num_rows($res) > 0);
+    mysqli_stmt_close($stmt);
+    return $ok;
 }
 
 $col_img1 = columnExists($conexion, 'recambios3d', 'imagen');
@@ -26,12 +66,16 @@ $col_img3 = columnExists($conexion, 'recambios3d', 'imagen3');
 $col_img4 = columnExists($conexion, 'recambios3d', 'imagen4');
 $col_img5 = columnExists($conexion, 'recambios3d', 'imagen5');
 
-// Favoritos de recambios para pintar estado inicial del botón en cada tarjeta.
+// Favoritos de recambios para pintar estado inicial del boton en cada tarjeta.
 $favoritos_recambios = [];
 if (isset($_SESSION['usuario_id'])) {
     $id_usuario_fav = (int) $_SESSION['usuario_id'];
-    $sql_fav = "SELECT id_recambio FROM favoritos_recambios WHERE id_usuario = $id_usuario_fav";
-    $res_fav = mysqli_query($conexion, $sql_fav);
+    $res_fav = ew_stmt_result(
+        $conexion,
+        "SELECT id_recambio FROM favoritos_recambios WHERE id_usuario = ?",
+        'i',
+        [$id_usuario_fav]
+    );
 
     if ($res_fav) {
         while ($f = mysqli_fetch_assoc($res_fav)) {
@@ -40,8 +84,7 @@ if (isset($_SESSION['usuario_id'])) {
     }
 }
 
-$sql = "SELECT * FROM recambios3d ORDER BY id_recambio DESC";
-$resultado = mysqli_query($conexion, $sql);
+$resultado = ew_stmt_result($conexion, "SELECT * FROM recambios3d ORDER BY id_recambio DESC");
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -124,7 +167,7 @@ $resultado = mysqli_query($conexion, $sql);
                                 <?php echo htmlspecialchars($fila['nombre'] ?? ''); ?>
                             </h3>
                             <p class="tarjeta-precio">
-                                <?php echo number_format($precio, 2, ',', '.'); ?> €
+                                <?php echo number_format($precio, 2, ',', '.'); ?> â‚¬
                             </p>
                         </div>
 
@@ -150,20 +193,20 @@ $resultado = mysqli_query($conexion, $sql);
 
                             <a class="btn-ver"
                                href="ver_recambio.php?id_recambio=<?php echo $idRec; ?>">
-                                Ver detalles y reseñas
+                                Ver detalles y reseÃ±as
                             </a>
 
                             <?php if (isset($_SESSION['usuario_id'])): ?>
                                 <button type="button"
                                         class="btn-fav <?php echo $esFav ? 'es-favorito' : ''; ?> btn-fav-recambio"
                                         data-id="<?php echo $idRec; ?>">
-                                    <?php echo $esFav ? '★ Quitar de favoritos' : '☆ Añadir a favoritos'; ?>
+                                    <?php echo $esFav ? 'â˜… Quitar de favoritos' : 'â˜† AÃ±adir a favoritos'; ?>
                                 </button>
 
                                 <button type="button"
                                         class="btn-carrito-icono btn-carrito-recambio"
                                         data-id="<?php echo $idRec; ?>"
-                                        aria-label="Añadir al carrito">
+                                        aria-label="AÃ±adir al carrito">
                                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                         <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
                                     </svg>
@@ -185,7 +228,7 @@ $resultado = mysqli_query($conexion, $sql);
 
 <?php ew_render_footer(); ?>
 
-<button id="btnTop" onclick="scrollToTop()">▲</button>
+<button id="btnTop" onclick="scrollToTop()">â–²</button>
 <script src="js/app.js"></script>
 
 <script>
@@ -227,14 +270,14 @@ $resultado = mysqli_query($conexion, $sql);
                 const data = await resp.json().catch(() => null);
 
                 if (!resp.ok || !data || data.ok !== true) {
-                    const msg = (data && data.message) ? data.message : 'No se pudo añadir al carrito.';
+                    const msg = (data && data.message) ? data.message : 'No se pudo aÃ±adir al carrito.';
                     showToast(msg, false);
                 } else {
                     showToast(data.message, true);
                 }
 
             } catch (e) {
-                showToast('Error de conexión al añadir al carrito.', false);
+                showToast('Error de conexiÃ³n al aÃ±adir al carrito.', false);
             } finally {
                 btn.disabled = false;
             }
@@ -269,10 +312,10 @@ $resultado = mysqli_query($conexion, $sql);
 
                     if (data.es_favorito === true) {
                         btn.classList.add('es-favorito');
-                        btn.textContent = '★ Quitar de favoritos';
+                        btn.textContent = 'â˜… Quitar de favoritos';
                     } else if (data.es_favorito === false) {
                         btn.classList.remove('es-favorito');
-                        btn.textContent = '☆ Añadir a favoritos';
+                        btn.textContent = 'â˜† AÃ±adir a favoritos';
                     }
                 }
 
@@ -288,6 +331,7 @@ $resultado = mysqli_query($conexion, $sql);
 
 </body>
 </html>
+
 
 
 

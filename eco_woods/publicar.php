@@ -1,4 +1,10 @@
-<?php
+﻿<?php
+/*
+DOCUMENTACION_EXPLICATIVA_TFG
+Que hace: Gestiona alta de muebles y recambios con formulario.
+Por que se hizo asi: Valida campos e imagenes para frenar entradas invalidas o maliciosas.
+Para que sirve: Permite publicar contenido de forma fiable para el marketplace.
+*/
 /*
 DOCUMENTACION_PASO4
 Pantalla de publicacion de muebles y recambios.
@@ -6,7 +12,7 @@ Pantalla de publicacion de muebles y recambios.
 - Permite rol admin para publicar tambien recambios 3D.
 - Gestiona carga de imagenes, validacion y guardado en base de datos.
 */
-// Arranque común de sesión/utilidades + control de acceso.
+// Arranque comÃºn de sesiÃ³n/utilidades + control de acceso.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/layout.php';
@@ -16,11 +22,74 @@ ew_require_login('login.php');
 require 'conexion.php';
 
 function columnExists($conexion, $tabla, $columna) {
-    $tabla_esc = mysqli_real_escape_string($conexion, $tabla);
-    $col_esc = mysqli_real_escape_string($conexion, $columna);
-    $sql = "SHOW COLUMNS FROM `$tabla_esc` LIKE '$col_esc'";
-    $res = mysqli_query($conexion, $sql);
-    return ($res && mysqli_num_rows($res) > 0);
+    $stmt = mysqli_prepare(
+        $conexion,
+        "SELECT 1
+         FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE()
+           AND TABLE_NAME = ?
+           AND COLUMN_NAME = ?
+         LIMIT 1"
+    );
+    if (!$stmt) {
+        return false;
+    }
+    mysqli_stmt_bind_param($stmt, 'ss', $tabla, $columna);
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        return false;
+    }
+    $res = mysqli_stmt_get_result($stmt);
+    $ok = ($res && mysqli_num_rows($res) > 0);
+    mysqli_stmt_close($stmt);
+    return $ok;
+}
+
+function ew_is_valid_uploaded_image(string $tmpName, string $extension, int $size, array $allowedExt, array $allowedMime, int $maxBytes): bool
+{
+    if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+        return false;
+    }
+    if ($size <= 0 || $size > $maxBytes) {
+        return false;
+    }
+    if (!in_array($extension, $allowedExt, true)) {
+        return false;
+    }
+
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = $finfo ? (string)finfo_file($finfo, $tmpName) : '';
+    if ($finfo) {
+        finfo_close($finfo);
+    }
+    if (!in_array($mime, $allowedMime, true)) {
+        return false;
+    }
+
+    return getimagesize($tmpName) !== false;
+}
+
+function ew_stmt_execute(mysqli $conexion, string $sql, string $types, array $params): bool
+{
+    $stmt = mysqli_prepare($conexion, $sql);
+    if (!$stmt) {
+        return false;
+    }
+
+    $bind = [];
+    $bind[] = $types;
+    foreach ($params as $k => $v) {
+        $bind[] = &$params[$k];
+    }
+
+    if (!call_user_func_array([$stmt, 'bind_param'], $bind)) {
+        mysqli_stmt_close($stmt);
+        return false;
+    }
+
+    $ok = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    return $ok;
 }
 
 $errores = [];
@@ -40,7 +109,7 @@ if ($es_admin) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Protege formularios de alta de contenido frente a envíos externos.
+    // Protege formularios de alta de contenido frente a envÃ­os externos.
     if (!csrf_validate($_POST['csrf_token'] ?? null)) {
         $errores[] = "Sesion expirada. Recarga la pagina e intentalo de nuevo.";
     }
@@ -66,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (!is_numeric($precio) || $precio < 0) {
-            $errores[] = "El precio debe ser un número positivo.";
+            $errores[] = "El precio debe ser un nÃºmero positivo.";
         }
 
         if ($categoria === '') {
@@ -77,6 +146,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $maxImagenes = 5;
             $permitidas  = ['jpg', 'jpeg', 'png', 'webp'];
+            $mimesPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
+            $maxBytesImagen = 5 * 1024 * 1024;
             $rutaUploads = __DIR__ . '/uploads';
 
             $imagenesGuardadas = [null, null, null, null, null];
@@ -103,11 +174,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $tmpName        = $_FILES['imagenes']['tmp_name'][$i];
                     $nombreOriginal = $_FILES['imagenes']['name'][$i];
+                    $tamArchivo     = (int)($_FILES['imagenes']['size'][$i] ?? 0);
 
                     $info      = pathinfo($nombreOriginal);
                     $extension = strtolower($info['extension'] ?? '');
 
-                    if (!in_array($extension, $permitidas)) {
+                    if (!ew_is_valid_uploaded_image($tmpName, $extension, $tamArchivo, $permitidas, $mimesPermitidos, $maxBytesImagen)) {
                         continue;
                     }
 
@@ -121,42 +193,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            $titulo_esc      = mysqli_real_escape_string($conexion, $titulo);
-            $descripcion_esc = mysqli_real_escape_string($conexion, $descripcion);
-            $provincia_esc   = mysqli_real_escape_string($conexion, $provincia);
-            $localidad_esc   = mysqli_real_escape_string($conexion, $localidad);
-            $estado_esc      = mysqli_real_escape_string($conexion, $estado);
-            $categoria_esc   = mysqli_real_escape_string($conexion, $categoria);
-            $precio_num      = (float) $precio;
-
-            $img1 = $imagenesGuardadas[0] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[0]) : null;
-            $img2 = $imagenesGuardadas[1] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[1]) : null;
-            $img3 = $imagenesGuardadas[2] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[2]) : null;
-            $img4 = $imagenesGuardadas[3] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[3]) : null;
-            $img5 = $imagenesGuardadas[4] ? mysqli_real_escape_string($conexion, $imagenesGuardadas[4]) : null;
-
-            $sql = "INSERT INTO muebles 
+            $sql = "INSERT INTO muebles
                     (id_usuario, titulo, descripcion, precio, provincia, localidad, estado, categoria,
                      imagen, imagen2, imagen3, imagen4, imagen5, fecha_publicacion)
-                    VALUES
-                    (
-                        $id_usuario,
-                        '$titulo_esc',
-                        '$descripcion_esc',
-                        $precio_num,
-                        '$provincia_esc',
-                        '$localidad_esc',
-                        '$estado_esc',
-                        '$categoria_esc',
-                        " . ($img1 ? "'$img1'" : "NULL") . ",
-                        " . ($img2 ? "'$img2'" : "NULL") . ",
-                        " . ($img3 ? "'$img3'" : "NULL") . ",
-                        " . ($img4 ? "'$img4'" : "NULL") . ",
-                        " . ($img5 ? "'$img5'" : "NULL") . ",
-                        NOW()
-                    )";
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
 
-            $ok = mysqli_query($conexion, $sql);
+            $ok = ew_stmt_execute(
+                $conexion,
+                $sql,
+                'issdsssssssss',
+                [
+                    $id_usuario,
+                    $titulo,
+                    $descripcion,
+                    (float)$precio,
+                    $provincia,
+                    $localidad,
+                    $estado,
+                    $categoria,
+                    $imagenesGuardadas[0],
+                    $imagenesGuardadas[1],
+                    $imagenesGuardadas[2],
+                    $imagenesGuardadas[3],
+                    $imagenesGuardadas[4],
+                ]
+            );
 
             if ($ok) {
                 $exito = "Mueble publicado correctamente.";
@@ -184,13 +245,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if (!is_numeric($precio_r) || $precio_r < 0) {
-                $errores[] = "El precio debe ser un número positivo.";
+                $errores[] = "El precio debe ser un nÃºmero positivo.";
             }
 
             if (empty($errores)) {
 
                 $maxImagenes = 5;
                 $permitidas  = ['jpg', 'jpeg', 'png', 'webp'];
+                $mimesPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
+                $maxBytesImagen = 5 * 1024 * 1024;
                 $rutaUploads = __DIR__ . '/uploads';
 
                 $imagenesGuardadasRec = [null, null, null, null, null];
@@ -217,11 +280,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         $tmpName        = $_FILES['imagenes_recambio']['tmp_name'][$i];
                         $nombreOriginal = $_FILES['imagenes_recambio']['name'][$i];
+                        $tamArchivo     = (int)($_FILES['imagenes_recambio']['size'][$i] ?? 0);
 
                         $info      = pathinfo($nombreOriginal);
                         $extension = strtolower($info['extension'] ?? '');
 
-                        if (!in_array($extension, $permitidas)) {
+                        if (!ew_is_valid_uploaded_image($tmpName, $extension, $tamArchivo, $permitidas, $mimesPermitidos, $maxBytesImagen)) {
                             continue;
                         }
 
@@ -235,37 +299,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
 
-                $nombre_esc         = mysqli_real_escape_string($conexion, $nombre);
-                $descripcion_r_esc  = mysqli_real_escape_string($conexion, $descripcion_r);
-                $tipo_r_esc         = mysqli_real_escape_string($conexion, $tipo_r);
-                $compatible_con_esc = mysqli_real_escape_string($conexion, $compatible_con);
-                $precio_r_num       = (float)$precio_r;
-
                 $col1 = columnExists($conexion, 'recambios3d', 'imagen');
                 $col2 = columnExists($conexion, 'recambios3d', 'imagen2');
                 $col3 = columnExists($conexion, 'recambios3d', 'imagen3');
                 $col4 = columnExists($conexion, 'recambios3d', 'imagen4');
                 $col5 = columnExists($conexion, 'recambios3d', 'imagen5');
 
-                $img1r = $imagenesGuardadasRec[0] ? mysqli_real_escape_string($conexion, $imagenesGuardadasRec[0]) : null;
-                $img2r = $imagenesGuardadasRec[1] ? mysqli_real_escape_string($conexion, $imagenesGuardadasRec[1]) : null;
-                $img3r = $imagenesGuardadasRec[2] ? mysqli_real_escape_string($conexion, $imagenesGuardadasRec[2]) : null;
-                $img4r = $imagenesGuardadasRec[3] ? mysqli_real_escape_string($conexion, $imagenesGuardadasRec[3]) : null;
-                $img5r = $imagenesGuardadasRec[4] ? mysqli_real_escape_string($conexion, $imagenesGuardadasRec[4]) : null;
-
                 $campos = ["nombre", "descripcion", "tipo", "compatible_con", "precio"];
-                $valores = ["'$nombre_esc'", "'$descripcion_r_esc'", "'$tipo_r_esc'", "'$compatible_con_esc'", "$precio_r_num"];
+                $valores = [$nombre, $descripcion_r, $tipo_r, $compatible_con, (float)$precio_r];
+                $types = "ssssd";
 
-                if ($col1) { $campos[] = "imagen";  $valores[] = ($img1r ? "'$img1r'" : "NULL"); }
-                if ($col2) { $campos[] = "imagen2"; $valores[] = ($img2r ? "'$img2r'" : "NULL"); }
-                if ($col3) { $campos[] = "imagen3"; $valores[] = ($img3r ? "'$img3r'" : "NULL"); }
-                if ($col4) { $campos[] = "imagen4"; $valores[] = ($img4r ? "'$img4r'" : "NULL"); }
-                if ($col5) { $campos[] = "imagen5"; $valores[] = ($img5r ? "'$img5r'" : "NULL"); }
+                if ($col1) { $campos[] = "imagen";  $valores[] = $imagenesGuardadasRec[0]; $types .= 's'; }
+                if ($col2) { $campos[] = "imagen2"; $valores[] = $imagenesGuardadasRec[1]; $types .= 's'; }
+                if ($col3) { $campos[] = "imagen3"; $valores[] = $imagenesGuardadasRec[2]; $types .= 's'; }
+                if ($col4) { $campos[] = "imagen4"; $valores[] = $imagenesGuardadasRec[3]; $types .= 's'; }
+                if ($col5) { $campos[] = "imagen5"; $valores[] = $imagenesGuardadasRec[4]; $types .= 's'; }
 
-                $sql = "INSERT INTO recambios3d (" . implode(", ", $campos) . ")
-                        VALUES (" . implode(", ", $valores) . ")";
-
-                $ok = mysqli_query($conexion, $sql);
+                $placeholders = implode(", ", array_fill(0, count($campos), "?"));
+                $sql = "INSERT INTO recambios3d (" . implode(", ", $campos) . ") VALUES (" . $placeholders . ")";
+                $ok = ew_stmt_execute($conexion, $sql, $types, $valores);
 
                 if ($ok) {
                     $exito = "Recambio 3D publicado correctamente.";
@@ -321,7 +373,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <span class="saludo">
                     Hola, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?>
                 </span>
-                <a href="logout.php">Cerrar sesión</a>
+                <a href="logout.php">Cerrar sesiÃ³n</a>
             <?php else: ?>
                 <a href="login.php">Login</a>
                 <a href="registro.php">Registro</a>
@@ -363,7 +415,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form action="publicar.php" method="post" class="formulario">
                 <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
                 <p>
-                    <label for="tipo_publicacion"><strong>¿Qué quieres publicar?</strong></label><br>
+                    <label for="tipo_publicacion"><strong>Â¿QuÃ© quieres publicar?</strong></label><br>
                     <select name="tipo_publicacion" id="tipo_publicacion" onchange="this.form.submit()">
                         <option value="mueble" <?php echo ($tipo_publicacion === 'mueble') ? 'selected' : ''; ?>>Mueble</option>
                         <option value="recambio" <?php echo ($tipo_publicacion === 'recambio') ? 'selected' : ''; ?>>Recambio 3D</option>
@@ -385,7 +437,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-columna">
                         <p>
-                            <label>Imágenes del mueble (máx. 5):<br>
+                            <label>ImÃ¡genes del mueble (mÃ¡x. 5):<br>
                                 <input
                                     type="file"
                                     name="imagenes[]"
@@ -397,22 +449,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </p>
 
                         <p>
-                            <label for="titulo">Título del anuncio*:</label><br>
+                            <label for="titulo">TÃ­tulo del anuncio*:</label><br>
                             <input type="text" name="titulo" id="titulo" required
                                    value="<?php echo htmlspecialchars($titulo ?? ''); ?>">
                         </p>
 
                         <p>
-                            <label for="precio">Precio (€)*:</label><br>
+                            <label for="precio">Precio (â‚¬)*:</label><br>
                             <input type="number" step="0.01" min="0" name="precio" id="precio" required
                                    value="<?php echo htmlspecialchars($precio ?? ''); ?>">
                         </p>
 
                         <p>
-                            <label for="categoria">Categoría del mueble*:</label><br>
+                            <label for="categoria">CategorÃ­a del mueble*:</label><br>
                             <select name="categoria" id="categoria" required>
                                 <?php
-                                $categorias = ["Mesa", "Armario", "Silla", "Cama", "Estantería", "Sofá", "Otro"];
+                                $categorias = ["Mesa", "Armario", "Silla", "Cama", "EstanterÃ­a", "SofÃ¡", "Otro"];
                                 $categoria_actual = $categoria ?? 'Otro';
 
                                 foreach ($categorias as $cat) {
@@ -445,7 +497,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </p>
 
                         <p>
-                            <label for="descripcion">Descripción*:</label><br>
+                            <label for="descripcion">DescripciÃ³n*:</label><br>
                             <textarea name="descripcion" id="descripcion" rows="5" cols="50" required><?php
                                 echo htmlspecialchars($descripcion ?? '');
                             ?></textarea>
@@ -470,7 +522,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="hidden" name="tipo_publicacion" value="recambio">
 
                 <p>
-                    <label>Imágenes del recambio (máx. 5):<br>
+                    <label>ImÃ¡genes del recambio (mÃ¡x. 5):<br>
                         <input
                             type="file"
                             name="imagenes_recambio[]"
@@ -502,13 +554,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </p>
 
                 <p>
-                    <label for="precio_recambio">Precio (€)*:</label><br>
+                    <label for="precio_recambio">Precio (â‚¬)*:</label><br>
                     <input type="number" step="0.01" min="0" name="precio_recambio" id="precio_recambio" required
                            value="<?php echo htmlspecialchars($precio_r ?? ''); ?>">
                 </p>
 
                 <p>
-                    <label for="descripcion_recambio">Descripción*:</label><br>
+                    <label for="descripcion_recambio">DescripciÃ³n*:</label><br>
                     <textarea name="descripcion_recambio" id="descripcion_recambio" rows="5" cols="50" required><?php
                         echo htmlspecialchars($descripcion_r ?? '');
                     ?></textarea>
@@ -531,9 +583,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </footer>
 
-<button id="btnTop" onclick="scrollToTop()">▲</button>
+<button id="btnTop" onclick="scrollToTop()">â–²</button>
 <script src="js/app.js"></script>
 
 </body>
 </html>
+
 

@@ -1,22 +1,20 @@
-<?php
+﻿<?php
+/*
+DOCUMENTACION_EXPLICATIVA_TFG
+Que hace: Abre un mensaje concreto y gestiona su estado de lectura.
+Por que se hizo asi: Controla acceso para que solo participe quien corresponde.
+Para que sirve: Asegura privacidad en la comunicacion interna.
+*/
 /*
 DOCUMENTACION_PASO4
 Lectura de mensaje individual y respuesta en hilo.
-- Solo participantes del mensaje pueden acceder.
-- Marca como leido cuando corresponde al destinatario.
-- Permite responder por POST con validacion CSRF.
 */
-// Vista de mensaje + respuesta:
-// - acceso autenticado
-// - solo remitente/destinatario puede leer
-// - respuesta por POST protegido con CSRF
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/auth.php';
-
-ew_require_login('login.php');
 require 'conexion.php';
 
+ew_require_login('login.php');
 $id_usuario_actual = (int)$_SESSION['usuario_id'];
 $errores = [];
 $exito = '';
@@ -27,18 +25,52 @@ if ($id_mensaje <= 0) {
     exit;
 }
 
-$sql = "SELECT msg.*,
-               ur.nombre AS nombre_remitente,
-               ud.nombre AS nombre_destinatario,
-               m.titulo AS titulo_mueble,
-               m.id_mueble AS id_mueble
-        FROM mensajes msg
-        JOIN usuarios ur ON msg.id_remitente = ur.id_usuario
-        JOIN usuarios ud ON msg.id_destinatario = ud.id_usuario
-        LEFT JOIN muebles m ON msg.id_mueble = m.id_mueble
-        WHERE msg.id_mensaje = $id_mensaje
-        LIMIT 1";
-$res = mysqli_query($conexion, $sql);
+function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array $params = [])
+{
+    $stmt = mysqli_prepare($conexion, $sql);
+    if (!$stmt) {
+        return false;
+    }
+    if ($types !== '') {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        return false;
+    }
+    $result = mysqli_stmt_get_result($stmt);
+    mysqli_stmt_close($stmt);
+    return $result;
+}
+
+function ew_stmt_execute(mysqli $conexion, string $sql, string $types, array $params): bool
+{
+    $stmt = mysqli_prepare($conexion, $sql);
+    if (!$stmt) {
+        return false;
+    }
+    mysqli_stmt_bind_param($stmt, $types, ...$params);
+    $ok = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    return $ok;
+}
+
+$res = ew_stmt_result(
+    $conexion,
+    "SELECT msg.*,
+            ur.nombre AS nombre_remitente,
+            ud.nombre AS nombre_destinatario,
+            m.titulo AS titulo_mueble,
+            m.id_mueble AS id_mueble
+     FROM mensajes msg
+     JOIN usuarios ur ON msg.id_remitente = ur.id_usuario
+     JOIN usuarios ud ON msg.id_destinatario = ud.id_usuario
+     LEFT JOIN muebles m ON msg.id_mueble = m.id_mueble
+     WHERE msg.id_mensaje = ?
+     LIMIT 1",
+    'i',
+    [$id_mensaje]
+);
 
 if (!$res || mysqli_num_rows($res) === 0) {
     header('Location: mi_perfil.php');
@@ -49,21 +81,17 @@ $mensaje = mysqli_fetch_assoc($res);
 $id_remitente = (int)$mensaje['id_remitente'];
 $id_destinatario = (int)$mensaje['id_destinatario'];
 
-// ACL estricta: solo participantes del hilo pueden visualizarlo.
 if ($id_usuario_actual !== $id_remitente && $id_usuario_actual !== $id_destinatario) {
     header('Location: mi_perfil.php');
     exit;
 }
 
-// Marcado de leido solo cuando el receptor abre el mensaje.
 if ($id_usuario_actual === $id_destinatario && (int)$mensaje['leido'] === 0) {
-    $sql_leido = "UPDATE mensajes SET leido = 1 WHERE id_mensaje = $id_mensaje LIMIT 1";
-    mysqli_query($conexion, $sql_leido);
+    ew_stmt_execute($conexion, "UPDATE mensajes SET leido = 1 WHERE id_mensaje = ? LIMIT 1", 'i', [$id_mensaje]);
 }
 
 $id_destinatario_respuesta = ($id_usuario_actual === $id_remitente) ? $id_destinatario : $id_remitente;
 $id_mueble_asociado = !empty($mensaje['id_mueble']) ? (int)$mensaje['id_mueble'] : null;
-
 $asunto_original = (string)$mensaje['asunto'];
 $asunto_respuesta = (strpos($asunto_original, 'RE: ') === 0) ? $asunto_original : ('RE: ' . $asunto_original);
 
@@ -71,25 +99,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_validate($_POST['csrf_token'] ?? null)) {
         $errores[] = 'Sesion expirada. Recarga la pagina e intentalo de nuevo.';
     }
-
-    $cuerpo = trim($_POST['cuerpo'] ?? '');
+    $cuerpo = trim((string)($_POST['cuerpo'] ?? ''));
     if ($cuerpo === '') {
         $errores[] = 'El mensaje de respuesta no puede estar vacio.';
     }
 
     if (empty($errores)) {
-        $cuerpo_esc = mysqli_real_escape_string($conexion, $cuerpo);
-        $asunto_esc = mysqli_real_escape_string($conexion, $asunto_respuesta);
         $id_destino = (int)$id_destinatario_respuesta;
+        if ($id_mueble_asociado !== null) {
+            $ok = ew_stmt_execute(
+                $conexion,
+                "INSERT INTO mensajes (id_remitente, id_destinatario, id_mueble, asunto, cuerpo)
+                 VALUES (?, ?, ?, ?, ?)",
+                'iiiss',
+                [$id_usuario_actual, $id_destino, $id_mueble_asociado, $asunto_respuesta, $cuerpo]
+            );
+        } else {
+            $ok = ew_stmt_execute(
+                $conexion,
+                "INSERT INTO mensajes (id_remitente, id_destinatario, id_mueble, asunto, cuerpo)
+                 VALUES (?, ?, NULL, ?, ?)",
+                'iiss',
+                [$id_usuario_actual, $id_destino, $asunto_respuesta, $cuerpo]
+            );
+        }
 
-        $sql_resp = "INSERT INTO mensajes
-                     (id_remitente, id_destinatario, id_mueble, asunto, cuerpo)
-                     VALUES
-                     ($id_usuario_actual, $id_destino, " .
-                     ($id_mueble_asociado !== null ? $id_mueble_asociado : "NULL") . ",
-                     '$asunto_esc', '$cuerpo_esc')";
-
-        $ok = mysqli_query($conexion, $sql_resp);
         if ($ok) {
             $exito = 'Respuesta enviada correctamente.';
         } else {
@@ -137,7 +171,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </article>
 
         <hr>
-
         <h2>Responder</h2>
 
         <?php if (!empty($errores)): ?>
@@ -156,27 +189,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <form action="ver_mensaje.php?id=<?php echo (int)$id_mensaje; ?>" method="post" class="formulario">
             <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
-
             <p>
                 <label>Asunto</label><br>
                 <input type="text" value="<?php echo e($asunto_respuesta); ?>" disabled>
             </p>
-
             <p>
                 <label for="cuerpo">Mensaje</label><br>
                 <textarea name="cuerpo" id="cuerpo" rows="6" required></textarea>
             </p>
-
-            <p>
-                <button type="submit">Enviar respuesta</button>
-            </p>
+            <p><button type="submit">Enviar respuesta</button></p>
         </form>
     </div>
 </main>
 
 <?php ew_render_footer(); ?>
-
-<button id="btnTop" onclick="scrollToTop()">▲</button>
+<button id="btnTop" onclick="scrollToTop()">â–²</button>
 <script src="js/app.js"></script>
 
 </body>
