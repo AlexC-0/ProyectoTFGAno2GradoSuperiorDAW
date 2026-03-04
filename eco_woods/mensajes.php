@@ -13,6 +13,8 @@ require 'conexion.php';
 ew_require_login('login.php');
 $id_usuario = (int)$_SESSION['usuario_id'];
 
+/*BORRAR*/
+
 function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array $params = [])
 {
     $stmt = mysqli_prepare($conexion, $sql);

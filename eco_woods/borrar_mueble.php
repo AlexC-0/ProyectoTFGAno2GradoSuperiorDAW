@@ -18,6 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+/*BORRAR*/
+
 if (!csrf_validate($_POST['csrf_token'] ?? null)) {
     header("Location: mi_perfil.php");
     exit;
