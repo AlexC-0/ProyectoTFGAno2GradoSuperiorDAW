@@ -226,8 +226,6 @@ $resultado = ew_stmt_result($conexion, "SELECT * FROM recambios3d ORDER BY id_re
     </div>
 </main>
 
-/*BORRAR*/
-
 <?php ew_render_footer(); ?>
 
 <button id="btnTop" onclick="scrollToTop()">â–²</button>

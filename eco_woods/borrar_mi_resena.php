@@ -13,8 +13,6 @@ if (!isset($_SESSION['usuario_id'])) {
     exit;
 }
 
-/*BORRAR*/
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: mi_perfil.php");
     exit;

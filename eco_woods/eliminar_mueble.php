@@ -18,8 +18,6 @@ require_once __DIR__ . '/includes/auth.php';
 ew_require_login('login.php');
 require 'conexion.php';
 
-/*BORRAR*/
-
 $id_usuario_sesion = (int)$_SESSION['usuario_id'];
 $es_admin = ew_is_admin();
 

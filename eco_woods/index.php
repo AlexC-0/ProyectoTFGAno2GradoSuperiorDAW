@@ -69,8 +69,6 @@ require_once __DIR__ . '/includes/layout.php';
     </div>
 </main>
 
-/*BORRAR*/
-
 <?php ew_render_footer(['variant' => 'full']); ?>
 
 <button id="btnTop" onclick="scrollToTop()">?</button>

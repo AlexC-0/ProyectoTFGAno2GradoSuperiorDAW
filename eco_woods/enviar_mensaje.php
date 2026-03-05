@@ -23,8 +23,6 @@ if (!isset($_GET['id_mueble'])) {
 }
 $id_mueble = (int)$_GET['id_mueble'];
 
-/*BORRAR*/
-
 function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array $params = [])
 {
     $stmt = mysqli_prepare($conexion, $sql);

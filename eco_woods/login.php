@@ -14,8 +14,6 @@ require 'conexion.php';
 // Acumula errores de validacion/autenticacion para mostrarlos en bloque.
 $errores = [];
 
-/*BORRAR*/
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF protege el formulario de login frente a envios externos no legitimos.
     if (!csrf_validate($_POST['csrf_token'] ?? null)) {

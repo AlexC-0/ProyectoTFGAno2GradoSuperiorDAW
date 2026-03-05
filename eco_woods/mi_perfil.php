@@ -402,8 +402,6 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
     </div>
 </main>
 
-/*BORRAR*/
-
 <?php ew_render_footer(); ?>
 
 <button id="btnTop" onclick="scrollToTop()">â–²</button>
