@@ -194,6 +194,8 @@ if (isset($_SESSION['usuario_id'])) {
 <button id="btnTop" onclick="scrollToTop()">â–²</button>
 <script src="js/app.js"></script>
 
+/*BORRAR*/
+
 <script>
 (function () {
     // Toast de feedback para operaciones asÃ­ncronas del carrito.

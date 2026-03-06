@@ -486,6 +486,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
         }
     });
 
+
     function escapeHtml(str) {
         return String(str)
             .replaceAll('&', '&amp;')

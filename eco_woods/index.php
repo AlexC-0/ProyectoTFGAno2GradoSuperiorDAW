@@ -75,3 +75,5 @@ require_once __DIR__ . '/includes/layout.php';
 <script src="js/app.js"></script>
 </body>
 </html>
+
+/*BORRAR*/
