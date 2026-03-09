@@ -17,8 +17,6 @@ require 'conexion.php';
 ew_require_login('login.php');
 $id_usuario_actual = (int)$_SESSION['usuario_id'];
 
-/*BORRAR*/
-
 if (!isset($_GET['id_mueble'])) {
     header("Location: muebles.php");
     exit;

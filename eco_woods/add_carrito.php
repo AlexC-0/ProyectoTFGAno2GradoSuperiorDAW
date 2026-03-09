@@ -18,7 +18,6 @@ require_once __DIR__ . '/includes/http.php';
 require_once __DIR__ . '/includes/validators.php';
 require_once 'conexion.php';
 
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ew_json_error('Metodo no permitido.', 405);
 }

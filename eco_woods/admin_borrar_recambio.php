@@ -8,6 +8,7 @@ Para que sirve: Mantiene el catalogo de recambios controlado y actualizado.
 require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 
+
 if (!isset($_SESSION['es_admin']) || (int)$_SESSION['es_admin'] !== 1) {
     die("Acceso denegado");
 }
