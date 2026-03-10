@@ -95,6 +95,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
+/*BORRAR*/
+
 <?php ew_render_header(['mode' => 'auth', 'active' => 'registro']); ?>
 
 <main>

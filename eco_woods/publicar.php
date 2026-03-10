@@ -512,6 +512,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             </form>
 
+            /*BORRAR*/
+
         <?php else: ?>
 
             <h2>Publicar recambio 3D</h2>

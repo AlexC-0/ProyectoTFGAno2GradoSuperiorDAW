@@ -189,6 +189,8 @@ if (isset($_SESSION['usuario_id'])) {
     </div>
 </main>
 
+/*BORRAR*/
+
 <?php ew_render_footer(); ?>
 
 <button id="btnTop" onclick="scrollToTop()">â–²</button>
