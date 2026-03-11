@@ -14,8 +14,6 @@ require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/auth.php';
 require 'conexion.php';
 
-/*BORRAR*/
-
 ew_require_login('login.php');
 $id_usuario_actual = (int)$_SESSION['usuario_id'];
 $errores = [];

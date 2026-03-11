@@ -68,8 +68,6 @@ if ($q === '' && $ubicacion === '') {
     $sql .= ' ORDER BY fecha_publicacion DESC';
     $resultado = ew_stmt_result($conexion, $sql, $types, $params);
 
-    /*BORRAR*/
-
     if (!$resultado) {
         die('Error en la busqueda: ' . mysqli_error($conexion));
     }
