@@ -20,6 +20,8 @@ require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/auth.php';
 
+/*BORRAR*/
+
 ew_require_login('login.php');
 require 'conexion.php';
 

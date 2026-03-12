@@ -514,6 +514,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php else: ?>
 
+            /*BORRAR*/
+
+
             <h2>Publicar recambio 3D</h2>
 
             <form action="publicar.php" method="post" class="formulario" enctype="multipart/form-data">

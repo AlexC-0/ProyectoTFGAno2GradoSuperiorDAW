@@ -16,3 +16,5 @@ if (!$conexion) {
 // Establecer codificación de caracteres
 mysqli_set_charset($conexion, "utf8mb4");
 ?>
+
+/*BORRAR*/

@@ -8,6 +8,8 @@ Para que sirve: Asegura que cada usuario solo gestiona lo suyo.
 require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 
+/*BORRAR*/
+
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: login.php");
     exit;

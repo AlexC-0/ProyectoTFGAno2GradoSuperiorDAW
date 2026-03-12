@@ -486,6 +486,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
         }
     });
 
+    /*BORRAR*/
     
     function escapeHtml(str) {
         return String(str)
