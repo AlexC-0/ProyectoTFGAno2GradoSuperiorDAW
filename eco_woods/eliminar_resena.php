@@ -21,7 +21,6 @@ require 'conexion.php';
 $id_usuario_sesion = (int)$_SESSION['usuario_id'];
 $es_admin = ew_is_admin();
 
-/*BORRAR*/
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: index.php");
