@@ -104,6 +104,8 @@ if ($col_img1 && !empty($recambio['imagen'])) {
     }
 }
 
+/*BORRAR*/
+
 if ($col_img2 && !empty($recambio['imagen2'])) $imagenes[] = trim($recambio['imagen2']);
 if ($col_img3 && !empty($recambio['imagen3'])) $imagenes[] = trim($recambio['imagen3']);
 if ($col_img4 && !empty($recambio['imagen4'])) $imagenes[] = trim($recambio['imagen4']);

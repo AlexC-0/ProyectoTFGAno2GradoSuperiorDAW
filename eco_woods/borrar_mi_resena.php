@@ -8,6 +8,7 @@ Para que sirve: Da control al usuario sobre su propio contenido.
 require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 
+/*BORRAR*/
 
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: login.php");

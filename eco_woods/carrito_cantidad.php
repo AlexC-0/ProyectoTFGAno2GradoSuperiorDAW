@@ -77,6 +77,8 @@ if (!$res_carrito || mysqli_num_rows($res_carrito) === 0) {
     ew_json_error('No tienes carrito activo.', 404);
 }
 
+/*BORRAR*/
+
 $fila_carrito = mysqli_fetch_assoc($res_carrito);
 $id_carrito = (int)$fila_carrito['id_carrito'];
 

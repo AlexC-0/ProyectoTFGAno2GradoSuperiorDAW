@@ -25,6 +25,8 @@ if ($id_mensaje <= 0) {
     exit;
 }
 
+/*BORRAR*/
+
 function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array $params = [])
 {
     $stmt = mysqli_prepare($conexion, $sql);

@@ -28,6 +28,7 @@ if (!csrf_validate($_POST['csrf_token'] ?? null)) {
     ew_json_error('Sesion expirada. Recarga la pagina e intentalo de nuevo.', 419);
 }
 
+/*BORRAR*/
 
 $id_usuario = (int)$_SESSION['usuario_id'];
 

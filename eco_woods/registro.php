@@ -85,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
     }
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -96,6 +97,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 
 <?php ew_render_header(['mode' => 'auth', 'active' => 'registro']); ?>
+
+/*BORRAR*/
 
 <main>
     <div class="contenedor auth-shell">
