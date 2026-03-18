@@ -92,7 +92,6 @@ if ($q === '' && $ubicacion === '') {
 <body>
 <?php ew_render_header(['active' => 'muebles', 'brand_alt' => 'ECO & WOODS']); ?>
 
-/*BORRAR*/
 
 <main>
     <div class="contenedor">

@@ -25,8 +25,6 @@ if (!csrf_validate($_POST['csrf_token'] ?? null)) {
     ew_json_error('Sesion expirada. Recarga la pagina e intentalo de nuevo.', 419);
 }
 
-/*BORRAR*/
-
 function tableExists(mysqli $conexion, string $tabla): bool
 {
     $stmt = mysqli_prepare(

@@ -301,7 +301,6 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "EstanterÃ­a",
     </div>
 </main>
 
-/*BORRAR*/
 
 <?php ew_render_footer(); ?>
 
