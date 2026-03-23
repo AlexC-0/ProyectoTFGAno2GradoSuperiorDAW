@@ -131,5 +131,4 @@ if ($q === '' && $ubicacion === '') {
 </body>
 </html>
 
-
-
+/*BORRAR*/

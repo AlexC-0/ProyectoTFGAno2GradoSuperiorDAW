@@ -85,3 +85,4 @@ if ($affected === 0) {
 
 ew_json_ok('Producto eliminado del carrito.');
 
+/*BORRAR*/

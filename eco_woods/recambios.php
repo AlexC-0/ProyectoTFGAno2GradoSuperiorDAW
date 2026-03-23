@@ -332,7 +332,4 @@ $resultado = ew_stmt_result($conexion, "SELECT * FROM recambios3d ORDER BY id_re
 </body>
 </html>
 
-
-
-
-
+/*BORRAR*/
