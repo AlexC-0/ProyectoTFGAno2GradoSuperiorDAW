@@ -12,7 +12,7 @@ Pantalla de publicacion de muebles y recambios.
 - Permite rol admin para publicar tambien recambios 3D.
 - Gestiona carga de imagenes, validacion y guardado en base de datos.
 */
-// Arranque comÃºn de sesiÃ³n/utilidades + control de acceso.
+// Arranque común de sesión/utilidades + control de acceso.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/layout.php';
@@ -109,7 +109,7 @@ if ($es_admin) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Protege formularios de alta de contenido frente a envÃ­os externos.
+    // Protege formularios de alta de contenido frente a envíos externos.
     if (!csrf_validate($_POST['csrf_token'] ?? null)) {
         $errores[] = "Sesion expirada. Recarga la pagina e intentalo de nuevo.";
     }
@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (!is_numeric($precio) || $precio < 0) {
-            $errores[] = "El precio debe ser un nÃºmero positivo.";
+            $errores[] = "El precio debe ser un número positivo.";
         }
 
         if ($categoria === '') {
@@ -245,7 +245,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if (!is_numeric($precio_r) || $precio_r < 0) {
-                $errores[] = "El precio debe ser un nÃºmero positivo.";
+                $errores[] = "El precio debe ser un número positivo.";
             }
 
             if (empty($errores)) {
@@ -339,48 +339,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
-<header>
-    <div class="contenedor">
-
-    <h1 style="display:flex; align-items:center;">
-        <img src="uploads/Verde.png"
-            alt="ECO & WOODS"
-            style="height:180px; width:auto; object-fit:contain; display:block;">
-    </h1>
-
-        <nav>
-            <a href="index.php">Inicio</a>
-            <a href="muebles.php">Muebles</a>
-            <a href="recambios.php">Recambios 3D</a>
-
-            <a href="ver_carrito.php" class="nav-icon" aria-label="Carrito">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
-                </svg>
-            </a>
-
-            <?php if (isset($_SESSION['usuario_id'])): ?>
-
-                <?php if ($es_admin): ?>
-                    <a href="publicar.php">Publicar</a>
-                    <a href="admin.php">Panel Admin</a>
-                <?php else: ?>
-                    <a href="publicar.php">Publicar mueble</a>
-                <?php endif; ?>
-
-                <a href="mi_perfil.php">Mi perfil</a>
-
-                <span class="saludo">
-                    Hola, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?>
-                </span>
-                <a href="logout.php">Cerrar sesiÃ³n</a>
-            <?php else: ?>
-                <a href="login.php">Login</a>
-                <a href="registro.php">Registro</a>
-            <?php endif; ?>
-        </nav>
-    </div>
-</header>
+<?php ew_render_header(['active' => 'publicar']); ?>
 
 <main>
     <div class="contenedor publish-shell">
@@ -415,7 +374,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form action="publicar.php" method="post" class="formulario">
                 <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
                 <p>
-                    <label for="tipo_publicacion"><strong>Â¿QuÃ© quieres publicar?</strong></label><br>
+                    <label for="tipo_publicacion"><strong>¿Qué quieres publicar?</strong></label><br>
                     <select name="tipo_publicacion" id="tipo_publicacion" onchange="this.form.submit()">
                         <option value="mueble" <?php echo ($tipo_publicacion === 'mueble') ? 'selected' : ''; ?>>Mueble</option>
                         <option value="recambio" <?php echo ($tipo_publicacion === 'recambio') ? 'selected' : ''; ?>>Recambio 3D</option>
@@ -437,7 +396,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-columna">
                         <p>
-                            <label>ImÃ¡genes del mueble (mÃ¡x. 5):<br>
+                            <label>Imágenes del mueble (máx. 5):<br>
                                 <input
                                     type="file"
                                     name="imagenes[]"
@@ -449,22 +408,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </p>
 
                         <p>
-                            <label for="titulo">TÃ­tulo del anuncio*:</label><br>
+                            <label for="titulo">Título del anuncio*:</label><br>
                             <input type="text" name="titulo" id="titulo" required
                                    value="<?php echo htmlspecialchars($titulo ?? ''); ?>">
                         </p>
 
                         <p>
-                            <label for="precio">Precio (â‚¬)*:</label><br>
+                            <label for="precio">Precio (€)*:</label><br>
                             <input type="number" step="0.01" min="0" name="precio" id="precio" required
                                    value="<?php echo htmlspecialchars($precio ?? ''); ?>">
                         </p>
 
                         <p>
-                            <label for="categoria">CategorÃ­a del mueble*:</label><br>
+                            <label for="categoria">Categoría del mueble*:</label><br>
                             <select name="categoria" id="categoria" required>
                                 <?php
-                                $categorias = ["Mesa", "Armario", "Silla", "Cama", "EstanterÃ­a", "SofÃ¡", "Otro"];
+                                $categorias = ["Mesa", "Armario", "Silla", "Cama", "Estantería", "Sofá", "Otro"];
                                 $categoria_actual = $categoria ?? 'Otro';
 
                                 foreach ($categorias as $cat) {
@@ -497,7 +456,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </p>
 
                         <p>
-                            <label for="descripcion">DescripciÃ³n*:</label><br>
+                            <label for="descripcion">Descripción*:</label><br>
                             <textarea name="descripcion" id="descripcion" rows="5" cols="50" required><?php
                                 echo htmlspecialchars($descripcion ?? '');
                             ?></textarea>
@@ -522,7 +481,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="hidden" name="tipo_publicacion" value="recambio">
 
                 <p>
-                    <label>ImÃ¡genes del recambio (mÃ¡x. 5):<br>
+                    <label>Imágenes del recambio (máx. 5):<br>
                         <input
                             type="file"
                             name="imagenes_recambio[]"
@@ -554,13 +513,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </p>
 
                 <p>
-                    <label for="precio_recambio">Precio (â‚¬)*:</label><br>
+                    <label for="precio_recambio">Precio (€)*:</label><br>
                     <input type="number" step="0.01" min="0" name="precio_recambio" id="precio_recambio" required
                            value="<?php echo htmlspecialchars($precio_r ?? ''); ?>">
                 </p>
 
                 <p>
-                    <label for="descripcion_recambio">DescripciÃ³n*:</label><br>
+                    <label for="descripcion_recambio">Descripción*:</label><br>
                     <textarea name="descripcion_recambio" id="descripcion_recambio" rows="5" cols="50" required><?php
                         echo htmlspecialchars($descripcion_r ?? '');
                     ?></textarea>
@@ -583,7 +542,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </footer>
 
-<button id="btnTop" onclick="scrollToTop()">â–²</button>
+<button id="btnTop" onclick="scrollToTop()">↑</button>
 <script src="js/app.js"></script>
 
 </body>

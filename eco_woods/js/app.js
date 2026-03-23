@@ -1,20 +1,28 @@
-// Mostrar u ocultar el botón "Arriba" según el scroll
-window.addEventListener('scroll', function() {
+function syncBackToTopButton() {
     const btn = document.getElementById('btnTop');
-    if (!btn) return;
-
-    if (window.scrollY > 200) {  // a partir de 200px de scroll aparece
-        btn.style.display = 'block';
-    } else {
-        btn.style.display = 'none';
+    if (!btn) {
+        return;
     }
+
+    btn.setAttribute('type', 'button');
+    btn.setAttribute('aria-label', 'Volver arriba');
+    btn.innerHTML = '<span class="btn-top-icon" aria-hidden="true">↑</span>';
+}
+
+window.addEventListener('scroll', function () {
+    const btn = document.getElementById('btnTop');
+    if (!btn) {
+        return;
+    }
+
+    btn.style.display = window.scrollY > 200 ? 'inline-flex' : 'none';
 });
 
-// Función para subir arriba suavemente
+window.addEventListener('DOMContentLoaded', syncBackToTopButton);
+
 function scrollToTop() {
     window.scrollTo({
         top: 0,
         behavior: 'smooth'
     });
 }
-

@@ -103,7 +103,7 @@ if ($ubicacion_filtro !== '') {
 $sql .= " ORDER BY fecha_publicacion DESC";
 $resultado = ew_stmt_result($conexion, $sql, $types, $params);
 
-$categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "EstanterÃ­a", "SofÃ¡", "Otro"];
+$categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "Sofá", "Otro"];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -141,12 +141,12 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "EstanterÃ­a",
                     <p>
                         <label for="q">Palabra clave:</label><br>
                         <input type="text" name="q" id="q"
-                               placeholder="Ej: mesa, armario, sofÃ¡..."
+                               placeholder="Ej: mesa, armario, sofá..."
                                value="<?php echo htmlspecialchars($q); ?>">
                     </p>
 
                     <p>
-                        <label for="categoria">CategorÃ­a:</label><br>
+                        <label for="categoria">Categoría:</label><br>
                         <select name="categoria" id="categoria">
                             <?php
                             foreach ($categorias_posibles as $cat) {
@@ -161,7 +161,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "EstanterÃ­a",
 
                 <div class="filtro-columna">
                     <p>
-                        <label for="ubicacion">UbicaciÃ³n (provincia o localidad):</label><br>
+                        <label for="ubicacion">Ubicación (provincia o localidad):</label><br>
                         <input type="text" name="ubicacion" id="ubicacion"
                                placeholder="Ej: Vizcaya, Bilbao..."
                                value="<?php echo htmlspecialchars($ubicacion_filtro); ?>">
@@ -169,14 +169,14 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "EstanterÃ­a",
 
                     <p class="filtro-precios">
                         <span>
-                            <label for="precio_min">Precio mÃ­nimo (â‚¬):</label><br>
+                            <label for="precio_min">Precio mínimo (€):</label><br>
                             <input type="number" step="1" min="1" name="precio_min" id="precio_min"
                                    placeholder="Desde"
                                    value="<?php echo htmlspecialchars($precio_min); ?>">
                         </span>
 
                         <span>
-                            <label for="precio_max">Precio mÃ¡ximo (â‚¬):</label><br>
+                            <label for="precio_max">Precio máximo (€):</label><br>
                             <input type="number" step="1" min="1" name="precio_max" id="precio_max"
                                    placeholder="Hasta"
                                    value="<?php echo htmlspecialchars($precio_max); ?>">
@@ -227,7 +227,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "EstanterÃ­a",
                                 <?php
                                 $precio = (float)$fila['precio'];
                                 echo number_format($precio, 2, ',', '.');
-                                ?> â‚¬
+                                ?> €
                             </p>
                         </div>
 
@@ -257,7 +257,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "EstanterÃ­a",
                         <div class="tarjeta-footer">
                             <a class="btn-ver"
                                href="ver_mueble.php?id_mueble=<?php echo (int)$fila['id_mueble']; ?>">
-                                Ver detalles y reseÃ±as
+                                Ver detalles y reseñas
                             </a>
 
                             <?php if (isset($_SESSION['usuario_id'])): ?>
@@ -271,14 +271,14 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "EstanterÃ­a",
                                    href="toggle_favorito.php?id_mueble=<?php echo $idMueble; ?>"
                                    data-id="<?php echo $idMueble; ?>"
                                    data-fav="<?php echo $esFavorito ? '1' : '0'; ?>">
-                                    <?php echo $esFavorito ? 'â˜… Quitar de favoritos' : 'â˜† AÃ±adir a favoritos'; ?>
+                                    <?php echo $esFavorito ? '★ Quitar de favoritos' : '☆ Añadir a favoritos'; ?>
                                 </a>
 
-                                <!-- BotÃ³n icono carrito (AJAX) -->
+                                <!-- Boton icono carrito (AJAX) -->
                                 <button type="button"
                                         class="btn-carrito-icono btn-carrito-mueble"
                                         data-id="<?php echo $idMueble; ?>"
-                                        aria-label="AÃ±adir al carrito">
+                                        aria-label="Añadir al carrito">
                                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                         <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
                                     </svg>
@@ -304,14 +304,14 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "EstanterÃ­a",
 
 <?php ew_render_footer(); ?>
 
-<button id="btnTop" onclick="scrollToTop()">â–²</button>
+<button id="btnTop" onclick="scrollToTop()">↑</button>
 <script src="js/app.js"></script>
 
 <script>
 (function () {
     // Toast reutilizable para feedback de carrito y favoritos.
     const toast = document.getElementById('toastGlobal');
-    // Token CSRF emitido por backend para POST asÃ­ncronos.
+    // Token CSRF emitido por backend para POST asíncronos.
     const csrfToken = <?php echo json_encode(csrf_token()); ?>;
 
     function showToast(text, ok=true) {
@@ -326,7 +326,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "EstanterÃ­a",
         }, 2200);
     }
 
-    // Alta de mueble en carrito sin recargar la pÃ¡gina.
+    // Alta de mueble en carrito sin recargar la página.
     const botonesCarrito = document.querySelectorAll('.btn-carrito-mueble');
     botonesCarrito.forEach(btn => {
         btn.addEventListener('click', async () => {
@@ -349,14 +349,14 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "EstanterÃ­a",
                 const data = await resp.json().catch(() => null);
 
                 if (!resp.ok || !data || data.ok !== true) {
-                    const msg = (data && data.message) ? data.message : 'No se pudo aÃ±adir al carrito.';
+                    const msg = (data && data.message) ? data.message : 'No se pudo añadir al carrito.';
                     showToast(msg, false);
                 } else {
                     showToast(data.message, true);
                 }
 
             } catch (e) {
-                showToast('Error de conexiÃ³n al aÃ±adir al carrito.', false);
+                showToast('Error de conexión al añadir al carrito.', false);
             } finally {
                 btn.disabled = false;
             }
@@ -396,18 +396,18 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "EstanterÃ­a",
                 // Actualizar estado visual
                 if (data.action === 'added') {
                     a.classList.add('es-favorito');
-                    a.textContent = 'â˜… Quitar de favoritos';
+                    a.textContent = '★ Quitar de favoritos';
                     a.setAttribute('data-fav', '1');
                 } else if (data.action === 'removed') {
                     a.classList.remove('es-favorito');
-                    a.textContent = 'â˜† AÃ±adir a favoritos';
+                    a.textContent = '☆ Añadir a favoritos';
                     a.setAttribute('data-fav', '0');
                 }
 
                 showToast(data.message, true);
 
             } catch (e) {
-                showToast('Error de conexiÃ³n en favoritos.', false);
+                showToast('Error de conexión en favoritos.', false);
             } finally {
                 a.classList.remove('cargando');
             }

@@ -167,7 +167,7 @@ $resultado = ew_stmt_result($conexion, "SELECT * FROM recambios3d ORDER BY id_re
                                 <?php echo htmlspecialchars($fila['nombre'] ?? ''); ?>
                             </h3>
                             <p class="tarjeta-precio">
-                                <?php echo number_format($precio, 2, ',', '.'); ?> â‚¬
+                                <?php echo number_format($precio, 2, ',', '.'); ?> €
                             </p>
                         </div>
 
@@ -193,20 +193,20 @@ $resultado = ew_stmt_result($conexion, "SELECT * FROM recambios3d ORDER BY id_re
 
                             <a class="btn-ver"
                                href="ver_recambio.php?id_recambio=<?php echo $idRec; ?>">
-                                Ver detalles y reseÃ±as
+                                Ver detalles y reseñas
                             </a>
 
                             <?php if (isset($_SESSION['usuario_id'])): ?>
                                 <button type="button"
                                         class="btn-fav <?php echo $esFav ? 'es-favorito' : ''; ?> btn-fav-recambio"
                                         data-id="<?php echo $idRec; ?>">
-                                    <?php echo $esFav ? 'â˜… Quitar de favoritos' : 'â˜† AÃ±adir a favoritos'; ?>
+                                    <?php echo $esFav ? '★ Quitar de favoritos' : '☆ Añadir a favoritos'; ?>
                                 </button>
 
                                 <button type="button"
                                         class="btn-carrito-icono btn-carrito-recambio"
                                         data-id="<?php echo $idRec; ?>"
-                                        aria-label="AÃ±adir al carrito">
+                                        aria-label="Añadir al carrito">
                                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                         <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
                                     </svg>
@@ -228,7 +228,7 @@ $resultado = ew_stmt_result($conexion, "SELECT * FROM recambios3d ORDER BY id_re
 
 <?php ew_render_footer(); ?>
 
-<button id="btnTop" onclick="scrollToTop()">â–²</button>
+<button id="btnTop" onclick="scrollToTop()">↑</button>
 <script src="js/app.js"></script>
 
 <script>
@@ -270,14 +270,14 @@ $resultado = ew_stmt_result($conexion, "SELECT * FROM recambios3d ORDER BY id_re
                 const data = await resp.json().catch(() => null);
 
                 if (!resp.ok || !data || data.ok !== true) {
-                    const msg = (data && data.message) ? data.message : 'No se pudo aÃ±adir al carrito.';
+                    const msg = (data && data.message) ? data.message : 'No se pudo añadir al carrito.';
                     showToast(msg, false);
                 } else {
                     showToast(data.message, true);
                 }
 
             } catch (e) {
-                showToast('Error de conexiÃ³n al aÃ±adir al carrito.', false);
+                showToast('Error de conexión al añadir al carrito.', false);
             } finally {
                 btn.disabled = false;
             }
@@ -312,10 +312,10 @@ $resultado = ew_stmt_result($conexion, "SELECT * FROM recambios3d ORDER BY id_re
 
                     if (data.es_favorito === true) {
                         btn.classList.add('es-favorito');
-                        btn.textContent = 'â˜… Quitar de favoritos';
+                        btn.textContent = '★ Quitar de favoritos';
                     } else if (data.es_favorito === false) {
                         btn.classList.remove('es-favorito');
-                        btn.textContent = 'â˜† AÃ±adir a favoritos';
+                        btn.textContent = '☆ Añadir a favoritos';
                     }
                 }
 

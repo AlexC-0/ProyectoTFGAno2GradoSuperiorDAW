@@ -12,7 +12,7 @@ Area personal del usuario autenticado.
 - Incluye bandeja de mensajes recibidos y enviados.
 - Agrupa acciones de gestion propias con controles de seguridad.
 */
-// Arranque base: sesiÃ³n + utilidades, layout comÃºn y control de acceso.
+// Arranque base: sesión + utilidades, layout común y control de acceso.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/auth.php';
@@ -21,7 +21,7 @@ ew_require_login('login.php');
 
 require 'conexion.php';
 
-// Usuario autenticado del que se mostrarÃ¡ todo el panel personal.
+// Usuario autenticado del que se mostrara todo el panel personal.
 $id_usuario = (int) $_SESSION['usuario_id'];
 
 function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array $params = [])
@@ -149,8 +149,8 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                 <div class="perfil-card perfil-card-estrecha perfil-card-centrada">
                     <p><strong>Nombre:</strong> <?php echo htmlspecialchars($usuario['nombre']); ?></p>
                     <p><strong>Email:</strong> <?php echo htmlspecialchars($usuario['email']); ?></p>
-                    <p><strong>TelÃ©fono:</strong> <?php echo htmlspecialchars($usuario['telefono'] ?? ''); ?></p>
-                    <p><strong>UbicaciÃ³n:</strong>
+                    <p><strong>Teléfono:</strong> <?php echo htmlspecialchars($usuario['telefono'] ?? ''); ?></p>
+                    <p><strong>Ubicación:</strong>
                         <?php
                             echo htmlspecialchars($usuario['provincia'] ?? '');
                             if (!empty($usuario['provincia']) && !empty($usuario['localidad'])) {
@@ -190,7 +190,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                                 <p class="tarjeta-precio">
                                     <?php
                                     $precio = (float)$m['precio'];
-                                    echo number_format($precio, 2, ',', '.'); ?> â‚¬
+                                    echo number_format($precio, 2, ',', '.'); ?> €
                                 </p>
                             </div>
 
@@ -232,7 +232,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                     <?php endwhile; ?>
                 </div>
             <?php else: ?>
-                <p>TodavÃ­a no has publicado ningÃºn mueble.</p>
+                <p>Todavía no has publicado ningún mueble.</p>
             <?php endif; ?>
         </section>
 
@@ -260,7 +260,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                                 <p class="tarjeta-precio">
                                     <?php
                                     $precio = (float)$fav['precio'];
-                                    echo number_format($precio, 2, ',', '.'); ?> â‚¬
+                                    echo number_format($precio, 2, ',', '.'); ?> €
                                 </p>
                             </div>
 
@@ -298,23 +298,23 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                     <?php endwhile; ?>
                 </div>
             <?php else: ?>
-                <p>TodavÃ­a no tienes muebles marcados como favoritos.</p>
+                <p>Todavía no tienes muebles marcados como favoritos.</p>
             <?php endif; ?>
         </section>
 
         <hr>
 
         <section class="bloque-mis-resenas">
-            <h2>Mis reseÃ±as</h2>
+            <h2>Mis reseñas</h2>
 
             <?php if ($res_resenas && mysqli_num_rows($res_resenas) > 0): ?>
                 <div class="listado-tarjetas">
                     <?php while ($r = mysqli_fetch_assoc($res_resenas)): ?>
                         <article class="tarjeta">
                             <p><strong>Mueble:</strong> <?php echo htmlspecialchars($r['titulo_mueble']); ?></p>
-                            <p><strong>PuntuaciÃ³n:</strong> <?php echo htmlspecialchars($r['puntuacion']); ?>/5</p>
+                            <p><strong>Puntuación:</strong> <?php echo htmlspecialchars($r['puntuacion']); ?>/5</p>
                             <p><strong>Comentario:</strong> <?php echo htmlspecialchars($r['comentario']); ?></p>
-                            <p><small>Fecha reseÃ±a: <?php echo htmlspecialchars($r['fecha_resena']); ?></small></p>
+                            <p><small>Fecha reseña: <?php echo htmlspecialchars($r['fecha_resena']); ?></small></p>
 
                             <div class="tarjeta-footer">
                                 <form action="eliminar_resena.php" method="post" style="margin:0;">
@@ -329,7 +329,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                     <?php endwhile; ?>
                 </div>
             <?php else: ?>
-                <p>TodavÃ­a no has escrito reseÃ±as.</p>
+                <p>Todavía no has escrito reseñas.</p>
             <?php endif; ?>
         </section>
 
@@ -348,7 +348,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                             <?php while ($msg = mysqli_fetch_assoc($res_recibidos)): ?>
                                 <li>
                                     <strong>De:</strong> <?php echo htmlspecialchars($msg['nombre_remitente']); ?>
-                                    â€” <small><?php echo htmlspecialchars($msg['fecha_envio']); ?></small>
+                                     -  <small><?php echo htmlspecialchars($msg['fecha_envio']); ?></small>
 
                                     <?php if (!empty($msg['titulo_mueble'])): ?>
                                         <br>
@@ -376,7 +376,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                             <?php while ($msg = mysqli_fetch_assoc($res_enviados)): ?>
                                 <li>
                                     <strong>Para:</strong> <?php echo htmlspecialchars($msg['nombre_destinatario']); ?>
-                                    â€” <small><?php echo htmlspecialchars($msg['fecha_envio']); ?></small>
+                                     -  <small><?php echo htmlspecialchars($msg['fecha_envio']); ?></small>
 
                                     <?php if (!empty($msg['titulo_mueble'])): ?>
                                         <br>
@@ -392,7 +392,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                             <?php endwhile; ?>
                         </ul>
                     <?php else: ?>
-                        <p>No has enviado mensajes todavÃ­a.</p>
+                        <p>No has enviado mensajes todavía.</p>
                     <?php endif; ?>
                 </div>
 
@@ -404,7 +404,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
 <?php ew_render_footer(); ?>
 
-<button id="btnTop" onclick="scrollToTop()">â–²</button>
+<button id="btnTop" onclick="scrollToTop()">↑</button>
 <script src="js/app.js"></script>
 
 </body>

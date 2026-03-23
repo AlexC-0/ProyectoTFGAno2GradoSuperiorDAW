@@ -133,6 +133,16 @@ header nav a.activo {
     font-weight: 600;
 }
 
+.auth-helper {
+    margin: 12px 2px 0;
+    color: var(--text-soft);
+    font-size: 14px;
+}
+
+.auth-helper a {
+    font-weight: 700;
+}
+
 h1,
 h2,
 h3 {
@@ -342,17 +352,19 @@ input[type="button"]:hover {
 }
 
 .formulario {
-    max-width: 760px;
+    width: min(100%, 560px);
     background: #fff;
     border: 1px solid var(--border);
     border-radius: 16px;
     box-shadow: var(--shadow);
-    padding: 18px;
+    padding: 20px 22px;
     margin-bottom: 22px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 form p {
-    margin: 0 0 12px;
+    margin: 0 0 14px;
 }
 
 label {
@@ -368,6 +380,7 @@ input[type="password"],
 textarea,
 select {
     width: 100%;
+    max-width: 100%;
     margin-top: 6px;
     border: 1px solid #d8cbc0;
     border-radius: 12px;
@@ -375,7 +388,7 @@ select {
     color: var(--text);
     font-family: 'Manrope', sans-serif;
     font-size: 14px;
-    padding: 10px 11px;
+    padding: 10px 12px;
     transition: border-color .2s ease, box-shadow .2s ease;
 }
 
@@ -389,7 +402,7 @@ select:focus {
 
 textarea {
     resize: vertical;
-    min-height: 92px;
+    min-height: 110px;
 }
 
 .mensaje {
@@ -444,11 +457,20 @@ table th {
     display: none;
     width: 45px;
     height: 45px;
+    align-items: center;
+    justify-content: center;
     border-radius: 999px;
     border: 0;
     color: #fff;
     background: var(--brand);
     box-shadow: 0 10px 22px rgba(31, 61, 42, 0.35);
+}
+
+.btn-top-icon {
+    font-size: 20px;
+    line-height: 1;
+    font-weight: 800;
+    transform: translateY(-1px);
 }
 
 #btnTop:hover {
@@ -479,16 +501,21 @@ table th {
 .footer-flex {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 12px;
+    justify-content: space-between;
+    gap: 24px;
     flex-wrap: wrap;
+}
+
+.footer-texto {
+    margin-right: auto;
 }
 
 .footer-contacto {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 10px;
+    margin-left: auto;
 }
 
 .footer-icon {
@@ -516,7 +543,7 @@ footer {
 }
 
 .formulario-filtros-grid {
-    max-width: 920px;
+    width: min(100%, 620px);
 }
 
 .filtros-grid {
@@ -642,6 +669,10 @@ footer {
     justify-content: center;
     border-radius: 999px;
     padding: 8px;
+}
+
+.nav-cart {
+    margin-left: auto;
 }
 
 .nav-icon:hover {
@@ -784,12 +815,19 @@ footer {
 }
 
 .auth-shell {
-    max-width: 760px;
+    max-width: 560px;
+    margin-top: 26px;
+    margin-bottom: 52px;
 }
 
 .publish-shell,
 .cart-shell {
     max-width: 980px;
+}
+
+.publish-shell {
+    margin-top: 26px;
+    margin-bottom: 56px;
 }
 
 .cart-links {
@@ -904,11 +942,61 @@ footer {
 .form-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 18px;
 }
 
 .form-columna {
     min-width: 0;
+}
+
+.auth-shell .formulario,
+.auth-shell .mensaje,
+.auth-shell .auth-helper {
+    width: min(100%, 460px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.auth-shell > h1,
+.auth-shell > h2,
+.auth-shell > .catalog-kicker,
+.auth-shell > .mensaje,
+.auth-shell > .formulario,
+.auth-shell > .auth-helper,
+.publish-shell > h1,
+.publish-shell > h2,
+.publish-shell > .landing-acciones,
+.publish-shell > .mensaje,
+.publish-shell > .formulario {
+    margin-bottom: 20px;
+}
+
+.publish-shell .formulario {
+    width: min(100%, 560px);
+}
+
+.publish-shell .formulario.formulario-dos-columnas {
+    width: min(100%, 700px);
+}
+
+.formulario > h3:first-child,
+.formulario > h2:first-child {
+    margin-bottom: 16px;
+}
+
+.formulario small {
+    display: inline-block;
+    margin-top: 6px;
+    color: var(--text-soft);
+    font-size: 12px;
+}
+
+.filtros-botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 8px;
 }
 
 .btn-cant {
@@ -945,6 +1033,10 @@ footer {
         justify-content: flex-start;
     }
 
+    .nav-cart {
+        margin-left: 0;
+    }
+
     .brand-logo {
         height: clamp(62px, 20vw, 86px);
         transform: scale(1.42) translateY(4px);
@@ -959,7 +1051,20 @@ footer {
     }
 
     .formulario {
-        padding: 14px;
+        width: 100%;
+        padding: 16px;
+    }
+
+    .footer-flex {
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .footer-texto,
+    .footer-contacto {
+        margin-left: 0;
+        margin-right: 0;
+        justify-content: center;
     }
 }
 

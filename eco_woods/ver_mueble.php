@@ -159,24 +159,24 @@ $loggedIn = isset($_SESSION['usuario_id']);
 
             <h1><?php echo htmlspecialchars($mueble['titulo']); ?></h1>
 
-            <p><strong>DescripciÃ³n:</strong> <?php echo nl2br(htmlspecialchars($mueble['descripcion'])); ?></p>
+            <p><strong>Descripción:</strong> <?php echo nl2br(htmlspecialchars($mueble['descripcion'])); ?></p>
             <p><strong>Precio:</strong>
                 <?php
                 $precio_mueble = (float)$mueble['precio'];
                 echo number_format($precio_mueble, 2, ',', '.');
-                ?> â‚¬
+                ?> €
             </p>
-            <p><strong>UbicaciÃ³n:</strong>
+            <p><strong>Ubicación:</strong>
                 <?php echo htmlspecialchars($mueble['provincia']); ?>
                 -
                 <?php echo htmlspecialchars($mueble['localidad']); ?>
             </p>
             <p><strong>Estado:</strong> <?php echo htmlspecialchars($mueble['estado']); ?></p>
             <?php if (!empty($mueble['categoria'])): ?>
-                <p><strong>CategorÃ­a:</strong> <?php echo htmlspecialchars($mueble['categoria']); ?></p>
+                <p><strong>Categoría:</strong> <?php echo htmlspecialchars($mueble['categoria']); ?></p>
             <?php endif; ?>
             <p><strong>Vendedor:</strong> <?php echo htmlspecialchars($mueble['nombre_vendedor']); ?></p>
-            <p><strong>Fecha de publicaciÃ³n:</strong> <?php echo htmlspecialchars($mueble['fecha_publicacion']); ?></p>
+            <p><strong>Fecha de publicación:</strong> <?php echo htmlspecialchars($mueble['fecha_publicacion']); ?></p>
 
             <div class="tarjeta-footer detail-actions">
 
@@ -191,21 +191,21 @@ $loggedIn = isset($_SESSION['usuario_id']);
                                 class="btn-share btn-share-mail"
                                 aria-label="Compartir por email"
                                >
-                            âœ‰ï¸ Email
+                            Email
                         </button>
 
                         <button type="button"
                                 class="btn-share btn-share-whatsapp"
                                 aria-label="Compartir por WhatsApp"
                                >
-                            ðŸ’¬ WhatsApp
+                            WhatsApp
                         </button>
 
                         <button type="button"
                                 class="btn-share btn-share-instagram"
                                 aria-label="Compartir en Instagram"
                                >
-                            ðŸ“· Instagram
+                            Instagram
                         </button>
                     </div>
                 </div>
@@ -215,7 +215,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
                     <button type="button"
                             class="btn-carrito-icono btn-carrito-mueble"
                             data-id="<?php echo (int)$id_mueble; ?>"
-                            aria-label="AÃ±adir mueble al carrito"
+                            aria-label="Añadir mueble al carrito"
                            >
                         <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="margin-left:-7px;">
                             <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
@@ -242,7 +242,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
             } else {
                 ?>
                 <p>
-                    <strong>Inicia sesiÃ³n para contactar con el vendedor.</strong><br>
+                    <strong>Inicia sesión para contactar con el vendedor.</strong><br>
                     <a href="login.php">Ir a login</a>
                 </p>
                 <?php
@@ -259,7 +259,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
 
             if (!empty($imagenes_extra)): ?>
                 <hr>
-                <h2>MÃ¡s fotos del mueble</h2>
+                <h2>Más fotos del mueble</h2>
                 <div class="galeria-mueble">
                     <?php foreach ($imagenes_extra as $idx => $imgNombre): ?>
                         <img
@@ -275,7 +275,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
 
         <hr>
 
-        <h2>ReseÃ±as</h2>
+        <h2>Reseñas</h2>
 
         <?php
         if (!empty($mensaje_resena)) {
@@ -289,7 +289,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
                     <article class="tarjeta">
                         <p>
                             <strong><?php echo htmlspecialchars($res['nombre_usuario']); ?></strong>
-                            â€” PuntuaciÃ³n:
+                             -  Puntuación:
                             <?php echo (int)$res['puntuacion']; ?>/5
                         </p>
                         <p><?php echo nl2br(htmlspecialchars($res['comentario'])); ?></p>
@@ -300,17 +300,17 @@ $loggedIn = isset($_SESSION['usuario_id']);
                 <?php endwhile; ?>
             </div>
         <?php else: ?>
-            <p>Este mueble aÃºn no tiene reseÃ±as.</p>
+            <p>Este mueble aún no tiene reseñas.</p>
         <?php endif; ?>
 
         <?php if (isset($_SESSION['usuario_id'])): ?>
 
-            <h3>Escribe una reseÃ±a</h3>
+            <h3>Escribe una reseña</h3>
 
             <form action="ver_mueble.php?id_mueble=<?php echo $id_mueble; ?>" method="post" class="formulario">
                 <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
                 <p>
-                    <label>PuntuaciÃ³n (1 a 5):<br>
+                    <label>Puntuación (1 a 5):<br>
                         <select name="puntuacion">
                             <option value="1">1 - Muy mal</option>
                             <option value="2">2 - Mejorable</option>
@@ -328,14 +328,14 @@ $loggedIn = isset($_SESSION['usuario_id']);
                 </p>
 
                 <p>
-                    <button type="submit">Enviar reseÃ±a</button>
+                    <button type="submit">Enviar reseña</button>
                 </p>
             </form>
 
         <?php else: ?>
 
-            <p><strong>Debes iniciar sesiÃ³n para escribir una reseÃ±a.</strong></p>
-            <p><a href="login.php">Iniciar sesiÃ³n</a></p>
+            <p><strong>Debes iniciar sesión para escribir una reseña.</strong></p>
+            <p><a href="login.php">Iniciar sesión</a></p>
 
         <?php endif; ?>
 
@@ -356,7 +356,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
                                 <?php
                                 $precio_rec = (float)$rec['precio'];
                                 echo number_format($precio_rec, 2, ',', '.');
-                                ?> â‚¬
+                                ?> €
                             </p>
                         </div>
 
@@ -381,7 +381,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
                             <button type="button"
                                     class="btn-carrito-icono btn-carrito-recambio"
                                     data-id="<?php echo (int)$rec['id_recambio']; ?>"
-                                    aria-label="AÃ±adir recambio al carrito">
+                                    aria-label="Añadir recambio al carrito">
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                     <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
                                 </svg>
@@ -392,7 +392,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
                 <?php endwhile; ?>
             </div>
         <?php else: ?>
-            <p>De momento no hay recambios 3D especÃ­ficos para este tipo de mueble.</p>
+            <p>De momento no hay recambios 3D específicos para este tipo de mueble.</p>
         <?php endif; ?>
 
     </div>
@@ -400,7 +400,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
 
 <?php ew_render_footer(); ?>
 
-<button id="btnTop" onclick="scrollToTop()">â–²</button>
+<button id="btnTop" onclick="scrollToTop()">↑</button>
 <script src="js/app.js"></script>
 
 <script>
@@ -436,14 +436,14 @@ $loggedIn = isset($_SESSION['usuario_id']);
             const data = await resp.json().catch(() => null);
 
             if (!resp.ok || !data || data.ok !== true) {
-                const msg = (data && data.message) ? data.message : 'No se pudo aÃ±adir al carrito.';
+                const msg = (data && data.message) ? data.message : 'No se pudo añadir al carrito.';
                 showToast(msg, false);
             } else {
                 showToast(data.message, true);
             }
 
         } catch (e) {
-            showToast('Error de conexiÃ³n al aÃ±adir al carrito.', false);
+            showToast('Error de conexión al añadir al carrito.', false);
         }
     }
 
@@ -491,7 +491,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
     async function copyLink(url) {
         try {
             await navigator.clipboard.writeText(url);
-            showToast('Enlace copiado. PÃ©galo donde quieras.', true);
+            showToast('Enlace copiado. Pégalo donde quieras.', true);
             return true;
         } catch (e) {
             showToast('No se pudo copiar el enlace.', false);

@@ -102,6 +102,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </p>
         </form>
 
+        <p class="auth-helper">
+            Si todavia no tienes cuenta, puedes registrarte desde
+            <a href="registro.php">el formulario de registro</a>.
+        </p>
+
     </div>
 </main>
 

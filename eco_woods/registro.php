@@ -170,6 +170,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         </form>
 
+        <p class="auth-helper">
+            Si ya tienes cuenta, vuelve a
+            <a href="login.php">la pantalla de acceso</a>.
+        </p>
+
     </div>
 </main>
 

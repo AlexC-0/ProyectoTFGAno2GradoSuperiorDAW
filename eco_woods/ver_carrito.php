@@ -12,7 +12,7 @@ Vista de carrito activo del usuario.
 - Permite sumar, restar y eliminar sin recargar pagina.
 - Sincroniza UI con respuestas JSON del backend protegido.
 */
-// Bootstrap inicia sesiÃ³n y helpers globales; layout evita duplicar header/footer.
+// Bootstrap inicia sesión y helpers globales; layout evita duplicar header/footer.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once "conexion.php";
@@ -41,7 +41,7 @@ $res_items = null;
 $id_carrito = 0;
 
 if (isset($_SESSION['usuario_id'])) {
-    // El carrito se vincula al usuario autenticado de la sesiÃ³n actual.
+    // El carrito se vincula al usuario autenticado de la sesión actual.
     $id_usuario = (int) $_SESSION['usuario_id'];
 
     $res_carrito = ew_stmt_result(
@@ -54,7 +54,7 @@ if (isset($_SESSION['usuario_id'])) {
     );
 
     if ($res_carrito && mysqli_num_rows($res_carrito) > 0) {
-        // Si existe carrito activo, obtenemos sus lÃ­neas de detalle.
+        // Si existe carrito activo, obtenemos sus líneas de detalle.
         $carrito_vacio = false;
         $fila_carrito = mysqli_fetch_assoc($res_carrito);
         $id_carrito = (int)$fila_carrito['id_carrito'];
@@ -106,13 +106,13 @@ if (isset($_SESSION['usuario_id'])) {
 
         <?php
         if (!isset($_SESSION['usuario_id'])) {
-            echo "<p>Debes iniciar sesiÃ³n para ver tu carrito.</p>";
+            echo "<p>Debes iniciar sesión para ver tu carrito.</p>";
         } else if ($carrito_vacio) {
-            echo "<p>No tienes ningÃºn carrito activo o estÃ¡ vacÃ­o.</p>";
+            echo "<p>No tienes ningún carrito activo o está vacío.</p>";
         } else {
 
             if (!$res_items || mysqli_num_rows($res_items) == 0) {
-                echo "<p>El carrito estÃ¡ vacÃ­o.</p>";
+                echo "<p>El carrito está vacío.</p>";
             } else {
 
                 $total = 0;
@@ -156,15 +156,15 @@ if (isset($_SESSION['usuario_id'])) {
                     echo "<tr>";
                     echo "<td>" . htmlspecialchars($tipo) . "</td>";
                     echo "<td>" . htmlspecialchars($nombre) . "</td>";
-                    echo "<td>" . number_format($precio, 2, ',', '.') . " â‚¬</td>";
+                    echo "<td>" . number_format($precio, 2, ',', '.') . " €</td>";
 
                     echo "<td class='cell-cantidad'>";
-                    echo "  <button type='button' class='btn-cant' data-id='$id_item' data-accion='menos'>âˆ’</button>";
+                    echo "  <button type='button' class='btn-cant' data-id='$id_item' data-accion='menos'>-</button>";
                     echo "  <span class='cant-num' id='cant_$id_item' style='display:inline-block;min-width:26px;text-align:center;'>" . $cantidad . "</span>";
                     echo "  <button type='button' class='btn-cant' data-id='$id_item' data-accion='mas'>+</button>";
                     echo "</td>";
 
-                    echo "<td><span id='sub_$id_item'>" . number_format($subtotal, 2, ',', '.') . "</span> â‚¬</td>";
+                    echo "<td><span id='sub_$id_item'>" . number_format($subtotal, 2, ',', '.') . "</span> €</td>";
 
                     echo "<td class='cell-acciones'>";
                     echo "  <button type='button' class='btn-del' data-id='$id_item'>Eliminar</button>";
@@ -175,7 +175,7 @@ if (isset($_SESSION['usuario_id'])) {
 
                 echo "<tr>
                         <td colspan='4'><strong>Total</strong></td>
-                        <td colspan='2'><strong><span id='totalCarrito'>" . number_format($total, 2, ',', '.') . "</span> â‚¬</strong></td>
+                        <td colspan='2'><strong><span id='totalCarrito'>" . number_format($total, 2, ',', '.') . "</span> €</strong></td>
                       </tr>";
                 echo "</table>";
 
@@ -191,7 +191,7 @@ if (isset($_SESSION['usuario_id'])) {
 
 <?php ew_render_footer(); ?>
 
-<button id="btnTop" onclick="scrollToTop()">â–²</button>
+<button id="btnTop" onclick="scrollToTop()">↑</button>
 <script src="js/app.js"></script>
 
 <script>
@@ -238,7 +238,7 @@ if (isset($_SESSION['usuario_id'])) {
             btn.disabled = true;
 
             try {
-                // Actualiza cantidad de una lÃ­nea y devuelve nuevo subtotal.
+                // Actualiza cantidad de una línea y devuelve nuevo subtotal.
                 const resp = await fetch('carrito_cantidad.php', {
                     method: 'POST',
                     headers: {
@@ -275,7 +275,7 @@ if (isset($_SESSION['usuario_id'])) {
                 showToast(data.message || 'Cantidad actualizada.', true);
 
             } catch (e) {
-                showToast('Error de conexiÃ³n al actualizar cantidad.', false);
+                showToast('Error de conexión al actualizar cantidad.', false);
             } finally {
                 btn.disabled = false;
             }
@@ -287,12 +287,12 @@ if (isset($_SESSION['usuario_id'])) {
             const id = btn.getAttribute('data-id');
             if (!id) return;
 
-            if (!confirm('Â¿Seguro que quieres eliminar este producto del carrito?')) return;
+            if (!confirm('¿Seguro que quieres eliminar este producto del carrito?')) return;
 
             btn.disabled = true;
 
             try {
-                // Elimina una lÃ­nea del carrito por id_item.
+                // Elimina una línea del carrito por id_item.
                 const resp = await fetch('carrito_eliminar.php', {
                     method: 'POST',
                     headers: {
@@ -317,7 +317,7 @@ if (isset($_SESSION['usuario_id'])) {
                 showToast(data.message || 'Producto eliminado.', true);
 
             } catch (e) {
-                showToast('Error de conexiÃ³n al eliminar.', false);
+                showToast('Error de conexión al eliminar.', false);
             } finally {
                 btn.disabled = false;
             }

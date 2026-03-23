@@ -35,31 +35,28 @@ function ew_render_header(array $options = []): void
         <nav>
             <a href="index.php" class="<?php echo ($active === 'index') ? 'activo' : ''; ?>">Inicio</a>
             <?php if ($mode === 'auth'): ?>
-                <a href="login.php" class="<?php echo ($active === 'login') ? 'activo' : ''; ?>">Login</a>
-                <a href="registro.php" class="<?php echo ($active === 'registro') ? 'activo' : ''; ?>">Registro</a>
+                <a href="login.php" class="<?php echo ($active === 'login') ? 'activo' : ''; ?>">Log-In</a>
             <?php else: ?>
-                <a href="muebles.php" class="<?php echo ($active === 'muebles') ? 'activo' : ''; ?>">Muebles</a>
-                <a href="recambios.php" class="<?php echo ($active === 'recambios') ? 'activo' : ''; ?>">Recambios 3D</a>
-                <?php if ($showCart): ?>
-                    <a href="ver_carrito.php" class="nav-icon" aria-label="Carrito">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
-                        </svg>
-                    </a>
-                <?php endif; ?>
                 <?php if ($isLogged): ?>
+                    <a href="muebles.php" class="<?php echo ($active === 'muebles') ? 'activo' : ''; ?>">Muebles</a>
+                    <a href="recambios.php" class="<?php echo ($active === 'recambios') ? 'activo' : ''; ?>">Recambios 3D</a>
                     <?php if ($isAdmin): ?>
                         <a href="publicar.php">Publicar</a>
                         <a href="admin.php" class="<?php echo ($active === 'admin') ? 'activo' : ''; ?>">Panel Admin</a>
                     <?php else: ?>
                         <a href="publicar.php">Publicar mueble</a>
                     <?php endif; ?>
-                    <span class="saludo">Hola, <?php echo e((string)($_SESSION['usuario_nombre'] ?? 'Usuario')); ?></span>
                     <a href="mi_perfil.php" class="<?php echo ($active === 'perfil') ? 'activo' : ''; ?>">Mi perfil</a>
                     <a href="logout.php">Cerrar sesion</a>
+                    <?php if ($showCart): ?>
+                        <a href="ver_carrito.php" class="nav-icon nav-cart <?php echo ($active === 'carrito') ? 'activo' : ''; ?>" aria-label="Carrito">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
+                            </svg>
+                        </a>
+                    <?php endif; ?>
                 <?php else: ?>
-                    <a href="login.php" class="<?php echo ($active === 'login') ? 'activo' : ''; ?>">Login</a>
-                    <a href="registro.php" class="<?php echo ($active === 'registro') ? 'activo' : ''; ?>">Registro</a>
+                    <a href="login.php" class="<?php echo ($active === 'login') ? 'activo' : ''; ?>">Log-In</a>
                 <?php endif; ?>
             <?php endif; ?>
         </nav>

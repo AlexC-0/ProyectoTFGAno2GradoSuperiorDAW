@@ -6,21 +6,10 @@ Este archivo inicializa la base comun del proyecto.
 - Carga utilidades compartidas (escape, csrf, helpers basicos).
 - Evita que cada archivo tenga que repetir arranque y configuracion manual.
 */
-declare(strict_types=1);
 
-// Punto unico de arranque para sesiones y utilidades de seguridad.
-// Se incluye al principio de cada script para evitar configuraciones
-// de sesion duplicadas o inconsistentes entre paginas.
 if (session_status() === PHP_SESSION_NONE) {
-    // Si la peticion llega por HTTPS, marcamos la cookie como secure.
-    // En local HTTP esto queda en false para no romper la sesion.
     $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
 
-    // Politica de cookie de sesion:
-    // - lifetime 0: solo sesion del navegador.
-    // - httponly: evita acceso desde JS (mitiga robo por XSS).
-    // - samesite Lax: reduce CSRF en navegacion cruzada.
-    // - secure: solo por HTTPS cuando aplica.
     session_set_cookie_params([
         'lifetime' => 0,
         'path' => '/',
@@ -31,6 +20,36 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Carga de helpers comunes de seguridad (escape HTML, CSRF, etc.).
 require_once __DIR__ . '/security.php';
 
+function ew_normalize_html_output(string $buffer): string
+{
+    $trimmed = ltrim($buffer);
+    if ($trimmed === '' || (stripos($trimmed, '<!DOCTYPE html') !== 0 && stripos($trimmed, '<html') !== 0)) {
+        return $buffer;
+    }
+
+    $tokens = [
+        'á', 'é', 'í', 'ó', 'ú',
+        'Á', 'É', 'Í', 'Ó', 'Ú',
+        'ñ', 'Ñ', 'ü', 'Ü',
+        '€', '—', '–', '“', '”', '‘', '’', '•',
+        '★', '☆', '▲', '¿', '¡',
+    ];
+
+    $map = [];
+    foreach ($tokens as $token) {
+        $broken = @mb_convert_encoding($token, 'UTF-8', 'Windows-1252');
+        if (is_string($broken) && $broken !== '' && $broken !== $token) {
+            $map[$broken] = $token;
+        }
+    }
+
+    $buffer = strtr($buffer, $map);
+    return str_replace('Â', '', $buffer);
+}
+
+if (!defined('EW_HTML_NORMALIZER_STARTED')) {
+    define('EW_HTML_NORMALIZER_STARTED', true);
+    ob_start('ew_normalize_html_output');
+}

@@ -12,7 +12,7 @@ Detalle completo de un recambio 3D.
 - Permite resenas y acciones de carrito con feedback visual.
 - Incluye formularios protegidos y consumo de endpoints estables.
 */
-// Bootstrap + layout para sesiÃ³n, utilidades compartidas y cabecera/pie unificados.
+// Bootstrap + layout para sesión, utilidades compartidas y cabecera/pie unificados.
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once "conexion.php";
@@ -35,7 +35,7 @@ function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array
     return $result;
 }
 
-// ComprobaciÃ³n defensiva de columnas: permite tolerar esquemas con migraciones parciales.
+// Comprobación defensiva de columnas: permite tolerar esquemas con migraciones parciales.
 function columnExists($conexion, $tabla, $columna) {
     $stmt = mysqli_prepare(
         $conexion,
@@ -64,10 +64,10 @@ if (!isset($_GET['id_recambio'])) {
     die("Recambio no especificado.");
 }
 
-// Identificador de recambio tipado para evitar inyecciÃ³n por querystring.
+            // Identificador de recambio tipado para evitar inyeccion por querystring.
 $id_recambio = (int)$_GET['id_recambio'];
 
-// VerificaciÃ³n dinÃ¡mica de columnas de imÃ¡genes opcionales.
+// Verificación dinámica de columnas de imágenes opcionales.
 $col_img1 = columnExists($conexion, 'recambios3d', 'imagen');
 $col_img2 = columnExists($conexion, 'recambios3d', 'imagen2');
 $col_img3 = columnExists($conexion, 'recambios3d', 'imagen3');
@@ -91,7 +91,7 @@ $sql_lista = "SELECT rr.*, u.nombre AS nombre_usuario
 
 $res_resenas = ew_stmt_result($conexion, $sql_lista, 'i', [$id_recambio]);
 
-// Se construye una colecciÃ³n Ãºnica de imÃ¡genes combinando columna principal y extras.
+// Se construye una colección única de imágenes combinando columna principal y extras.
 $imagenes = [];
 
 if ($col_img1 && !empty($recambio['imagen'])) {
@@ -144,7 +144,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 
                 <?php if (count($imagenes) > 1): ?>
                     <hr>
-                    <h2>MÃ¡s fotos del recambio</h2>
+                    <h2>Más fotos del recambio</h2>
                     <div class="galeria-mueble">
                         <?php for ($i = 1; $i < count($imagenes); $i++): ?>
                             <img
@@ -159,14 +159,14 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 
             <h1><?php echo htmlspecialchars($recambio['nombre']); ?></h1>
 
-            <p><strong>DescripciÃ³n:</strong> <?php echo nl2br(htmlspecialchars($recambio['descripcion'])); ?></p>
+            <p><strong>Descripción:</strong> <?php echo nl2br(htmlspecialchars($recambio['descripcion'])); ?></p>
             <p><strong>Tipo:</strong> <?php echo htmlspecialchars($recambio['tipo']); ?></p>
             <p><strong>Compatible con:</strong> <?php echo htmlspecialchars($recambio['compatible_con']); ?></p>
             <p><strong>Precio:</strong>
                 <?php
                 $precio = (float)$recambio['precio'];
                 echo number_format($precio, 2, ',', '.');
-                ?> â‚¬
+                ?> €
             </p>
 
             <div class="tarjeta-footer detail-actions">
@@ -181,21 +181,21 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
                                 class="btn-share btn-share-mail"
                                 aria-label="Compartir por email"
                                >
-                            âœ‰ï¸ Email
+                            Email
                         </button>
 
                         <button type="button"
                                 class="btn-share btn-share-whatsapp"
                                 aria-label="Compartir por WhatsApp"
                                >
-                            ðŸ’¬ WhatsApp
+                            WhatsApp
                         </button>
 
                         <button type="button"
                                 class="btn-share btn-share-instagram"
                                 aria-label="Compartir en Instagram"
                                >
-                            ðŸ“· Instagram
+                            Instagram
                         </button>
                     </div>
                 </div>
@@ -204,7 +204,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
                     <button type="button"
                             class="btn-carrito-icono btn-carrito-recambio-grande"
                             data-id="<?php echo (int)$id_recambio; ?>"
-                            aria-label="AÃ±adir recambio al carrito"
+                            aria-label="Añadir recambio al carrito"
                            >
                         <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="margin-left:-7px;">
                             <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
@@ -218,7 +218,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 
         <hr>
 
-        <h2>ReseÃ±as</h2>
+        <h2>Reseñas</h2>
 
         <div id="toastResena" class="toast-carrito" style="display:none;"></div>
 
@@ -229,7 +229,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
                         <article class="tarjeta">
                             <p>
                                 <strong><?php echo htmlspecialchars($r['nombre_usuario']); ?></strong>
-                                â€” PuntuaciÃ³n: <?php echo (int)$r['puntuacion']; ?>/5
+                                 -  Puntuación: <?php echo (int)$r['puntuacion']; ?>/5
                             </p>
                             <p><?php echo nl2br(htmlspecialchars($r['comentario'])); ?></p>
                             <p><small>Fecha: <?php echo htmlspecialchars($r['fecha_resena']); ?></small></p>
@@ -237,19 +237,19 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
                     <?php endwhile; ?>
                 </div>
             <?php else: ?>
-                <p id="sinResenas">Este recambio aÃºn no tiene reseÃ±as.</p>
+                <p id="sinResenas">Este recambio aún no tiene reseñas.</p>
             <?php endif; ?>
         </div>
 
         <?php if (isset($_SESSION['usuario_id'])): ?>
 
-            <h3>Escribe una reseÃ±a</h3>
+            <h3>Escribe una reseña</h3>
 
             <form id="formResena" action="add_resena_recambio.php?id_recambio=<?php echo $id_recambio; ?>" method="post" class="formulario">
                 <!-- Token CSRF exigido por add_resena_recambio.php -->
                 <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
                 <p>
-                    <label>PuntuaciÃ³n (1 a 5):<br>
+                    <label>Puntuación (1 a 5):<br>
                         <select name="puntuacion">
                             <option value="1">1 - Muy mal</option>
                             <option value="2">2 - Mejorable</option>
@@ -267,14 +267,14 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
                 </p>
 
                 <p>
-                    <button type="submit">Enviar reseÃ±a</button>
+                    <button type="submit">Enviar reseña</button>
                 </p>
             </form>
 
         <?php else: ?>
 
-            <p><strong>Debes iniciar sesiÃ³n para escribir una reseÃ±a.</strong></p>
-            <p><a href="login.php">Iniciar sesiÃ³n</a></p>
+            <p><strong>Debes iniciar sesión para escribir una reseña.</strong></p>
+            <p><a href="login.php">Iniciar sesión</a></p>
 
         <?php endif; ?>
 
@@ -283,7 +283,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 
 <?php ew_render_footer(); ?>
 
-<button id="btnTop" onclick="scrollToTop()">â–²</button>
+<button id="btnTop" onclick="scrollToTop()">↑</button>
 <script src="js/app.js"></script>
 
 <script>
@@ -324,14 +324,14 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
             const data = await resp.json().catch(() => null);
 
             if (!resp.ok || !data || data.ok !== true) {
-                const msg = (data && data.message) ? data.message : 'No se pudo aÃ±adir al carrito.';
+                const msg = (data && data.message) ? data.message : 'No se pudo añadir al carrito.';
                 showToast(toastCarrito, msg, false);
             } else {
                 showToast(toastCarrito, data.message, true);
             }
 
         } catch (e) {
-            showToast(toastCarrito, 'Error de conexiÃ³n al aÃ±adir al carrito.', false);
+            showToast(toastCarrito, 'Error de conexión al añadir al carrito.', false);
         }
     }
 
@@ -353,7 +353,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
     }
 
     function getShareData() {
-        // Datos reutilizables para compartir en mÃºltiples canales.
+        // Datos reutilizables para compartir en múltiples canales.
         const url = window.location.href;
         const titulo = <?php echo json_encode($recambio['nombre'] ?? 'Recambio'); ?>;
         const texto = `Mira este anuncio en ECO & WOODS: ${titulo}`;
@@ -367,7 +367,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
     async function copyLink(url) {
         try {
             await navigator.clipboard.writeText(url);
-            showToast(toastCarrito, 'Enlace copiado. PÃ©galo donde quieras.', true);
+            showToast(toastCarrito, 'Enlace copiado. Pégalo donde quieras.', true);
             return true;
         } catch (e) {
             showToast(toastCarrito, 'No se pudo copiar el enlace.', false);
@@ -401,7 +401,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
             const d = getShareData();
 
             if (navigator.share) {
-                // En mÃ³vil, Web Share API ofrece UX nativa.
+                // En móvil, Web Share API ofrece UX nativa.
                 try {
                     await navigator.share({ title: d.titulo, text: d.texto, url: d.url });
                     return;
@@ -429,7 +429,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
         if (btn) btn.disabled = true;
 
         try {
-            // FormData permite enviar textarea/select sin serializaciÃ³n manual.
+            // FormData permite enviar textarea/select sin serialización manual.
             const resp = await fetch(url, {
                 method: 'POST',
                 body: formData,
@@ -442,7 +442,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
             const data = await resp.json().catch(() => null);
 
             if (!resp.ok || !data || data.ok !== true) {
-                const msg = (data && data.message) ? data.message : 'No se pudo guardar la reseÃ±a.';
+                const msg = (data && data.message) ? data.message : 'No se pudo guardar la reseña.';
                 showToast(toastResena, msg, false);
                 return;
             }
@@ -461,7 +461,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 
             const r = data.resena;
 
-            // Render inmediato en cliente para evitar recarga de pÃ¡gina.
+            // Render inmediato en cliente para evitar recarga de página.
             const art = document.createElement('article');
             art.className = 'tarjeta';
 
@@ -471,7 +471,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
             const comentario = r && r.comentario ? r.comentario : '';
 
             art.innerHTML = `
-                <p><strong>${escapeHtml(nombreUsuario)}</strong> â€” PuntuaciÃ³n: ${escapeHtml(String(puntuacion))}/5</p>
+                <p><strong>${escapeHtml(nombreUsuario)}</strong>  -  Puntuación: ${escapeHtml(String(puntuacion))}/5</p>
                 <p>${escapeHtml(comentario).replace(/\\n/g, '<br>')}</p>
                 <p><small>Fecha: ${escapeHtml(fecha)}</small></p>
             `;
@@ -481,7 +481,7 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
             form.reset();
 
         } catch (err) {
-            showToast(toastResena, 'Error de conexiÃ³n al enviar la reseÃ±a.', false);
+            showToast(toastResena, 'Error de conexión al enviar la reseña.', false);
         } finally {
             if (btn) btn.disabled = false;
         }
