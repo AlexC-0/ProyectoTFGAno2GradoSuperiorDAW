@@ -151,5 +151,3 @@ ew_json([
     'es_favorito' => true,
     'message' => 'Anadido a favoritos.'
 ]);
-
-/*BORRAR*/

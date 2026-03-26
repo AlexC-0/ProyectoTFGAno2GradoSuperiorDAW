@@ -94,38 +94,46 @@ $es_admin = ew_is_admin();
 <?php ew_render_header(['active' => 'admin']); ?>
 
 <main>
-    <div class="contenedor">
+    <div class="contenedor section-stack admin-shell">
 
-        <h1>Panel de administración</h1>
-        <p><strong>Usuario admin:</strong> <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?></p>
+        <section class="section-head-card">
+            <p class="section-head-kicker">Panel de control</p>
+            <h1>Panel de administración</h1>
+            <p><strong>Usuario admin:</strong> <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?></p>
+        </section>
 
-        <hr>
+        <section class="section-content-card">
+            <div class="perfil-subcard-titulo">
+                <h2>Sección activa: <?php echo htmlspecialchars(ucfirst($seccion)); ?></h2>
+            </div>
 
-        <!-- Submenú del panel -->
-        <nav class="submenu-admin">
-            <a href="admin.php?seccion=usuarios"
-               class="<?php echo ($seccion === 'usuarios') ? 'activo' : ''; ?>">
-                Usuarios
-            </a>
-            <a href="admin.php?seccion=muebles"
-               class="<?php echo ($seccion === 'muebles') ? 'activo' : ''; ?>">
-                Muebles
-            </a>
-            <a href="admin.php?seccion=recambios"
-               class="<?php echo ($seccion === 'recambios') ? 'activo' : ''; ?>">
-                Recambios 3D
-            </a>
-            <a href="admin.php?seccion=resenas"
-               class="<?php echo ($seccion === 'resenas') ? 'activo' : ''; ?>">
-                Reseñas
-            </a>
-        </nav>
-
-        <hr>
+            <!-- Submenú del panel -->
+            <nav class="submenu-admin">
+                <a href="admin.php?seccion=usuarios"
+                   class="<?php echo ($seccion === 'usuarios') ? 'activo' : ''; ?>">
+                    Usuarios
+                </a>
+                <a href="admin.php?seccion=muebles"
+                   class="<?php echo ($seccion === 'muebles') ? 'activo' : ''; ?>">
+                    Muebles
+                </a>
+                <a href="admin.php?seccion=recambios"
+                   class="<?php echo ($seccion === 'recambios') ? 'activo' : ''; ?>">
+                    Recambios 3D
+                </a>
+                <a href="admin.php?seccion=resenas"
+                   class="<?php echo ($seccion === 'resenas') ? 'activo' : ''; ?>">
+                    Reseñas
+                </a>
+            </nav>
+        </section>
 
         <?php if ($seccion === 'usuarios'): ?>
 
-            <h2>Listado de usuarios</h2>
+            <section class="section-content-card">
+                <div class="perfil-subcard-titulo">
+                    <h2>Listado de usuarios</h2>
+                </div>
 
             <?php if ($res_usuarios && mysqli_num_rows($res_usuarios) > 0): ?>
                 <div class="tabla-admin">
@@ -184,10 +192,14 @@ $es_admin = ew_is_admin();
             <?php else: ?>
                 <p>No hay usuarios registrados.</p>
             <?php endif; ?>
+            </section>
 
         <?php elseif ($seccion === 'muebles'): ?>
 
-            <h2>Listado de muebles</h2>
+            <section class="section-content-card">
+                <div class="perfil-subcard-titulo">
+                    <h2>Listado de muebles</h2>
+                </div>
 
             <?php if ($res_muebles && mysqli_num_rows($res_muebles) > 0): ?>
                 <div class="tabla-admin">
@@ -248,10 +260,14 @@ $es_admin = ew_is_admin();
             <?php else: ?>
                 <p>No hay muebles registrados.</p>
             <?php endif; ?>
+            </section>
 
         <?php elseif ($seccion === 'recambios'): ?>
 
-            <h2>Listado de recambios 3D</h2>
+            <section class="section-content-card">
+                <div class="perfil-subcard-titulo">
+                    <h2>Listado de recambios 3D</h2>
+                </div>
 
             <?php if ($res_recambios && mysqli_num_rows($res_recambios) > 0): ?>
                 <div class="tabla-admin">
@@ -295,10 +311,14 @@ $es_admin = ew_is_admin();
             <?php else: ?>
                 <p>No hay recambios 3D registrados.</p>
             <?php endif; ?>
+            </section>
 
         <?php elseif ($seccion === 'resenas'): ?>
 
-            <h2>Listado de reseñas</h2>
+            <section class="section-content-card">
+                <div class="perfil-subcard-titulo">
+                    <h2>Listado de reseñas</h2>
+                </div>
 
             <?php if ($res_resenas && mysqli_num_rows($res_resenas) > 0): ?>
                 <div class="tabla-admin">
@@ -344,6 +364,7 @@ $es_admin = ew_is_admin();
             <?php else: ?>
                 <p>No hay reseñas registradas.</p>
             <?php endif; ?>
+            </section>
 
         <?php endif; ?>
 
@@ -357,5 +378,3 @@ $es_admin = ew_is_admin();
 
 </body>
 </html>
-
-/*BORRAR*/

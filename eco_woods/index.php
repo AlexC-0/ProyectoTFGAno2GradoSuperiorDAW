@@ -43,7 +43,9 @@ require_once __DIR__ . '/includes/layout.php';
 
         <section class="home-grid">
             <article class="home-panel">
-                <h2>Compraventa de muebles</h2>
+                <div class="perfil-subcard-titulo">
+                    <h2>Compraventa de muebles</h2>
+                </div>
                 <p>
                     Publica anuncios claros y encuentra oportunidades por categoria, precio y ubicacion.
                     El objetivo es facilitar decisiones rapidas sin ruido innecesario.
@@ -51,7 +53,9 @@ require_once __DIR__ . '/includes/layout.php';
             </article>
 
             <article class="home-panel">
-                <h2>Recambios 3D</h2>
+                <div class="perfil-subcard-titulo">
+                    <h2>Recambios 3D</h2>
+                </div>
                 <p>
                     Si una pieza falla, no siempre hace falta reemplazar el mueble completo.
                     El catalogo de recambios ayuda a reparar y extender vida util.
@@ -59,7 +63,9 @@ require_once __DIR__ . '/includes/layout.php';
             </article>
 
             <article class="home-panel">
-                <h2>Experiencia transparente</h2>
+                <div class="perfil-subcard-titulo">
+                    <h2>Experiencia transparente</h2>
+                </div>
                 <p>
                     Informacion legible, procesos directos y gestion personal de anuncios, favoritos,
                     carrito y mensajes desde el perfil del usuario.
@@ -75,5 +81,3 @@ require_once __DIR__ . '/includes/layout.php';
 <script src="js/app.js"></script>
 </body>
 </html>
-
-/*BORRAR*/

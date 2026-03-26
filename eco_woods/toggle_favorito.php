@@ -160,5 +160,3 @@ if (!$ok) {
 }
 
 ew_json_ok('Anadido a favoritos.', ['action' => 'added']);
-
-/*BORRAR*/

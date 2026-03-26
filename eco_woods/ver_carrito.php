@@ -94,29 +94,35 @@ if (isset($_SESSION['usuario_id'])) {
 
 <main>
     <div class="contenedor cart-shell">
+        <section class="section-head-card">
+            <p class="section-head-kicker">Revision del pedido</p>
+            <h1>Carrito de productos</h1>
+            <p>Aqui puedes revisar cantidades, subtotales y decidir si sigues comprando o finalizas la compra.</p>
+        </section>
 
-        <h1>Carrito de productos</h1>
-
-        <div class="landing-acciones cart-links">
-            <a href="index.php" class="btn-ver">Volver al inicio</a>
-            <a href="muebles.php" class="btn-ver">Seguir viendo productos</a>
-        </div>
+        <section class="section-content-card">
+            <div class="landing-acciones cart-links">
+                <a href="index.php" class="btn-ver">Volver al inicio</a>
+                <a href="muebles.php" class="btn-ver">Seguir viendo productos</a>
+            </div>
+        </section>
 
         <div id="toastCarrito" class="toast-carrito" style="display:none;"></div>
 
         <?php
         if (!isset($_SESSION['usuario_id'])) {
-            echo "<p>Debes iniciar sesión para ver tu carrito.</p>";
+            echo "<section class='section-content-card'><p>Debes iniciar sesión para ver tu carrito.</p></section>";
         } else if ($carrito_vacio) {
-            echo "<p>No tienes ningún carrito activo o está vacío.</p>";
+            echo "<section class='section-content-card'><p>No tienes ningún carrito activo o está vacío.</p></section>";
         } else {
 
             if (!$res_items || mysqli_num_rows($res_items) == 0) {
-                echo "<p>El carrito está vacío.</p>";
+                echo "<section class='section-content-card'><p>El carrito está vacío.</p></section>";
             } else {
 
                 $total = 0;
 
+                echo "<section class='section-content-card'>";
                 echo "<table class='tabla-carrito'>";
                 echo "<tr>
                         <th>Tipo</th>
@@ -182,6 +188,7 @@ if (isset($_SESSION['usuario_id'])) {
                 echo "<p class='cart-checkout'>";
                 echo "  <a href='finalizar_compra.php' class='btn-ver'>Finalizar compra</a>";
                 echo "</p>";
+                echo "</section>";
             }
         }
         ?>
@@ -328,5 +335,3 @@ if (isset($_SESSION['usuario_id'])) {
 
 </body>
 </html>
-
-/*BORRAR*/

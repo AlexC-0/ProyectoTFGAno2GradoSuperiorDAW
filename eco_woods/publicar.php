@@ -343,193 +343,205 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <main>
     <div class="contenedor publish-shell">
-
-        <div class="landing-acciones cart-links">
-            <a href="index.php" class="btn-ver">Volver al inicio</a>
-        </div>
-
-        <?php if ($es_admin): ?>
-            <h1>Publicar</h1>
-        <?php else: ?>
-            <h1>Publicar un mueble</h1>
-        <?php endif; ?>
+        <section class="section-head-card">
+            <p class="section-head-kicker">Publicacion de contenido</p>
+            <?php if ($es_admin): ?>
+                <h1>Publicar</h1>
+                <p>Desde aqui puedes dar de alta muebles y tambien recambios 3D.</p>
+            <?php else: ?>
+                <h1>Publicar un mueble</h1>
+                <p>Completa los datos del anuncio y deja toda la informacion clara antes de publicarlo.</p>
+            <?php endif; ?>
+        </section>
 
         <?php if (!empty($errores)): ?>
-            <div class="mensaje error">
-                <ul>
-                    <?php foreach ($errores as $e): ?>
-                        <li><?php echo htmlspecialchars($e); ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
+            <section class="section-content-card">
+                <div class="mensaje error">
+                    <ul>
+                        <?php foreach ($errores as $e): ?>
+                            <li><?php echo htmlspecialchars($e); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </section>
         <?php endif; ?>
 
         <?php if ($exito !== ""): ?>
-            <div class="mensaje exito">
-                <?php echo htmlspecialchars($exito); ?>
-            </div>
+            <section class="section-content-card">
+                <div class="mensaje exito">
+                    <?php echo htmlspecialchars($exito); ?>
+                </div>
+            </section>
         <?php endif; ?>
 
         <?php if ($es_admin): ?>
-            <form action="publicar.php" method="post" class="formulario">
-                <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
-                <p>
-                    <label for="tipo_publicacion"><strong>¿Qué quieres publicar?</strong></label><br>
-                    <select name="tipo_publicacion" id="tipo_publicacion" onchange="this.form.submit()">
-                        <option value="mueble" <?php echo ($tipo_publicacion === 'mueble') ? 'selected' : ''; ?>>Mueble</option>
-                        <option value="recambio" <?php echo ($tipo_publicacion === 'recambio') ? 'selected' : ''; ?>>Recambio 3D</option>
-                    </select>
-                </p>
-            </form>
+            <section class="section-form-card">
+                <form action="publicar.php" method="post" class="formulario">
+                    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+                    <p>
+                        <label for="tipo_publicacion"><strong>¿Qué quieres publicar?</strong></label><br>
+                        <select name="tipo_publicacion" id="tipo_publicacion" onchange="this.form.submit()">
+                            <option value="mueble" <?php echo ($tipo_publicacion === 'mueble') ? 'selected' : ''; ?>>Mueble</option>
+                            <option value="recambio" <?php echo ($tipo_publicacion === 'recambio') ? 'selected' : ''; ?>>Recambio 3D</option>
+                        </select>
+                    </p>
+                </form>
+            </section>
         <?php endif; ?>
 
         <?php if (!$es_admin || $tipo_publicacion === 'mueble'): ?>
+            <section class="section-form-card">
+                <form action="publicar.php" method="post" class="formulario formulario-dos-columnas" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
 
-            <form action="publicar.php" method="post" class="formulario formulario-dos-columnas" enctype="multipart/form-data">
-                <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+                    <?php if ($es_admin): ?>
+                        <input type="hidden" name="tipo_publicacion" value="mueble">
+                    <?php endif; ?>
 
-                <?php if ($es_admin): ?>
-                    <input type="hidden" name="tipo_publicacion" value="mueble">
-                <?php endif; ?>
+                    <div class="form-grid">
 
-                <div class="form-grid">
+                        <div class="form-columna">
+                            <p>
+                                <label>Imágenes del mueble (máx. 5):<br>
+                                    <input
+                                        type="file"
+                                        name="imagenes[]"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        multiple
+                                    >
+                                </label>
+                                <small>Puedes seleccionar varias a la vez (Ctrl+clic / Shift+clic).</small>
+                            </p>
 
-                    <div class="form-columna">
-                        <p>
-                            <label>Imágenes del mueble (máx. 5):<br>
-                                <input
-                                    type="file"
-                                    name="imagenes[]"
-                                    accept="image/jpeg,image/png,image/webp"
-                                    multiple
-                                >
-                            </label>
-                            <small>Puedes seleccionar varias a la vez (Ctrl+clic / Shift+clic).</small>
-                        </p>
+                            <p>
+                                <label for="titulo">Título del anuncio*:</label><br>
+                                <input type="text" name="titulo" id="titulo" required
+                                       value="<?php echo htmlspecialchars($titulo ?? ''); ?>">
+                            </p>
 
-                        <p>
-                            <label for="titulo">Título del anuncio*:</label><br>
-                            <input type="text" name="titulo" id="titulo" required
-                                   value="<?php echo htmlspecialchars($titulo ?? ''); ?>">
-                        </p>
+                            <p>
+                                <label for="precio">Precio (€)*:</label><br>
+                                <input type="number" step="0.01" min="0" name="precio" id="precio" required
+                                       value="<?php echo htmlspecialchars($precio ?? ''); ?>">
+                            </p>
 
-                        <p>
-                            <label for="precio">Precio (€)*:</label><br>
-                            <input type="number" step="0.01" min="0" name="precio" id="precio" required
-                                   value="<?php echo htmlspecialchars($precio ?? ''); ?>">
-                        </p>
+                            <p>
+                                <label for="categoria">Categoría del mueble*:</label><br>
+                                <select name="categoria" id="categoria" required>
+                                    <?php
+                                    $categorias = ["Mesa", "Armario", "Silla", "Cama", "Estantería", "Sofá", "Otro"];
+                                    $categoria_actual = $categoria ?? 'Otro';
 
-                        <p>
-                            <label for="categoria">Categoría del mueble*:</label><br>
-                            <select name="categoria" id="categoria" required>
-                                <?php
-                                $categorias = ["Mesa", "Armario", "Silla", "Cama", "Estantería", "Sofá", "Otro"];
-                                $categoria_actual = $categoria ?? 'Otro';
+                                    foreach ($categorias as $cat) {
+                                        $selected = ($cat === $categoria_actual) ? 'selected' : '';
+                                        echo "<option value=\"$cat\" $selected>$cat</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </p>
+                        </div>
 
-                                foreach ($categorias as $cat) {
-                                    $selected = ($cat === $categoria_actual) ? 'selected' : '';
-                                    echo "<option value=\"$cat\" $selected>$cat</option>";
-                                }
-                                ?>
-                            </select>
-                        </p>
+                        <div class="form-columna">
+                            <p>
+                                <label for="provincia">Provincia*:</label><br>
+                                <input type="text" name="provincia" id="provincia" required
+                                       value="<?php echo htmlspecialchars($provincia ?? ''); ?>">
+                            </p>
+
+                            <p>
+                                <label for="localidad">Localidad*:</label><br>
+                                <input type="text" name="localidad" id="localidad" required
+                                       value="<?php echo htmlspecialchars($localidad ?? ''); ?>">
+                            </p>
+
+                            <p>
+                                <label for="estado">Estado del mueble*:</label><br>
+                                <input type="text" name="estado" id="estado"
+                                       placeholder="Ej: Como nuevo, Buen estado, Usado..."
+                                       required value="<?php echo htmlspecialchars($estado ?? ''); ?>">
+                            </p>
+
+                            <p>
+                                <label for="descripcion">Descripción*:</label><br>
+                                <textarea name="descripcion" id="descripcion" rows="5" cols="50" required><?php
+                                    echo htmlspecialchars($descripcion ?? '');
+                                ?></textarea>
+                            </p>
+                        </div>
+
                     </div>
 
-                    <div class="form-columna">
-                        <p>
-                            <label for="provincia">Provincia*:</label><br>
-                            <input type="text" name="provincia" id="provincia" required
-                                   value="<?php echo htmlspecialchars($provincia ?? ''); ?>">
-                        </p>
+                    <p>
+                        <button type="submit">Publicar mueble</button>
+                    </p>
 
-                        <p>
-                            <label for="localidad">Localidad*:</label><br>
-                            <input type="text" name="localidad" id="localidad" required
-                                   value="<?php echo htmlspecialchars($localidad ?? ''); ?>">
-                        </p>
-
-                        <p>
-                            <label for="estado">Estado del mueble*:</label><br>
-                            <input type="text" name="estado" id="estado"
-                                   placeholder="Ej: Como nuevo, Buen estado, Usado..."
-                                   required value="<?php echo htmlspecialchars($estado ?? ''); ?>">
-                        </p>
-
-                        <p>
-                            <label for="descripcion">Descripción*:</label><br>
-                            <textarea name="descripcion" id="descripcion" rows="5" cols="50" required><?php
-                                echo htmlspecialchars($descripcion ?? '');
-                            ?></textarea>
-                        </p>
-                    </div>
-
-                </div>
-
-                <p>
-                    <button type="submit">Publicar mueble</button>
-                </p>
-
-            </form>
+                </form>
+            </section>
 
         <?php else: ?>
+            <section class="section-head-card">
+                <p class="section-head-kicker">Recambios 3D</p>
+                <h2>Publicar recambio 3D</h2>
+                <p>Usa este bloque para registrar piezas de reparacion con informacion clara y compatible.</p>
+            </section>
 
-            <h2>Publicar recambio 3D</h2>
+            <section class="section-form-card">
+                <form action="publicar.php" method="post" class="formulario" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
 
-            <form action="publicar.php" method="post" class="formulario" enctype="multipart/form-data">
-                <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+                    <input type="hidden" name="tipo_publicacion" value="recambio">
 
-                <input type="hidden" name="tipo_publicacion" value="recambio">
+                    <p>
+                        <label>Imágenes del recambio (máx. 5):<br>
+                            <input
+                                type="file"
+                                name="imagenes_recambio[]"
+                                accept="image/jpeg,image/png,image/webp"
+                                multiple
+                            >
+                        </label>
+                        <small>Puedes seleccionar varias a la vez (Ctrl+clic / Shift+clic).</small>
+                    </p>
 
-                <p>
-                    <label>Imágenes del recambio (máx. 5):<br>
-                        <input
-                            type="file"
-                            name="imagenes_recambio[]"
-                            accept="image/jpeg,image/png,image/webp"
-                            multiple
-                        >
-                    </label>
-                    <small>Puedes seleccionar varias a la vez (Ctrl+clic / Shift+clic).</small>
-                </p>
+                    <p>
+                        <label for="nombre">Nombre del recambio*:</label><br>
+                        <input type="text" name="nombre" id="nombre" required
+                               value="<?php echo htmlspecialchars($nombre ?? ''); ?>">
+                    </p>
 
-                <p>
-                    <label for="nombre">Nombre del recambio*:</label><br>
-                    <input type="text" name="nombre" id="nombre" required
-                           value="<?php echo htmlspecialchars($nombre ?? ''); ?>">
-                </p>
+                    <p>
+                        <label for="tipo">Tipo*:</label><br>
+                        <input type="text" name="tipo" id="tipo" required
+                               placeholder="Ej: bisagra, tope, pieza..."
+                               value="<?php echo htmlspecialchars($tipo_r ?? ''); ?>">
+                    </p>
 
-                <p>
-                    <label for="tipo">Tipo*:</label><br>
-                    <input type="text" name="tipo" id="tipo" required
-                           placeholder="Ej: bisagra, tope, pieza..."
-                           value="<?php echo htmlspecialchars($tipo_r ?? ''); ?>">
-                </p>
+                    <p>
+                        <label for="compatible_con">Compatible con*:</label><br>
+                        <input type="text" name="compatible_con" id="compatible_con" required
+                               placeholder="Ej: Mesa, Armario, Silla..."
+                               value="<?php echo htmlspecialchars($compatible_con ?? ''); ?>">
+                    </p>
 
-                <p>
-                    <label for="compatible_con">Compatible con*:</label><br>
-                    <input type="text" name="compatible_con" id="compatible_con" required
-                           placeholder="Ej: Mesa, Armario, Silla..."
-                           value="<?php echo htmlspecialchars($compatible_con ?? ''); ?>">
-                </p>
+                    <p>
+                        <label for="precio_recambio">Precio (€)*:</label><br>
+                        <input type="number" step="0.01" min="0" name="precio_recambio" id="precio_recambio" required
+                               value="<?php echo htmlspecialchars($precio_r ?? ''); ?>">
+                    </p>
 
-                <p>
-                    <label for="precio_recambio">Precio (€)*:</label><br>
-                    <input type="number" step="0.01" min="0" name="precio_recambio" id="precio_recambio" required
-                           value="<?php echo htmlspecialchars($precio_r ?? ''); ?>">
-                </p>
+                    <p>
+                        <label for="descripcion_recambio">Descripción*:</label><br>
+                        <textarea name="descripcion_recambio" id="descripcion_recambio" rows="5" cols="50" required><?php
+                            echo htmlspecialchars($descripcion_r ?? '');
+                        ?></textarea>
+                    </p>
 
-                <p>
-                    <label for="descripcion_recambio">Descripción*:</label><br>
-                    <textarea name="descripcion_recambio" id="descripcion_recambio" rows="5" cols="50" required><?php
-                        echo htmlspecialchars($descripcion_r ?? '');
-                    ?></textarea>
-                </p>
+                    <p>
+                        <button type="submit">Publicar recambio</button>
+                    </p>
 
-                <p>
-                    <button type="submit">Publicar recambio</button>
-                </p>
-
-            </form>
+                </form>
+            </section>
 
         <?php endif; ?>
 
@@ -547,5 +559,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
-
-/*BORRAR*/

@@ -139,109 +139,123 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
 <main>
     <div class="contenedor">
-
-        <h1>Mi perfil</h1>
+        <section class="section-head-card">
+            <p class="section-head-kicker">Area personal</p>
+            <h1>Mi perfil</h1>
+            <p>Desde aqui puedes revisar tu informacion, tus publicaciones, favoritos, reseñas y mensajes.</p>
+        </section>
 
         <?php if ($usuario): ?>
             <section class="perfil-seccion">
-                <h2 class="perfil-titulo">Datos de la cuenta</h2>
-
-                <div class="perfil-card perfil-card-estrecha perfil-card-centrada">
-                    <p><strong>Nombre:</strong> <?php echo htmlspecialchars($usuario['nombre']); ?></p>
-                    <p><strong>Email:</strong> <?php echo htmlspecialchars($usuario['email']); ?></p>
-                    <p><strong>Teléfono:</strong> <?php echo htmlspecialchars($usuario['telefono'] ?? ''); ?></p>
-                    <p><strong>Ubicación:</strong>
-                        <?php
-                            echo htmlspecialchars($usuario['provincia'] ?? '');
-                            if (!empty($usuario['provincia']) && !empty($usuario['localidad'])) {
-                                echo " - ";
-                            }
-                            echo htmlspecialchars($usuario['localidad'] ?? '');
-                        ?>
-                    </p>
-                    <p><strong>Fecha de registro:</strong> <?php echo htmlspecialchars($usuario['fecha_registro']); ?></p>
+                <div class="section-content-card">
+                    <div class="perfil-subcard-titulo">
+                        <h2 class="perfil-titulo">Datos de la cuenta</h2>
+                    </div>
+                    <div class="perfil-card perfil-card-oscura perfil-card-estrecha perfil-card-centrada">
+                        <p><strong>Nombre:</strong> <?php echo htmlspecialchars($usuario['nombre']); ?></p>
+                        <p><strong>Email:</strong> <?php echo htmlspecialchars($usuario['email']); ?></p>
+                        <p><strong>Teléfono:</strong> <?php echo htmlspecialchars($usuario['telefono'] ?? ''); ?></p>
+                        <p><strong>Ubicación:</strong>
+                            <?php
+                                echo htmlspecialchars($usuario['provincia'] ?? '');
+                                if (!empty($usuario['provincia']) && !empty($usuario['localidad'])) {
+                                    echo " - ";
+                                }
+                                echo htmlspecialchars($usuario['localidad'] ?? '');
+                            ?>
+                        </p>
+                        <p><strong>Fecha de registro:</strong> <?php echo htmlspecialchars($usuario['fecha_registro']); ?></p>
+                    </div>
                 </div>
             </section>
         <?php else: ?>
-            <p>No se han encontrado tus datos de usuario.</p>
+            <section class="section-content-card">
+                <p>No se han encontrado tus datos de usuario.</p>
+            </section>
         <?php endif; ?>
 
-        <hr>
-
         <section class="bloque-mis-muebles">
-            <h2>Mis muebles publicados</h2>
-
             <?php if ($res_muebles && mysqli_num_rows($res_muebles) > 0): ?>
-                <div class="listado-tarjetas">
-                    <?php while ($m = mysqli_fetch_assoc($res_muebles)): ?>
-                        <article class="tarjeta">
+                <div class="section-content-card">
+                    <div class="perfil-subcard-titulo">
+                        <h2>Mis muebles publicados</h2>
+                    </div>
+                    <div class="listado-tarjetas">
+                        <?php while ($m = mysqli_fetch_assoc($res_muebles)): ?>
+                            <article class="tarjeta">
 
-                            <?php if (!empty($m['imagen'])): ?>
-                                <img
-                                    src="uploads/<?php echo htmlspecialchars($m['imagen']); ?>"
-                                    alt="<?php echo htmlspecialchars($m['titulo']); ?>"
-                                >
-                            <?php endif; ?>
-
-                            <div class="tarjeta-header">
-                                <h3 class="tarjeta-titulo">
-                                    <?php echo htmlspecialchars($m['titulo']); ?>
-                                </h3>
-                                <p class="tarjeta-precio">
-                                    <?php
-                                    $precio = (float)$m['precio'];
-                                    echo number_format($precio, 2, ',', '.'); ?> €
-                                </p>
-                            </div>
-
-                            <p class="tarjeta-descripcion">
-                                <strong>Estado:</strong>
-                                <?php echo htmlspecialchars($m['estado']); ?><br>
-                                <strong>Publicado:</strong>
-                                <?php echo htmlspecialchars($m['fecha_publicacion']); ?>
-                            </p>
-
-                            <div class="tarjeta-tags">
-                                <?php if (!empty($m['categoria'])): ?>
-                                    <span class="badge badge-categoria">
-                                        <?php echo htmlspecialchars($m['categoria']); ?>
-                                    </span>
+                                <?php if (!empty($m['imagen'])): ?>
+                                    <img
+                                        src="uploads/<?php echo htmlspecialchars($m['imagen']); ?>"
+                                        alt="<?php echo htmlspecialchars($m['titulo']); ?>"
+                                    >
                                 <?php endif; ?>
-                                <span class="badge badge-ubicacion">
-                                    <?php echo htmlspecialchars($m['provincia']); ?>
-                                    -
-                                    <?php echo htmlspecialchars($m['localidad']); ?>
-                                </span>
-                            </div>
 
-                            <div class="tarjeta-footer">
-                                <a class="btn-ver"
-                                   href="ver_mueble.php?id_mueble=<?php echo (int)$m['id_mueble']; ?>">
-                                    Ver mueble
-                                </a>
-                                <form action="eliminar_mueble.php" method="post" style="margin:0;">
-                                    <input type="hidden" name="id_mueble" value="<?php echo (int)$m['id_mueble']; ?>">
-                                    <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
-                                    <button class="btn-eliminar" type="submit" onclick="return confirm('Confirmar eliminacion de mueble y datos relacionados?');">
-                                        Eliminar
-                                    </button>
-                                </form>
-                            </div>
+                                <div class="tarjeta-header">
+                                    <h3 class="tarjeta-titulo">
+                                        <?php echo htmlspecialchars($m['titulo']); ?>
+                                    </h3>
+                                    <p class="tarjeta-precio">
+                                        <?php
+                                        $precio = (float)$m['precio'];
+                                        echo number_format($precio, 2, ',', '.'); ?> €
+                                    </p>
+                                </div>
 
-                        </article>
-                    <?php endwhile; ?>
+                                <p class="tarjeta-descripcion">
+                                    <strong>Estado:</strong>
+                                    <?php echo htmlspecialchars($m['estado']); ?><br>
+                                    <strong>Publicado:</strong>
+                                    <?php echo htmlspecialchars($m['fecha_publicacion']); ?>
+                                </p>
+
+                                <div class="tarjeta-tags">
+                                    <?php if (!empty($m['categoria'])): ?>
+                                        <span class="badge badge-categoria">
+                                            <?php echo htmlspecialchars($m['categoria']); ?>
+                                        </span>
+                                    <?php endif; ?>
+                                    <span class="badge badge-ubicacion">
+                                        <?php echo htmlspecialchars($m['provincia']); ?>
+                                        -
+                                        <?php echo htmlspecialchars($m['localidad']); ?>
+                                    </span>
+                                </div>
+
+                                <div class="tarjeta-footer">
+                                    <a class="btn-ver"
+                                       href="ver_mueble.php?id_mueble=<?php echo (int)$m['id_mueble']; ?>">
+                                        Ver mueble
+                                    </a>
+                                    <form action="eliminar_mueble.php" method="post" style="margin:0;">
+                                        <input type="hidden" name="id_mueble" value="<?php echo (int)$m['id_mueble']; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+                                        <button class="btn-eliminar" type="submit" onclick="return confirm('Confirmar eliminacion de mueble y datos relacionados?');">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+
+                            </article>
+                        <?php endwhile; ?>
+                    </div>
                 </div>
             <?php else: ?>
-                <p>Todavía no has publicado ningún mueble.</p>
+                <div class="section-content-card">
+                    <div class="perfil-subcard-titulo">
+                        <h2>Mis muebles publicados</h2>
+                    </div>
+                    <p>Todavía no has publicado ningún mueble.</p>
+                </div>
             <?php endif; ?>
         </section>
 
-        <hr>
-
         <section class="bloque-mis-favoritos">
-            <h2>Mis muebles favoritos</h2>
-
             <?php if ($res_favoritos && mysqli_num_rows($res_favoritos) > 0): ?>
+                <div class="section-content-card">
+                <div class="perfil-subcard-titulo">
+                    <h2>Mis muebles favoritos</h2>
+                </div>
                 <div class="listado-tarjetas">
                     <?php while ($fav = mysqli_fetch_assoc($res_favoritos)): ?>
                         <article class="tarjeta">
@@ -297,17 +311,23 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                         </article>
                     <?php endwhile; ?>
                 </div>
+                </div>
             <?php else: ?>
-                <p>Todavía no tienes muebles marcados como favoritos.</p>
+                <div class="section-content-card">
+                    <div class="perfil-subcard-titulo">
+                        <h2>Mis muebles favoritos</h2>
+                    </div>
+                    <p>Todavía no tienes muebles marcados como favoritos.</p>
+                </div>
             <?php endif; ?>
         </section>
 
-        <hr>
-
         <section class="bloque-mis-resenas">
-            <h2>Mis reseñas</h2>
-
             <?php if ($res_resenas && mysqli_num_rows($res_resenas) > 0): ?>
+                <div class="section-content-card">
+                <div class="perfil-subcard-titulo">
+                    <h2>Mis reseñas</h2>
+                </div>
                 <div class="listado-tarjetas">
                     <?php while ($r = mysqli_fetch_assoc($res_resenas)): ?>
                         <article class="tarjeta">
@@ -328,19 +348,25 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                         </article>
                     <?php endwhile; ?>
                 </div>
+                </div>
             <?php else: ?>
-                <p>Todavía no has escrito reseñas.</p>
+                <div class="section-content-card">
+                    <div class="perfil-subcard-titulo">
+                        <h2>Mis reseñas</h2>
+                    </div>
+                    <p>Todavía no has escrito reseñas.</p>
+                </div>
             <?php endif; ?>
         </section>
 
-        <hr>
-
         <section class="perfil-seccion">
-            <h2 class="perfil-titulo">Mis mensajes</h2>
-
+            <div class="section-content-card">
+            <div class="perfil-subcard-titulo">
+                <h2 class="perfil-titulo">Mis mensajes</h2>
+            </div>
             <div class="perfil-grid">
 
-                <div class="perfil-card">
+                <div class="perfil-card perfil-card-oscura">
                     <h3>Recibidos (<?php echo $num_recibidos; ?>)</h3>
 
                     <?php if ($res_recibidos && mysqli_num_rows($res_recibidos) > 0): ?>
@@ -368,7 +394,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                     <?php endif; ?>
                 </div>
 
-                <div class="perfil-card">
+                <div class="perfil-card perfil-card-oscura">
                     <h3>Enviados (<?php echo $num_enviados; ?>)</h3>
 
                     <?php if ($res_enviados && mysqli_num_rows($res_enviados) > 0): ?>
@@ -397,6 +423,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                 </div>
 
             </div>
+            </div>
         </section>
 
     </div>
@@ -409,5 +436,3 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
 </body>
 </html>
-
-/*BORRAR*/

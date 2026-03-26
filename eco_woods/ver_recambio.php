@@ -502,5 +502,3 @@ $imagenes = array_values(array_unique(array_filter($imagenes)));
 
 </body>
 </html>
-
-/*BORRAR*/

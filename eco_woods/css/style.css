@@ -37,10 +37,30 @@ body {
     font-family: 'Manrope', sans-serif;
     color: var(--text);
     line-height: 1.55;
+    position: relative;
     background:
         radial-gradient(circle at 10% 10%, #f5ede2 0%, transparent 28%),
         radial-gradient(circle at 90% 0%, #f2e9dd 0%, transparent 24%),
         var(--bg);
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: url("../uploads/Verde.png");
+    background-repeat: no-repeat;
+    background-position: center 56%;
+    background-size: min(118vw, 1680px);
+    opacity: 0.25;
+    filter: saturate(0.9);
+}
+
+body > * {
+    position: relative;
+    z-index: 1;
 }
 
 .contenedor {
@@ -49,10 +69,12 @@ body {
 }
 
 header {
-    background: linear-gradient(115deg, var(--brand-strong) 0%, var(--brand) 58%, var(--brand-soft) 100%);
+    background: linear-gradient(115deg, rgba(79, 117, 83, 0.75) 0%, rgba(94, 138, 98, 0.75) 58%, rgba(120, 163, 123, 0.75) 100%);
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 10px 22px rgba(46, 71, 50, 0.2);
     margin-bottom: 24px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
 
 header .contenedor {
@@ -535,11 +557,13 @@ table th {
 
 footer {
     margin-top: 30px;
-    background: #ece3d8;
+    background: rgba(236, 227, 216, 0.75);
     border-top: 1px solid #d7c6b6;
     padding: 14px 0;
     color: #40352d;
     font-size: 13px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
 
 .formulario-filtros-grid {
@@ -586,6 +610,27 @@ footer {
     border-radius: 16px;
     box-shadow: var(--shadow);
     padding: 16px;
+}
+
+.perfil-card-oscura {
+    border: 1px solid #3b5844;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(185, 138, 90, 0.18) 0%, transparent 28%),
+        linear-gradient(180deg, #314b39 0%, #24362a 100%);
+    box-shadow: 0 16px 28px rgba(33, 47, 39, 0.18);
+}
+
+.perfil-card-oscura p,
+.perfil-card-oscura li,
+.perfil-card-oscura span {
+    color: #e7ddd0;
+}
+
+.perfil-card-oscura strong,
+.perfil-card-oscura h1,
+.perfil-card-oscura h2,
+.perfil-card-oscura h3 {
+    color: #f6efe5;
 }
 
 .perfil-grid {
@@ -779,24 +824,34 @@ footer {
 }
 
 .home-panel {
-    border: 1px solid #dcccb9;
-    border-radius: 14px;
-    background: #fff;
-    box-shadow: var(--shadow);
-    padding: 15px;
+    border: 1px solid #3b5844;
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(185, 138, 90, 0.18) 0%, transparent 28%),
+        linear-gradient(180deg, #314b39 0%, #24362a 100%);
+    box-shadow: 0 16px 28px rgba(33, 47, 39, 0.18);
+    padding: 18px;
+}
+
+.home-panel h2,
+.home-panel h3 {
+    color: #f6efe5;
 }
 
 .home-panel p {
     margin: 0;
-    color: #5a5550;
+    color: #e7ddd0;
 }
 
 .catalog-hero {
-    border: 1px solid #dccab7;
-    border-radius: 16px;
-    background: #fffdf8;
+    border: 1px solid #d8c8b8;
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 0% 0%, #f2e7d9 0%, transparent 36%),
+        radial-gradient(circle at 100% 100%, #e6efe7 0%, transparent 32%),
+        #fffdf9;
     box-shadow: var(--shadow);
-    padding: 16px;
+    padding: 18px;
     margin-bottom: 14px;
 }
 
@@ -812,6 +867,219 @@ footer {
     padding: 15px;
     background: #fffaf3;
     color: #6a5a4b;
+}
+
+.section-stack {
+    display: grid;
+    gap: 18px;
+}
+
+.publish-shell > section,
+.cart-shell > section,
+.admin-shell > section,
+.perfil-seccion,
+.bloque-mis-muebles,
+.bloque-mis-favoritos,
+.bloque-mis-resenas {
+    margin-bottom: 34px;
+}
+
+.admin-shell > section {
+    margin-bottom: 20px;
+}
+
+.section-head-card,
+.section-content-card,
+.section-form-card {
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.section-head-card {
+    border: 1px solid #d8c8b8;
+    background:
+        radial-gradient(circle at 0% 0%, #f2e7d9 0%, transparent 36%),
+        radial-gradient(circle at 100% 100%, #e6efe7 0%, transparent 32%),
+        #fffdf9;
+    padding: 18px 20px;
+}
+
+.section-content-card,
+.section-form-card,
+.perfil-card {
+    border: 1px solid #3b5844;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(185, 138, 90, 0.18) 0%, transparent 28%),
+        linear-gradient(180deg, #314b39 0%, #24362a 100%);
+    box-shadow: 0 16px 28px rgba(33, 47, 39, 0.18);
+    padding: 18px 20px;
+}
+
+.section-head-card h1,
+.section-head-card h2,
+.section-head-card h3,
+.section-content-card h1,
+.section-content-card h2,
+.section-content-card h3,
+.section-form-card h1,
+.section-form-card h2,
+.section-form-card h3 {
+    margin-bottom: 8px;
+}
+
+.section-content-card h1,
+.section-content-card h2,
+.section-content-card h3,
+.section-form-card h1,
+.section-form-card h2,
+.section-form-card h3,
+.section-content-card strong,
+.section-form-card strong,
+.perfil-card h1,
+.perfil-card h2,
+.perfil-card h3,
+.perfil-card strong {
+    color: #f6efe5;
+}
+
+.section-head-card p,
+.section-content-card p,
+.section-form-card p {
+    margin-top: 0;
+}
+
+.section-content-card,
+.section-form-card,
+.section-content-card p,
+.section-form-card p,
+.section-content-card li,
+.section-form-card li,
+.section-content-card span,
+.section-form-card span,
+.perfil-card,
+.perfil-card p,
+.perfil-card li,
+.perfil-card span {
+    color: #e7ddd0;
+}
+
+.section-content-card > :last-child,
+.section-form-card > :last-child,
+.section-head-card > :last-child {
+    margin-bottom: 0;
+}
+
+.section-content-card > h2,
+.section-content-card > h3,
+.section-form-card > h2,
+.section-form-card > h3 {
+    margin-bottom: 16px;
+}
+
+.section-form-card .formulario,
+.section-content-card .formulario {
+    margin-bottom: 0;
+}
+
+.section-content-card .perfil-card {
+    margin: 0;
+}
+
+.section-content-card .perfil-card-oscura {
+    border: 1px solid #1e2520;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(185, 138, 90, 0.12) 0%, transparent 24%),
+        linear-gradient(180deg, #1f2621 0%, #121713 100%);
+    box-shadow: 0 18px 32px rgba(14, 18, 15, 0.28);
+}
+
+.section-content-card .perfil-card-oscura p,
+.section-content-card .perfil-card-oscura li,
+.section-content-card .perfil-card-oscura span {
+    color: #e9dfd2;
+}
+
+.section-content-card .perfil-card-oscura strong,
+.section-content-card .perfil-card-oscura h1,
+.section-content-card .perfil-card-oscura h2,
+.section-content-card .perfil-card-oscura h3 {
+    color: #fff6eb;
+}
+
+.perfil-seccion .section-content-card,
+.bloque-mis-muebles .section-content-card,
+.bloque-mis-favoritos .section-content-card,
+.bloque-mis-resenas .section-content-card,
+.admin-shell .section-content-card {
+    display: grid;
+    gap: 24px;
+}
+
+.contenedor > .section-head-card + .perfil-seccion,
+.contenedor > .section-head-card + .section-content-card,
+.contenedor > .section-head-card + .bloque-mis-muebles {
+    margin-top: 38px;
+}
+
+.admin-shell > .section-head-card + .section-content-card {
+    margin-top: 8px;
+}
+
+.perfil-subcard-titulo {
+    background: linear-gradient(180deg, #f5e8d8 0%, #ebd7c0 100%);
+    border: 1px solid #d7b895;
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: 0 10px 20px rgba(57, 38, 18, 0.12);
+}
+
+.perfil-subcard-titulo h2,
+.perfil-subcard-titulo h3 {
+    margin: 0;
+    color: #5b3d21;
+}
+
+.section-content-card > .perfil-subcard-titulo + .perfil-card,
+.section-content-card > .perfil-subcard-titulo + .perfil-grid,
+.section-content-card > .perfil-subcard-titulo + p,
+.section-content-card > .perfil-subcard-titulo + .listado-tarjetas,
+.section-content-card > .perfil-subcard-titulo + .tabla-admin,
+.section-content-card > .perfil-subcard-titulo + .submenu-admin,
+.home-panel > .perfil-subcard-titulo + p {
+    margin-top: 4px;
+}
+
+.section-head-kicker {
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #6a5f4f;
+}
+
+.section-content-card a,
+.section-form-card a,
+.perfil-card a,
+.home-panel a {
+    color: #f3d5b2;
+}
+
+.section-content-card a:hover,
+.section-form-card a:hover,
+.perfil-card a:hover,
+.home-panel a:hover {
+    color: #fff1dc;
+}
+
+.section-form-card .formulario {
+    background: rgba(255, 252, 250, 0.96);
+}
+
+.section-content-card .tabla-carrito,
+.section-content-card table {
+    background: rgba(255, 252, 248, 0.96);
 }
 
 .auth-shell {

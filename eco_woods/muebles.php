@@ -131,6 +131,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
         <!-- Toast general (lo usamos para carrito + favoritos) -->
         <div id="toastGlobal" class="toast-carrito" style="display:none;"></div>
 
+        <section class="section-form-card">
         <form action="muebles.php" method="get" class="formulario formulario-filtros-grid">
 
             <h3>Buscar y filtrar muebles</h3>
@@ -192,6 +193,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
             </p>
 
         </form>
+        </section>
 
         <?php
         $hayFiltros = (
@@ -419,5 +421,3 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
 
 </body>
 </html>
-
-/*BORRAR*/
