@@ -46,3 +46,5 @@ if ($stmt) {
 
 header("Location: mi_perfil.php");
 exit;
+
+/*BORRAR*/
