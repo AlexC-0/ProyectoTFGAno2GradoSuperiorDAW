@@ -231,3 +231,5 @@ if (!$ok_insert) {
 }
 
 ew_json_ok('Mueble anadido al carrito.');
+
+/*BORRAR*/
