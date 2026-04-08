@@ -145,5 +145,3 @@ ew_json([
     'subtotal' => $subtotal,
     'message' => 'Cantidad actualizada.',
 ]);
-
-/*BORRAR*/
