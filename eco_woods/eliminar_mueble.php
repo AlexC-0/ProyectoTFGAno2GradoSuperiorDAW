@@ -94,3 +94,5 @@ if ($es_admin) {
     header("Location: mi_perfil.php");
 }
 exit;
+
+/*BORRAR*/
