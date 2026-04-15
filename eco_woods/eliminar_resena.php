@@ -71,3 +71,4 @@ if ($stmt_del) {
 header("Location: ver_mueble.php?id_mueble=" . $id_mueble);
 exit;
 
+/*BORRAR*/
