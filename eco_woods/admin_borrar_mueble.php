@@ -72,5 +72,3 @@ try {
 
 header("Location: admin.php?seccion=muebles");
 exit;
-
-/*BORRAR*/
