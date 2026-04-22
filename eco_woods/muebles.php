@@ -421,5 +421,3 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
 
 </body>
 </html>
-
-/*BORRAR*/
