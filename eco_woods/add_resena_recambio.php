@@ -71,5 +71,3 @@ ew_json_ok('Resena guardada correctamente.', [
         'fecha_resena' => date('Y-m-d H:i:s'),
     ],
 ]);
-
-/*BORRAR*/
