@@ -51,3 +51,5 @@ if ($stmt_del) {
 
 header("Location: admin.php?seccion=recambios");
 exit;
+
+/*b*/
