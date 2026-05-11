@@ -122,4 +122,3 @@ try {
 header("Location: admin.php?seccion=usuarios");
 exit;
 
-/*BORRAR*/
