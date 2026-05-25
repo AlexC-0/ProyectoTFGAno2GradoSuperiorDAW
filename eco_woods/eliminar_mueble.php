@@ -1,17 +1,17 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Elimina un mueble publicado por su propietario.
-Por que se hizo asi: Usa comprobaciones de pertenencia y transaccion para proteger integridad.
-Para que sirve: Facilita mantenimiento del catalogo por cada vendedor.
-*/
-/*
-DOCUMENTACION_PASO4
-Eliminacion de mueble con control de permisos.
-- Solo permite accion por POST autenticado con CSRF.
-- Autoriza solo propietario o administrador.
-- Limpia datos relacionados para mantener integridad.
-*/
+<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 

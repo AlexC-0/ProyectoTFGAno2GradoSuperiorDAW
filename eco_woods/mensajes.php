@@ -1,10 +1,10 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Muestra la bandeja de mensajes del usuario.
-Por que se hizo asi: Organiza lectura de conversaciones para que sea simple de entender.
-Para que sirve: Da seguimiento al contacto entre comprador y vendedor.
-*/
+<?php
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/auth.php';

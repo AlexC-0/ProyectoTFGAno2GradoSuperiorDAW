@@ -1,17 +1,17 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Recibe una peticion para meter un mueble o recambio en el carrito.
-Por que se hizo asi: Se valida sesion y token para evitar acciones no autorizadas y se usa SQL preparado para impedir inyecciones.
-Para que sirve: Permite que el usuario construya su pedido de forma segura y sin errores de duplicados.
-*/
-/*
-DOCUMENTACION_PASO4
-Endpoint para anadir muebles o recambios al carrito.
-- Requiere login, metodo POST y token CSRF valido.
-- Reutiliza o crea carrito activo segun sesion del usuario.
-- Inserta o incrementa cantidad y responde en JSON.
-*/
+<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/http.php';

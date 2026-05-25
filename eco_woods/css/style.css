@@ -1,10 +1,10 @@
-/* 
-DOCUMENTACION_GENERAL
-Hoja de estilos principal del proyecto.
-- Define paleta de color, tipografia y componentes base del sitio.
-- Reune estilos de layout, catalogos, formularios, tarjetas y estados de interfaz.
-- Centraliza la direccion visual para mantener coherencia entre todas las paginas.
-*/
+
+
+
+
+
+
+
 :root {
     --bg: #F8F4EC;
     --surface: #FFFFFF;
@@ -157,12 +157,17 @@ header nav a.activo {
 
 .auth-helper {
     margin: 12px 2px 0;
-    color: var(--text-soft);
+    color: #fff7ec;
     font-size: 14px;
+    font-weight: 700;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.65);
 }
 
 .auth-helper a {
     font-weight: 700;
+    color: #b7e0ba;
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
 
 h1,
@@ -502,8 +507,8 @@ table th {
 .toast-carrito {
     position: fixed;
     right: 18px;
-    bottom: 18px;
-    z-index: 9999;
+    bottom: 82px;
+    z-index: 10000;
     border-radius: 12px;
     background: #2a2a2a;
     color: #fff;
@@ -717,7 +722,32 @@ footer {
 }
 
 .nav-cart {
+    position: relative;
     margin-left: auto;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    border: 2px solid rgba(76, 112, 78, 0.95);
+    background: #f3d5b2;
+    color: #24362a;
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 12px rgba(20, 32, 24, 0.28);
+}
+
+.cart-badge[hidden] {
+    display: none;
 }
 
 .nav-icon:hover {
@@ -982,6 +1012,10 @@ footer {
     margin-bottom: 0;
 }
 
+.section-form-card + .listado-tarjetas {
+    margin-top: 34px;
+}
+
 .section-content-card .perfil-card {
     margin: 0;
 }
@@ -1086,6 +1120,17 @@ footer {
     max-width: 560px;
     margin-top: 26px;
     margin-bottom: 52px;
+}
+
+.auth-shell > h1,
+.auth-shell > h2 {
+    color: #fff7ec;
+    text-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);
+}
+
+.auth-shell > .catalog-kicker {
+    color: #f3d5b2;
+    text-shadow: 0 2px 7px rgba(0, 0, 0, 0.75);
 }
 
 .publish-shell,
@@ -1204,7 +1249,28 @@ footer {
 }
 
 .cart-checkout {
-    margin-top: 16px;
+    margin: 30px 0 0;
+    padding-top: 22px;
+    border-top: 1px solid rgba(231, 221, 208, 0.28);
+}
+
+.checkout-shell {
+    margin-bottom: 64px;
+}
+
+.checkout-summary-card,
+.checkout-confirm-card {
+    display: grid;
+    gap: 20px;
+}
+
+.checkout-table {
+    max-width: 100%;
+}
+
+.checkout-form {
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .form-grid {

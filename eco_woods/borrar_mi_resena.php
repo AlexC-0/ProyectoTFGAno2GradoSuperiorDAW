@@ -1,10 +1,10 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Permite al usuario eliminar una reseña propia.
-Por que se hizo asi: Se comprueba propiedad del recurso antes de borrar.
-Para que sirve: Da control al usuario sobre su propio contenido.
-*/
+<?php
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 

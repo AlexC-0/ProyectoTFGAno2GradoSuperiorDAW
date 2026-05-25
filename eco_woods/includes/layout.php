@@ -1,31 +1,67 @@
 <?php
-/*
-DOCUMENTACION_PASO4
-Este archivo renderiza cabecera y pie comunes del sitio.
-- Centraliza navegacion, marca activa y variantes visuales.
-- Evita repetir HTML estructural en cada pagina.
-- Mantiene una experiencia coherente en todo el proyecto.
-*/
+
+
+
+
+
+
+
 declare(strict_types=1);
 
-// Renderizador comun de cabecera:
-// centraliza navbar, marca y estado de sesion para evitar duplicacion.
+function ew_nav_cart_count(): int
+{
+    if (empty($_SESSION['usuario_id'])) {
+        return 0;
+    }
+
+    require_once __DIR__ . '/../conexion.php';
+    global $conexion;
+
+    if (!isset($conexion) || !$conexion instanceof mysqli) {
+        return 0;
+    }
+
+    $stmt = mysqli_prepare(
+        $conexion,
+        "SELECT COALESCE(SUM(ci.cantidad), 0) AS total
+         FROM carritos c
+         JOIN carrito_items ci ON c.id_carrito = ci.id_carrito
+         WHERE c.id_usuario = ? AND c.estado = 'activo'"
+    );
+
+    if (!$stmt) {
+        return 0;
+    }
+
+    $idUsuario = (int)$_SESSION['usuario_id'];
+    mysqli_stmt_bind_param($stmt, 'i', $idUsuario);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $fila = $res ? mysqli_fetch_assoc($res) : null;
+    mysqli_stmt_close($stmt);
+
+    return $fila ? (int)$fila['total'] : 0;
+}
+
+
+
 function ew_render_header(array $options = []): void
 {
-    // mode:
-    // - app  -> navegacion completa de la aplicacion
-    // - auth -> navegacion minima para login/registro
+    
+    
+    
     $mode = $options['mode'] ?? 'app';
-    // active se usa para marcar visualmente la seccion activa.
+    
     $active = $options['active'] ?? '';
-    // Permite personalizar ALT de logotipo segun contexto de pagina.
+    
     $brandAlt = $options['brand_alt'] ?? 'ECO & WOODS';
-    // showCart permite ocultar icono carrito en paginas concretas.
+    
     $showCart = (bool)($options['show_cart'] ?? true);
 
-    // Estado de autenticacion y rol para decidir opciones del menu.
+    
     $isLogged = isset($_SESSION['usuario_id']);
     $isAdmin = !empty($_SESSION['es_admin']) && (int)$_SESSION['es_admin'] === 1;
+    $cartCount = ($isLogged && $showCart) ? ew_nav_cart_count() : 0;
     ?>
 <header>
     <div class="contenedor">
@@ -53,6 +89,9 @@ function ew_render_header(array $options = []): void
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                 <path d="M7 4h-2l-1 2v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 10 23h10v-2H10l1.1-2h7.45a2 2 0 0 0 1.8-1.1l3.58-6.49A1 1 0 0 0 23 9H7.42L7 8H4V6h2l1-2Z" fill="currentColor"/>
                             </svg>
+                            <span class="cart-badge" data-cart-count <?php echo ($cartCount > 0) ? '' : 'hidden'; ?>>
+                                <?php echo ($cartCount > 99) ? '99+' : (int)$cartCount; ?>
+                            </span>
                         </a>
                     <?php endif; ?>
                 <?php else: ?>
@@ -67,10 +106,10 @@ function ew_render_header(array $options = []): void
 
 function ew_render_footer(array $options = []): void
 {
-    // variant:
-    // - simple -> texto base
-    // - full   -> texto + iconos/contacto
-    $variant = $options['variant'] ?? 'simple';
+    
+    
+    
+    $variant = $options['variant'] ?? 'full';
     ?>
 <footer>
     <div class="contenedor <?php echo ($variant === 'full') ? 'footer-flex' : ''; ?>">
@@ -78,13 +117,13 @@ function ew_render_footer(array $options = []): void
             <div class="footer-texto">GR-Inn - Proyecto Trabajo Fin de Grado</div>
             <div class="footer-contacto">
                 <span style="margin-right:6px; font-weight:600;">Contacto:</span>
-                <a class="footer-icon" href="mailto:contacto@ecoandwoods.es" aria-label="Correo de contacto" title="Correo">
+                <a class="footer-icon" href="https://mail.google.com/" target="_blank" rel="noopener noreferrer" aria-label="Acceso a Gmail" title="Gmail">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M4 6h16v12H4V6Z" stroke="currentColor" stroke-width="2"/>
                         <path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="2"/>
                     </svg>
                 </a>
-                <a class="footer-icon" href="#" aria-label="Instagram" title="Instagram">
+                <a class="footer-icon" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Acceso a Instagram" title="Instagram">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" stroke-width="2"/>
                         <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>

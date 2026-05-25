@@ -1,14 +1,14 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Guarda un mensaje entre usuarios dentro de la plataforma.
-Por que se hizo asi: Se valida remitente, destinatario y contenido antes de insertar.
-Para que sirve: Habilita comunicacion segura para cerrar compras o resolver dudas.
-*/
-/*
-DOCUMENTACION_PASO4
-Formulario para contactar con vendedor desde un anuncio.
-*/
+<?php
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/layout.php';

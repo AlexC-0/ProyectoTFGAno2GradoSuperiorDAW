@@ -1,18 +1,18 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Aplica filtros de busqueda sobre el catalogo de muebles.
-Por que se hizo asi: Construye condiciones de forma controlada para combinar flexibilidad y seguridad.
-Para que sirve: Permite encontrar rapido lo que el usuario necesita.
-*/
-/*
-DOCUMENTACION_PASO4
-Busqueda simple de muebles por texto y ubicacion.
-- Construye consulta incremental segun filtros recibidos.
-- Escapa entradas para reducir riesgo de inyeccion.
-- Presenta resultados con enlaces directos a detalle.
-*/
-// Bootstrap/layout para sesion y rendering comun.
+<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once 'conexion.php';
@@ -35,7 +35,7 @@ function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array
     return $result;
 }
 
-// Parametros de busqueda libre (texto + ubicacion).
+
 $q = trim($_GET['q'] ?? '');
 $ubicacion = trim($_GET['ubicacion'] ?? '');
 
@@ -44,7 +44,7 @@ if ($q === '' && $ubicacion === '') {
     $hay_resultados = false;
     $resultado = null;
 } else {
-    // Consulta incremental segun filtros activos.
+    
     $sql = "SELECT * FROM muebles WHERE 1=1";
     $types = '';
     $params = [];

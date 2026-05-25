@@ -1,10 +1,10 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Elimina un mueble desde el panel admin.
-Por que se hizo asi: Se hace con comprobaciones previas y transaccion para no dejar datos a medias.
-Para que sirve: Permite limpieza de contenido con consistencia en base de datos.
-*/
+<?php
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 

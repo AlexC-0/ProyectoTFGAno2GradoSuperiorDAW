@@ -1,23 +1,23 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Gestiona alta de muebles y recambios con formulario.
-Por que se hizo asi: Valida campos e imagenes para frenar entradas invalidas o maliciosas.
-Para que sirve: Permite publicar contenido de forma fiable para el marketplace.
-*/
-/*
-DOCUMENTACION_PASO4
-Pantalla de publicacion de muebles y recambios.
-- Requiere login y valida formularios con CSRF.
-- Permite rol admin para publicar tambien recambios 3D.
-- Gestiona carga de imagenes, validacion y guardado en base de datos.
-*/
-// Arranque común de sesión/utilidades + control de acceso.
+<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/layout.php';
 
-// Solo usuarios autenticados pueden publicar.
+
 ew_require_login('login.php');
 require 'conexion.php';
 
@@ -97,9 +97,9 @@ $exito = "";
 
 $es_admin = (!empty($_SESSION['es_admin']) && $_SESSION['es_admin'] == 1);
 
-// Por defecto:
-// - usuario normal: mueble
-// - admin: mueble (hasta que elija recambio)
+
+
+
 $tipo_publicacion = 'mueble';
 if ($es_admin) {
     $tipo_publicacion = trim($_POST['tipo_publicacion'] ?? ($_GET['tipo_publicacion'] ?? 'mueble'));
@@ -109,7 +109,7 @@ if ($es_admin) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Protege formularios de alta de contenido frente a envíos externos.
+    
     if (!csrf_validate($_POST['csrf_token'] ?? null)) {
         $errores[] = "Sesion expirada. Recarga la pagina e intentalo de nuevo.";
     }
@@ -228,7 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-    } else { // recambio (solo admin)
+    } else { 
 
         if (!$es_admin) {
             $errores[] = "No tienes permisos para publicar recambios.";

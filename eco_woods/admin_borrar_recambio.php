@@ -1,10 +1,10 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Elimina un recambio desde administracion.
-Por que se hizo asi: Se verifica el objetivo y se usa consulta preparada para borrar sin riesgo de inyeccion.
-Para que sirve: Mantiene el catalogo de recambios controlado y actualizado.
-*/
+<?php
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 

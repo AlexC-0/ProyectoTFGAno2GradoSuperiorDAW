@@ -1,18 +1,18 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Muestra datos personales, publicaciones y actividad del usuario.
-Por que se hizo asi: Concentra informacion clave del usuario en un solo punto.
-Para que sirve: Mejora la gestion de cuenta y la experiencia diaria.
-*/
-/*
-DOCUMENTACION_PASO4
-Area personal del usuario autenticado.
-- Reune datos de cuenta, publicaciones, favoritos y resenas.
-- Incluye bandeja de mensajes recibidos y enviados.
-- Agrupa acciones de gestion propias con controles de seguridad.
-*/
-// Arranque base: sesión + utilidades, layout común y control de acceso.
+<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/auth.php';
@@ -21,7 +21,7 @@ ew_require_login('login.php');
 
 require 'conexion.php';
 
-// Usuario autenticado del que se mostrara todo el panel personal.
+
 $id_usuario = (int) $_SESSION['usuario_id'];
 
 function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array $params = [])
@@ -42,7 +42,7 @@ function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array
     return $result;
 }
 
-// Bloque de datos personales.
+
 $res_usuario = ew_stmt_result(
     $conexion,
     "SELECT nombre, email, telefono, provincia, localidad, fecha_registro
@@ -54,7 +54,7 @@ $res_usuario = ew_stmt_result(
 );
 $usuario = $res_usuario ? mysqli_fetch_assoc($res_usuario) : null;
 
-// Publicaciones del usuario para gestion desde su perfil.
+
 $res_muebles = ew_stmt_result(
     $conexion,
     "SELECT id_mueble, titulo, precio, provincia, localidad, estado, fecha_publicacion, categoria, imagen
@@ -65,7 +65,7 @@ $res_muebles = ew_stmt_result(
     [$id_usuario]
 );
 
-// Resenas escritas por el usuario.
+
 $res_resenas = ew_stmt_result(
     $conexion,
     "SELECT r.*, m.titulo AS titulo_mueble
@@ -77,7 +77,7 @@ $res_resenas = ew_stmt_result(
     [$id_usuario]
 );
 
-// Favoritos guardados por el usuario.
+
 $res_favoritos = ew_stmt_result(
     $conexion,
     "SELECT f.fecha_guardado,
@@ -91,7 +91,7 @@ $res_favoritos = ew_stmt_result(
     [$id_usuario]
 );
 
-// Bandeja de entrada de mensajes del usuario.
+
 $res_recibidos = ew_stmt_result(
     $conexion,
     "SELECT msg.id_mensaje, msg.asunto, msg.cuerpo, msg.fecha_envio, msg.leido,
@@ -107,7 +107,7 @@ $res_recibidos = ew_stmt_result(
     [$id_usuario]
 );
 
-// Bandeja de salida para trazabilidad de conversaciones.
+
 $res_enviados = ew_stmt_result(
     $conexion,
     "SELECT msg.id_mensaje, msg.asunto, msg.cuerpo, msg.fecha_envio, msg.leido,

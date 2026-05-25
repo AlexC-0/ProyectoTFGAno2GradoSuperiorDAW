@@ -1,14 +1,14 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Entrega listado de muebles en JSON.
-Por que se hizo asi: Centraliza la consulta de salida para que el formato sea estable.
-Para que sirve: Sirve como base de consumo para frontend o terceros.
-*/
-/*
-DOCUMENTACION_PASO4
-API de listado de muebles.
-*/
+<?php
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/../conexion.php';
 require_once __DIR__ . '/../includes/http.php';
 

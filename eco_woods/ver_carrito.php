@@ -1,18 +1,18 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Presenta el carrito con importes y lineas actuales.
-Por que se hizo asi: Carga datos ya validados para evitar incoherencias en pantalla.
-Para que sirve: Permite revisar pedido antes del pago final.
-*/
-/*
-DOCUMENTACION_PASO4
-Vista de carrito activo del usuario.
-- Lista items de muebles/recambios, cantidades y subtotales.
-- Permite sumar, restar y eliminar sin recargar pagina.
-- Sincroniza UI con respuestas JSON del backend protegido.
-*/
-// Bootstrap inicia sesión y helpers globales; layout evita duplicar header/footer.
+<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once "conexion.php";
@@ -35,13 +35,13 @@ function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array
     return $result;
 }
 
-// Estado base para render estable cuando el usuario no tiene carrito.
+
 $carrito_vacio = true;
 $res_items = null;
 $id_carrito = 0;
 
 if (isset($_SESSION['usuario_id'])) {
-    // El carrito se vincula al usuario autenticado de la sesión actual.
+    
     $id_usuario = (int) $_SESSION['usuario_id'];
 
     $res_carrito = ew_stmt_result(
@@ -54,7 +54,7 @@ if (isset($_SESSION['usuario_id'])) {
     );
 
     if ($res_carrito && mysqli_num_rows($res_carrito) > 0) {
-        // Si existe carrito activo, obtenemos sus líneas de detalle.
+        
         $carrito_vacio = false;
         $fila_carrito = mysqli_fetch_assoc($res_carrito);
         $id_carrito = (int)$fila_carrito['id_carrito'];
@@ -140,17 +140,17 @@ if (isset($_SESSION['usuario_id'])) {
                     $precio = 0;
 
                     if (!empty($fila['id_recambio'])) {
-                        // Linea de recambio.
+                        
                         $tipo = 'Recambio 3D';
                         $nombre = $fila['nombre_recambio'];
                         $precio = (float)$fila['precio_recambio'];
                     } elseif (!empty($fila['id_mueble'])) {
-                        // Linea de mueble.
+                        
                         $tipo = 'Mueble';
                         $nombre = $fila['titulo_mueble'];
                         $precio = (float)$fila['precio_mueble'];
                     } else {
-                        // Defensa ante datos incompletos en DB.
+                        
                         continue;
                     }
 
@@ -199,13 +199,13 @@ if (isset($_SESSION['usuario_id'])) {
 <?php ew_render_footer(); ?>
 
 <button id="btnTop" onclick="scrollToTop()">↑</button>
-<script src="js/app.js"></script>
+<script src="js/app.js?v=<?php echo filemtime(__DIR__ . '/js/app.js'); ?>"></script>
 
 <script>
 (function () {
-    // Toast de feedback para operaciones asÃ­ncronas del carrito.
+    
     const toast = document.getElementById('toastCarrito');
-    // Token CSRF usado en todos los POST AJAX.
+    
     const csrfToken = <?php echo json_encode(csrf_token()); ?>;
 
     function showToast(text, ok=true) {
@@ -225,7 +225,7 @@ if (isset($_SESSION['usuario_id'])) {
     }
 
     function recalcTotal() {
-        // Recalcula total leyendo subtotales actuales en el DOM.
+        
         let total = 0;
         document.querySelectorAll('[id^="sub_"]').forEach(el => {
             const raw = (el.textContent || '0').replace('.', '').replace(',', '.');
@@ -245,7 +245,7 @@ if (isset($_SESSION['usuario_id'])) {
             btn.disabled = true;
 
             try {
-                // Actualiza cantidad de una línea y devuelve nuevo subtotal.
+                
                 const resp = await fetch('carrito_cantidad.php', {
                     method: 'POST',
                     headers: {
@@ -269,6 +269,9 @@ if (isset($_SESSION['usuario_id'])) {
                     if (rowBtn) rowBtn.remove();
                     showToast(data.message || 'Producto eliminado del carrito.', true);
                     recalcTotal();
+                    if (typeof window.ewRefreshCartBadge === 'function') {
+                        window.ewRefreshCartBadge();
+                    }
                     return;
                 }
 
@@ -280,6 +283,9 @@ if (isset($_SESSION['usuario_id'])) {
 
                 recalcTotal();
                 showToast(data.message || 'Cantidad actualizada.', true);
+                if (typeof window.ewRefreshCartBadge === 'function') {
+                    window.ewRefreshCartBadge();
+                }
 
             } catch (e) {
                 showToast('Error de conexión al actualizar cantidad.', false);
@@ -299,7 +305,7 @@ if (isset($_SESSION['usuario_id'])) {
             btn.disabled = true;
 
             try {
-                // Elimina una línea del carrito por id_item.
+                
                 const resp = await fetch('carrito_eliminar.php', {
                     method: 'POST',
                     headers: {
@@ -322,6 +328,9 @@ if (isset($_SESSION['usuario_id'])) {
                 if (row) row.remove();
                 recalcTotal();
                 showToast(data.message || 'Producto eliminado.', true);
+                if (typeof window.ewRefreshCartBadge === 'function') {
+                    window.ewRefreshCartBadge();
+                }
 
             } catch (e) {
                 showToast('Error de conexión al eliminar.', false);

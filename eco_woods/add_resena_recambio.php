@@ -1,14 +1,14 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Guarda una resena que un usuario escribe sobre un recambio.
-Por que se hizo asi: Solo deja enviar reseñas validas y protege la escritura con validaciones y SQL preparado.
-Para que sirve: Aporta confianza al catalogo mostrando opiniones reales y trazables.
-*/
-/*
-DOCUMENTACION_PASO4
-Endpoint para crear resenas de recambios.
-*/
+<?php
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/http.php';

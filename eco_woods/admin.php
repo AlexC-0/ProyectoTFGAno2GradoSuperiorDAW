@@ -1,24 +1,24 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Muestra el panel de administracion con listados de usuarios, productos y reseñas.
-Por que se hizo asi: Se separan secciones para que la gestion sea clara y se reduce el riesgo de errores al consultar datos.
-Para que sirve: Da control centralizado para moderar la plataforma.
-*/
-/*
-DOCUMENTACION_PASO4
-Panel de administracion del proyecto.
-- Restringe acceso solo a usuarios con rol admin.
-- Gestiona secciones de usuarios, muebles, recambios y resenas.
-- Incluye acciones de mantenimiento con confirmacion y seguridad.
-*/
-// Arranque comun y helper de autorizacion para panel admin.
+<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/auth.php';
 require 'conexion.php';
 
-// Solo admins pueden entrar aqui
+
 ew_require_admin('index.php');
 function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array $params = [])
 {
@@ -38,10 +38,10 @@ function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array
     return $result;
 }
 
-// Sección actual del panel
+
 $seccion = $_GET['seccion'] ?? 'usuarios';
 
-// Datos para cada sección
+
 if ($seccion === 'usuarios') {
 
     $sql_usuarios = "SELECT id_usuario, nombre, email, telefono, provincia, localidad, fecha_registro, es_admin
@@ -107,7 +107,7 @@ $es_admin = ew_is_admin();
                 <h2>Sección activa: <?php echo htmlspecialchars(ucfirst($seccion)); ?></h2>
             </div>
 
-            <!-- Submenú del panel -->
+            
             <nav class="submenu-admin">
                 <a href="admin.php?seccion=usuarios"
                    class="<?php echo ($seccion === 'usuarios') ? 'activo' : ''; ?>">

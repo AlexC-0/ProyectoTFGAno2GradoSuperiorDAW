@@ -1,12 +1,12 @@
 <?php
-/*
-DOCUMENTACION_PASO4
-Formulario de alta de usuarios.
-- Valida datos minimos y formato de correo.
-- Evita duplicados por email y guarda password cifrada.
-- Incluye proteccion CSRF y mensajes claros de resultado.
-*/
-// Bootstrap: sesion/utilidades comunes y layout compartido.
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require 'conexion.php';
@@ -15,7 +15,7 @@ $errores = [];
 $exito = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // CSRF protege el alta de cuentas frente a envios externos no legitimos.
+    
     if (!csrf_validate($_POST['csrf_token'] ?? null)) {
         $errores[] = "Sesion expirada. Recarga la pagina e intentalo de nuevo.";
     }
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $provincia = trim($_POST['provincia'] ?? '');
     $localidad = trim($_POST['localidad'] ?? '');
 
-    // Validaciones basicas previas a BD.
+    
     if ($nombre === '' || $email === '' || $password === '' || $password2 === '') {
         $errores[] = "Todos los campos obligatorios deben estar rellenos.";
     }
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errores)) {
-        // Evita cuentas duplicadas por email.
+        
         $sql = 'SELECT id_usuario FROM usuarios WHERE email = ?';
         $stmt = $conexion->prepare($sql);
         $stmt->bind_param('s', $email);
@@ -52,13 +52,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->num_rows > 0) {
             $errores[] = "Ya existe un usuario registrado con ese email.";
         } else {
-            // Hash seguro de contrasena y normalizacion de campos opcionales.
+            
             $hash = password_hash($password, PASSWORD_DEFAULT);
             $telefono_db = ($telefono !== '') ? $telefono : null;
             $provincia_db = ($provincia !== '') ? $provincia : null;
             $localidad_db = ($localidad !== '') ? $localidad : null;
 
-            // Alta de usuario normal (es_admin=0 por defecto).
+            
             $sql_insert = "INSERT INTO usuarios
                            (nombre, email, password, telefono, provincia, localidad, es_admin)
                            VALUES (?, ?, ?, ?, ?, ?, 0)";
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form action="registro.php" method="post" class="formulario">
-            <!-- Token anti-CSRF: asegura que el POST nace del formulario legitimo -->
+            
             <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
 
             <p>
@@ -180,8 +180,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php ew_render_footer(); ?>
 
-<button id="btnTop" onclick="scrollToTop()">▲</button>
-<script src="js/app.js"></script>
+<button id="btnTop" onclick="scrollToTop()">↑</button>
+<script src="js/app.js?v=<?php echo filemtime(__DIR__ . '/js/app.js'); ?>"></script>
 
 </body>
 </html>

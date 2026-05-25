@@ -1,17 +1,17 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Elimina una reseña en el flujo previsto de la app.
-Por que se hizo asi: Se controla el permiso y se evita eliminar contenido no autorizado.
-Para que sirve: Mantiene la moderacion y limpieza de opiniones.
-*/
-/*
-DOCUMENTACION_PASO4
-Eliminacion de resena con reglas de autorizacion.
-- Requiere login, POST y CSRF.
-- Permite accion al autor de la resena o a un admin.
-- Redirige al contexto del mueble tras completar operacion.
-*/
+<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 

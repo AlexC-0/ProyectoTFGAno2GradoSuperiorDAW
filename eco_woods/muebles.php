@@ -1,18 +1,18 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Renderiza el catalogo principal de muebles con filtros y acciones.
-Por que se hizo asi: Combina consulta dinamica controlada con salida visual consistente.
-Para que sirve: Es la puerta principal para explorar y comprar.
-*/
-/*
-DOCUMENTACION_PASO4
-Listado de muebles con filtros y acciones de usuario.
-- Construye busqueda por texto, categoria, precio y ubicacion.
-- Muestra favoritos y carrito con acciones asincronas.
-- Mantiene coherencia entre interfaz y endpoints protegidos.
-*/
-// Arranque base: sesion/utilidades y componentes de layout comunes.
+<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once "conexion.php";
@@ -35,7 +35,7 @@ function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array
     return $result;
 }
 
-// Cache local de favoritos del usuario autenticado para pintar estado inicial de botones.
+
 $favoritos_usuario = [];
 
 if (isset($_SESSION['usuario_id'])) {
@@ -60,7 +60,7 @@ $precio_min       = trim($_GET['precio_min'] ?? '');
 $precio_max       = trim($_GET['precio_max'] ?? '');
 $ubicacion_filtro = trim($_GET['ubicacion'] ?? '');
 
-// Base de consulta incremental. Se va enriqueciendo segun filtros activos.
+
 $sql = "SELECT * FROM muebles WHERE 1";
 $types = '';
 $params = [];
@@ -99,7 +99,7 @@ if ($ubicacion_filtro !== '') {
     $params[] = $ubi_like;
 }
 
-// Orden cronologico inverso para mostrar primero lo mas reciente.
+
 $sql .= " ORDER BY fecha_publicacion DESC";
 $resultado = ew_stmt_result($conexion, $sql, $types, $params);
 
@@ -128,7 +128,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
             </p>
         </section>
 
-        <!-- Toast general (lo usamos para carrito + favoritos) -->
+        
         <div id="toastGlobal" class="toast-carrito" style="display:none;"></div>
 
         <section class="section-form-card">
@@ -268,7 +268,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
                                     $esFavorito = in_array($idMueble, $favoritos_usuario, true);
                                 ?>
 
-                                <!-- Favorito por AJAX -->
+                                
                                 <a class="btn-fav js-fav <?php echo $esFavorito ? 'es-favorito' : ''; ?>"
                                    href="toggle_favorito.php?id_mueble=<?php echo $idMueble; ?>"
                                    data-id="<?php echo $idMueble; ?>"
@@ -276,7 +276,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
                                     <?php echo $esFavorito ? '★ Quitar de favoritos' : '☆ Añadir a favoritos'; ?>
                                 </a>
 
-                                <!-- Boton icono carrito (AJAX) -->
+                                
                                 <button type="button"
                                         class="btn-carrito-icono btn-carrito-mueble"
                                         data-id="<?php echo $idMueble; ?>"
@@ -307,13 +307,13 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
 <?php ew_render_footer(); ?>
 
 <button id="btnTop" onclick="scrollToTop()">↑</button>
-<script src="js/app.js"></script>
+<script src="js/app.js?v=<?php echo filemtime(__DIR__ . '/js/app.js'); ?>"></script>
 
 <script>
 (function () {
-    // Toast reutilizable para feedback de carrito y favoritos.
+    
     const toast = document.getElementById('toastGlobal');
-    // Token CSRF emitido por backend para POST asíncronos.
+    
     const csrfToken = <?php echo json_encode(csrf_token()); ?>;
 
     function showToast(text, ok=true) {
@@ -328,7 +328,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
         }, 2200);
     }
 
-    // Alta de mueble en carrito sin recargar la página.
+    
     const botonesCarrito = document.querySelectorAll('.btn-carrito-mueble');
     botonesCarrito.forEach(btn => {
         btn.addEventListener('click', async () => {
@@ -355,6 +355,9 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
                     showToast(msg, false);
                 } else {
                     showToast(data.message, true);
+                    if (typeof window.ewRefreshCartBadge === 'function') {
+                        window.ewRefreshCartBadge();
+                    }
                 }
 
             } catch (e) {
@@ -365,7 +368,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
         });
     });
 
-    // Toggle de favoritos sin recargar.
+    
     const botonesFav = document.querySelectorAll('.js-fav');
     botonesFav.forEach(a => {
         a.addEventListener('click', async (ev) => {
@@ -395,7 +398,7 @@ $categorias_posibles = ["", "Mesa", "Armario", "Silla", "Cama", "Estantería", "
                     return;
                 }
 
-                // Actualizar estado visual
+                
                 if (data.action === 'added') {
                     a.classList.add('es-favorito');
                     a.textContent = '★ Quitar de favoritos';

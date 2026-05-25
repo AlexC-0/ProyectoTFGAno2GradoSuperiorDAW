@@ -1,14 +1,14 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Devuelve reseñas asociadas a un producto concreto.
-Por que se hizo asi: Filtra por identificador valido y evita consultas abiertas.
-Para que sirve: Muestra valoraciones de forma reutilizable en cualquier interfaz.
-*/
-/*
-DOCUMENTACION_PASO4
-API de resenas por mueble.
-*/
+<?php
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/../conexion.php';
 require_once __DIR__ . '/../includes/http.php';
 require_once __DIR__ . '/../includes/validators.php';

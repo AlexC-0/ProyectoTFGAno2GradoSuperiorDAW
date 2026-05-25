@@ -1,14 +1,14 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Entrega listado de recambios en JSON.
-Por que se hizo asi: Mantiene una salida homogenea y segura con consultas controladas.
-Para que sirve: Permite reutilizar el catalogo en distintos puntos de la aplicacion.
-*/
-/*
-DOCUMENTACION_PASO4
-API de listado de recambios 3D.
-*/
+<?php
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/../conexion.php';
 require_once __DIR__ . '/../includes/http.php';
 

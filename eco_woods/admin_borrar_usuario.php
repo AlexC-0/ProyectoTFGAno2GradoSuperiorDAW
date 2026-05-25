@@ -1,10 +1,10 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Elimina un usuario y sus datos relacionados cuando procede.
-Por que se hizo asi: Usa transaccion para que todo se borre de forma coherente o no se aplique nada.
-Para que sirve: Permite aplicar normas de uso y resolver incidencias de cuenta.
-*/
+<?php
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 

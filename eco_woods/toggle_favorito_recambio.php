@@ -1,14 +1,14 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Alterna favorito en recambios 3D.
-Por que se hizo asi: Replica el comportamiento de favoritos de muebles con mismas garantias de seguridad.
-Para que sirve: Mantiene una experiencia coherente entre catalogos.
-*/
-/*
-DOCUMENTACION_PASO4
-Endpoint de favoritos especifico para recambios 3D.
-*/
+<?php
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/http.php';

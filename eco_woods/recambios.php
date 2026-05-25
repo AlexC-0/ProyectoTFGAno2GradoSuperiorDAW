@@ -1,18 +1,18 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Muestra el catalogo de recambios 3D y sus acciones principales.
-Por que se hizo asi: Detecta columnas opcionales para convivir con esquemas de BD distintos.
-Para que sirve: Permite usar recambios incluso si la instalacion no esta al 100% migrada.
-*/
-/*
-DOCUMENTACION_PASO4
-Catalogo de recambios 3D con favoritos y carrito.
-- Renderiza tarjetas y selecciona imagen representativa.
-- Integra acciones asincronas de carrito y favoritos.
-- Alinea frontend con seguridad y respuestas del backend.
-*/
-// Bootstrap/layout para sesion y estructura visual consistente.
+<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once "conexion.php";
@@ -35,7 +35,7 @@ function ew_stmt_result(mysqli $conexion, string $sql, string $types = '', array
     return $result;
 }
 
-// Verifica columnas opcionales de imagenes; permite convivir con distintos estados de esquema.
+
 function columnExists($conexion, $tabla, $columna) {
     $stmt = mysqli_prepare(
         $conexion,
@@ -66,7 +66,7 @@ $col_img3 = columnExists($conexion, 'recambios3d', 'imagen3');
 $col_img4 = columnExists($conexion, 'recambios3d', 'imagen4');
 $col_img5 = columnExists($conexion, 'recambios3d', 'imagen5');
 
-// Favoritos de recambios para pintar estado inicial del boton en cada tarjeta.
+
 $favoritos_recambios = [];
 if (isset($_SESSION['usuario_id'])) {
     $id_usuario_fav = (int) $_SESSION['usuario_id'];
@@ -130,7 +130,7 @@ $resultado = ew_stmt_result($conexion, "SELECT * FROM recambios3d ORDER BY id_re
                         foreach ($candidatas as $cand) {
                             if ($cand === '') continue;
 
-                            // Compatibilidad con guardados antiguos separados por ';'.
+                            
                             if (strpos($cand, ';') !== false) {
                                 $partes = array_filter(array_map('trim', explode(';', $cand)));
                                 if (!empty($partes)) {
@@ -144,7 +144,7 @@ $resultado = ew_stmt_result($conexion, "SELECT * FROM recambios3d ORDER BY id_re
                         }
 
                         $descripcion = (string)($fila['descripcion'] ?? '');
-                        // Limitamos preview para homogeneidad visual en el grid.
+                        
                         if (mb_strlen($descripcion) > 100) {
                             $descripcion = mb_substr($descripcion, 0, 97) . '...';
                         }
@@ -229,11 +229,11 @@ $resultado = ew_stmt_result($conexion, "SELECT * FROM recambios3d ORDER BY id_re
 <?php ew_render_footer(); ?>
 
 <button id="btnTop" onclick="scrollToTop()">↑</button>
-<script src="js/app.js"></script>
+<script src="js/app.js?v=<?php echo filemtime(__DIR__ . '/js/app.js'); ?>"></script>
 
 <script>
 (function () {
-    // Feedback no intrusivo para acciones de carrito/favoritos.
+    
     const toast = document.getElementById('toastGlobal');
     const csrfToken = <?php echo json_encode(csrf_token()); ?>;
 
@@ -274,6 +274,9 @@ $resultado = ew_stmt_result($conexion, "SELECT * FROM recambios3d ORDER BY id_re
                     showToast(msg, false);
                 } else {
                     showToast(data.message, true);
+                    if (typeof window.ewRefreshCartBadge === 'function') {
+                        window.ewRefreshCartBadge();
+                    }
                 }
 
             } catch (e) {

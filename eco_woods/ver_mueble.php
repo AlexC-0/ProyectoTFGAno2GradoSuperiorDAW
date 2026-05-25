@@ -1,30 +1,30 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Muestra detalle completo de un mueble y reseñas asociadas.
-Por que se hizo asi: Carga datos relacionados con consultas preparadas para detalle fiable y seguro.
-Para que sirve: Da informacion suficiente para decidir la compra.
-*/
-/*
-DOCUMENTACION_PASO4
-Detalle completo de un mueble.
-- Muestra datos del anuncio, galeria y vendedor.
-- Permite resenas, compartir y alta en carrito.
-- Controla envio de resenas con validacion de sesion y token.
-*/
-// Bootstrap/layout para sesion y estructura visual compartida.
+<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require 'conexion.php';
 
-// Comprobar que llega el id del mueble
+
 if (!isset($_GET['id_mueble'])) {
     die("Mueble no especificado.");
 }
 
 $id_mueble = (int) $_GET['id_mueble'];
 
-// 1) Cargar datos del mueble (incluye imagen, imagen2, imagen3, imagen4, imagen5)
+
 $sql_mueble = "SELECT m.*, u.nombre AS nombre_vendedor
                FROM muebles m
                JOIN usuarios u ON m.id_usuario = u.id_usuario
@@ -46,10 +46,10 @@ if (!$res_mueble || mysqli_num_rows($res_mueble) === 0) {
 $mueble = mysqli_fetch_assoc($res_mueble);
 mysqli_stmt_close($stmt_mueble);
 
-// ID del vendedor
+
 $id_vendedor = isset($mueble['id_usuario']) ? (int)$mueble['id_usuario'] : 0;
 
-// 3 BIS) Cargar recambios 3D compatibles con la categoria del mueble
+
 $recambios_compatibles = null;
 if (!empty($mueble['categoria'])) {
     $categoria_like = '%' . (string)$mueble['categoria'] . '%';
@@ -69,7 +69,7 @@ if (!empty($mueble['categoria'])) {
     }
 }
 
-// 2) Si llega el formulario de resena (POST)
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!isset($_SESSION['usuario_id'])) {
         header("Location: login.php");
@@ -107,7 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// 3) Cargar resenas del mueble
+
 $sql_lista_resenas = "SELECT r.*, u.nombre AS nombre_usuario
                       FROM resenas r
                       JOIN usuarios u ON r.id_usuario = u.id_usuario
@@ -143,10 +143,10 @@ $loggedIn = isset($_SESSION['usuario_id']);
             <a href="muebles.php" class="btn-ver">Volver al listado de muebles</a>
         </div>
 
-        <!-- Toast / mensaje flotante -->
+        
         <div id="toastCarrito" class="toast-carrito" style="display:none;"></div>
 
-        <!-- Tarjeta principal del mueble -->
+        
         <article class="tarjeta detail-shell">
 
             <?php if (!empty($mueble['imagen'])): ?>
@@ -180,7 +180,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
 
             <div class="tarjeta-footer detail-actions">
 
-                <!-- IZQUIERDA: COMPARTIR -->
+                
                 <div class="share-panel">
                     <div class="share-title">
                         Compartir:
@@ -210,7 +210,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
                     </div>
                 </div>
 
-                <!-- DERECHA: CARRITO -->
+                
                 <div class="detail-cart">
                     <button type="button"
                             class="btn-carrito-icono btn-carrito-mueble"
@@ -401,7 +401,7 @@ $loggedIn = isset($_SESSION['usuario_id']);
 <?php ew_render_footer(); ?>
 
 <button id="btnTop" onclick="scrollToTop()">↑</button>
-<script src="js/app.js"></script>
+<script src="js/app.js?v=<?php echo filemtime(__DIR__ . '/js/app.js'); ?>"></script>
 
 <script>
 (function () {
@@ -440,6 +440,9 @@ $loggedIn = isset($_SESSION['usuario_id']);
                 showToast(msg, false);
             } else {
                 showToast(data.message, true);
+                if (typeof window.ewRefreshCartBadge === 'function') {
+                    window.ewRefreshCartBadge();
+                }
             }
 
         } catch (e) {

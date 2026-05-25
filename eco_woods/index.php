@@ -1,11 +1,11 @@
 <?php
-/*
-DOCUMENTACION_PASO4
-Portada principal del proyecto.
-- Usa layout comun para mantener estructura global.
-- Presenta propuesta de valor y accesos rapidos del sitio.
-- Sirve como punto de entrada estable para navegacion.
-*/
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 ?>
@@ -77,8 +77,8 @@ require_once __DIR__ . '/includes/layout.php';
 
 <?php ew_render_footer(['variant' => 'full']); ?>
 
-<button id="btnTop" onclick="scrollToTop()">?</button>
-<script src="js/app.js"></script>
+<button id="btnTop" onclick="scrollToTop()">↑</button>
+<script src="js/app.js?v=<?php echo filemtime(__DIR__ . '/js/app.js'); ?>"></script>
 </body>
 </html>
 

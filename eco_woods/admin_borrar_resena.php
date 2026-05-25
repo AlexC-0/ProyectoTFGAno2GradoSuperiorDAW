@@ -1,10 +1,10 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Borra una reseña reportada o no valida.
-Por que se hizo asi: Se ejecuta con permisos de admin y con entrada tipada para evitar borrados incorrectos.
-Para que sirve: Ayuda a mantener calidad y respeto en comentarios.
-*/
+<?php
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 

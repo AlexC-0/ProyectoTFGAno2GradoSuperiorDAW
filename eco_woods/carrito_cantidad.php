@@ -1,17 +1,17 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Actualiza la cantidad de una linea del carrito.
-Por que se hizo asi: Valida valores y controla limites para evitar estados invalidos.
-Para que sirve: Hace que el carrito refleje la intencion real de compra.
-*/
-/*
-DOCUMENTACION_PASO4
-Endpoint para ajustar cantidad de un item del carrito.
-- Requiere login, POST y CSRF.
-- Permite accion mas/menos con validacion de pertenencia.
-- Devuelve subtotal y estado para actualizar la interfaz.
-*/
+<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/http.php';

@@ -1,10 +1,10 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Gestiona borrado de mueble en contexto de usuario propietario.
-Por que se hizo asi: Comprueba autorizacion para evitar que alguien borre contenido ajeno.
-Para que sirve: Asegura que cada usuario solo gestiona lo suyo.
-*/
+<?php
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require 'conexion.php';
 

@@ -1,17 +1,17 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Alterna estado favorito de un mueble.
-Por que se hizo asi: Si existe lo quita y si no existe lo crea, en un flujo simple y seguro.
-Para que sirve: Ayuda al usuario a guardar productos para revisarlos luego.
-*/
-/*
-DOCUMENTACION_PASO4
-Endpoint unificado de favoritos para muebles y recambios.
-- Solo permite POST autenticado con CSRF.
-- Comprueba existencia del producto antes de actuar.
-- Ejecuta toggle anadir/quitar y devuelve estado final.
-*/
+<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/http.php';

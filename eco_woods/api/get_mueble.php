@@ -1,23 +1,23 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Devuelve el detalle de un mueble en formato JSON para consumo API.
-Por que se hizo asi: Se usa lectura tipada para responder rapido y evitar consultas manipulables.
-Para que sirve: Facilita integraciones y posibles clientes externos.
-*/
-/*
-DOCUMENTACION_PASO4
-API de detalle individual de mueble.
-- Recibe id y devuelve anuncio completo si existe.
-- Incluye validaciones de entrada y salida consistente.
-- Base para vistas de detalle o clientes externos.
-*/
+<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/../conexion.php';
 require_once __DIR__ . '/../includes/http.php';
 require_once __DIR__ . '/../includes/validators.php';
 
-// API de detalle de mueble por id.
-// Devuelve 400 si falta/invalid id y 404 si no existe en BD.
+
+
 $id_mueble = ew_get_int('id_mueble');
 if ($id_mueble <= 0) {
     ew_json(['ok' => false, 'mueble' => null, 'error' => 'Parametro id_mueble obligatorio'], 400);
@@ -70,7 +70,7 @@ if (!$resultado || mysqli_num_rows($resultado) !== 1) {
 }
 
 $fila = mysqli_fetch_assoc($resultado);
-// Normalizacion minima de tipos para consumo consistente en clientes.
+
 $fila['id_mueble'] = (int)$fila['id_mueble'];
 $fila['id_usuario'] = (int)$fila['id_usuario'];
 $fila['precio'] = (float)$fila['precio'];

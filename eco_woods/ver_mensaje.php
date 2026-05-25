@@ -1,14 +1,14 @@
-﻿<?php
-/*
-DOCUMENTACION_EXPLICATIVA_TFG
-Que hace: Abre un mensaje concreto y gestiona su estado de lectura.
-Por que se hizo asi: Controla acceso para que solo participe quien corresponde.
-Para que sirve: Asegura privacidad en la comunicacion interna.
-*/
-/*
-DOCUMENTACION_PASO4
-Lectura de mensaje individual y respuesta en hilo.
-*/
+<?php
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/auth.php';
