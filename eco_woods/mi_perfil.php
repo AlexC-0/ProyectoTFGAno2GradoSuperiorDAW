@@ -145,6 +145,12 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
             <p>Desde aqui puedes revisar tu informacion, tus publicaciones, favoritos, reseñas y mensajes.</p>
         </section>
 
+        <?php if (isset($_GET['editado'])): ?>
+            <section class="section-content-card">
+                <div class="mensaje exito">Anuncio actualizado correctamente.</div>
+            </section>
+        <?php endif; ?>
+
         <?php if ($usuario): ?>
             <section class="perfil-seccion">
                 <div class="section-content-card">
@@ -226,6 +232,10 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
                                     <a class="btn-ver"
                                        href="ver_mueble.php?id_mueble=<?php echo (int)$m['id_mueble']; ?>">
                                         Ver mueble
+                                    </a>
+                                    <a class="btn-ver"
+                                       href="editar_mueble.php?id_mueble=<?php echo (int)$m['id_mueble']; ?>">
+                                        Editar
                                     </a>
                                     <form action="eliminar_mueble.php" method="post" style="margin:0;">
                                         <input type="hidden" name="id_mueble" value="<?php echo (int)$m['id_mueble']; ?>">
@@ -436,4 +446,3 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 
 </body>
 </html>
-

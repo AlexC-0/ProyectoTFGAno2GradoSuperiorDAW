@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 
 
@@ -16,6 +16,7 @@
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/layout.php';
+require_once __DIR__ . '/includes/validaciones_anuncios.php';
 
 
 ew_require_login('login.php');
@@ -97,9 +98,6 @@ $exito = "";
 
 $es_admin = (!empty($_SESSION['es_admin']) && $_SESSION['es_admin'] == 1);
 
-
-
-
 $tipo_publicacion = 'mueble';
 if ($es_admin) {
     $tipo_publicacion = trim($_POST['tipo_publicacion'] ?? ($_GET['tipo_publicacion'] ?? 'mueble'));
@@ -120,13 +118,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tipo_publicacion = 'mueble';
     }
 
-    if ($tipo_publicacion === 'mueble') {
+    if ($es_admin && !isset($_POST['titulo']) && !isset($_POST['nombre'])) {
+    } elseif ($tipo_publicacion === 'mueble') {
 
-        $titulo      = trim($_POST['titulo'] ?? '');
-        $descripcion = trim($_POST['descripcion'] ?? '');
+        $titulo      = ew_normalize_text_input($_POST['titulo'] ?? '');
+        $descripcion = ew_normalize_text_input($_POST['descripcion'] ?? '');
         $precio      = trim($_POST['precio'] ?? '');
-        $provincia   = trim($_POST['provincia'] ?? '');
-        $localidad   = trim($_POST['localidad'] ?? '');
+        $provincia   = ew_normalize_text_input($_POST['provincia'] ?? '');
+        $localidad   = ew_normalize_text_input($_POST['localidad'] ?? '');
         $estado      = trim($_POST['estado'] ?? '');
         $categoria   = trim($_POST['categoria'] ?? 'Otro');
 
@@ -134,11 +133,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errores[] = "Todos los campos marcados con * son obligatorios.";
         }
 
-        if (!is_numeric($precio) || $precio < 0) {
-            $errores[] = "El precio debe ser un número positivo.";
+        if (!ew_valid_title_text($titulo, 6, 120)) {
+            $errores[] = "El tÃ­tulo debe tener entre 6 y 120 caracteres, incluir al menos dos palabras y describir el mueble de forma comprensible.";
         }
 
-        if ($categoria === '') {
+        if (!ew_valid_description_text($descripcion)) {
+            $errores[] = "La descripciÃ³n debe tener entre 40 y 1000 caracteres y explicar el anuncio con frases legibles.";
+        }
+
+        if (!ew_valid_place_text($provincia) || !ew_valid_place_text($localidad)) {
+            $errores[] = "La provincia y la localidad deben contener nombres reales, sin nÃºmeros ni texto sin sentido.";
+        }
+
+        if (!ew_valid_decimal_price($precio)) {
+            $errores[] = "El precio debe ser un nÃºmero positivo con un mÃ¡ximo de dos decimales.";
+        } else {
+            $precio = str_replace(',', '.', $precio);
+        }
+
+        if (!in_array($estado, $estados_mueble, true)) {
+            $errores[] = "Debes seleccionar un estado vÃ¡lido para el mueble.";
+        }
+
+        if (!in_array($categoria, $categorias, true)) {
             $categoria = 'Otro';
         }
 
@@ -234,8 +251,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errores[] = "No tienes permisos para publicar recambios.";
         } else {
 
-            $nombre         = trim($_POST['nombre'] ?? '');
-            $descripcion_r  = trim($_POST['descripcion_recambio'] ?? '');
+            $nombre         = ew_normalize_text_input($_POST['nombre'] ?? '');
+            $descripcion_r  = ew_normalize_text_input($_POST['descripcion_recambio'] ?? '');
             $tipo_r         = trim($_POST['tipo'] ?? '');
             $compatible_con = trim($_POST['compatible_con'] ?? '');
             $precio_r       = trim($_POST['precio_recambio'] ?? '');
@@ -244,8 +261,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errores[] = "Todos los campos marcados con * son obligatorios.";
             }
 
-            if (!is_numeric($precio_r) || $precio_r < 0) {
-                $errores[] = "El precio debe ser un número positivo.";
+            if (!ew_valid_title_text($nombre, 6, 120)) {
+                $errores[] = "El nombre del recambio debe tener entre 6 y 120 caracteres, incluir al menos dos palabras y describir la pieza de forma comprensible.";
+            }
+
+            if (!ew_valid_description_text($descripcion_r)) {
+                $errores[] = "La descripciÃ³n del recambio debe tener entre 40 y 1000 caracteres y explicar la pieza con frases legibles.";
+            }
+
+            if (!in_array($tipo_r, $tipos_recambio, true)) {
+                $errores[] = "Debes seleccionar un tipo de recambio vÃ¡lido.";
+            }
+
+            if (!in_array($compatible_con, $compatibles_recambio, true)) {
+                $errores[] = "Debes seleccionar una compatibilidad vÃ¡lida.";
+            }
+
+            if (!ew_valid_decimal_price($precio_r)) {
+                $errores[] = "El precio debe ser un nÃºmero positivo con un mÃ¡ximo de dos decimales.";
+            } else {
+                $precio_r = str_replace(',', '.', $precio_r);
             }
 
             if (empty($errores)) {
@@ -379,7 +414,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <form action="publicar.php" method="post" class="formulario">
                     <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
                     <p>
-                        <label for="tipo_publicacion"><strong>¿Qué quieres publicar?</strong></label><br>
+                        <label for="tipo_publicacion"><strong>Â¿QuÃ© quieres publicar?</strong></label><br>
                         <select name="tipo_publicacion" id="tipo_publicacion" onchange="this.form.submit()">
                             <option value="mueble" <?php echo ($tipo_publicacion === 'mueble') ? 'selected' : ''; ?>>Mueble</option>
                             <option value="recambio" <?php echo ($tipo_publicacion === 'recambio') ? 'selected' : ''; ?>>Recambio 3D</option>
@@ -402,7 +437,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <div class="form-columna">
                             <p>
-                                <label>Imágenes del mueble (máx. 5):<br>
+                                <label>ImÃ¡genes del mueble (mÃ¡x. 5):<br>
                                     <input
                                         type="file"
                                         name="imagenes[]"
@@ -414,22 +449,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </p>
 
                             <p>
-                                <label for="titulo">Título del anuncio*:</label><br>
-                                <input type="text" name="titulo" id="titulo" required
+                                <label for="titulo">TÃ­tulo del anuncio*:</label><br>
+                                <input type="text" name="titulo" id="titulo" required minlength="6" maxlength="120"
                                        value="<?php echo htmlspecialchars($titulo ?? ''); ?>">
                             </p>
 
                             <p>
-                                <label for="precio">Precio (€)*:</label><br>
-                                <input type="number" step="0.01" min="0" name="precio" id="precio" required
+                                <label for="precio">Precio (â‚¬)*:</label><br>
+                                <input type="number" step="0.01" min="0.01" name="precio" id="precio" required
                                        value="<?php echo htmlspecialchars($precio ?? ''); ?>">
                             </p>
 
                             <p>
-                                <label for="categoria">Categoría del mueble*:</label><br>
+                                <label for="categoria">CategorÃ­a del mueble*:</label><br>
                                 <select name="categoria" id="categoria" required>
                                     <?php
-                                    $categorias = ["Mesa", "Armario", "Silla", "Cama", "Estantería", "Sofá", "Otro"];
                                     $categoria_actual = $categoria ?? 'Otro';
 
                                     foreach ($categorias as $cat) {
@@ -444,26 +478,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-columna">
                             <p>
                                 <label for="provincia">Provincia*:</label><br>
-                                <input type="text" name="provincia" id="provincia" required
+                                <input type="text" name="provincia" id="provincia" required minlength="2" maxlength="80"
+                                       pattern="[A-Za-zÃÃ‰ÃÃ“ÃšÃœÃ‘Ã¡Ã©Ã­Ã³ÃºÃ¼Ã±\s.'-]+"
                                        value="<?php echo htmlspecialchars($provincia ?? ''); ?>">
                             </p>
 
                             <p>
                                 <label for="localidad">Localidad*:</label><br>
-                                <input type="text" name="localidad" id="localidad" required
+                                <input type="text" name="localidad" id="localidad" required minlength="2" maxlength="80"
+                                       pattern="[A-Za-zÃÃ‰ÃÃ“ÃšÃœÃ‘Ã¡Ã©Ã­Ã³ÃºÃ¼Ã±\s.'-]+"
                                        value="<?php echo htmlspecialchars($localidad ?? ''); ?>">
                             </p>
 
                             <p>
                                 <label for="estado">Estado del mueble*:</label><br>
-                                <input type="text" name="estado" id="estado"
-                                       placeholder="Ej: Como nuevo, Buen estado, Usado..."
-                                       required value="<?php echo htmlspecialchars($estado ?? ''); ?>">
+                                <select name="estado" id="estado" required>
+                                    <option value="">Selecciona un estado</option>
+                                    <?php
+                                    $estado_actual = $estado ?? '';
+
+                                    foreach ($estados_mueble as $estado_opcion) {
+                                        $selected = ($estado_opcion === $estado_actual) ? 'selected' : '';
+                                        echo "<option value=\"" . htmlspecialchars($estado_opcion) . "\" $selected>" . htmlspecialchars($estado_opcion) . "</option>";
+                                    }
+                                    ?>
+                                </select>
                             </p>
 
                             <p>
-                                <label for="descripcion">Descripción*:</label><br>
-                                <textarea name="descripcion" id="descripcion" rows="5" cols="50" required><?php
+                                <label for="descripcion">DescripciÃ³n*:</label><br>
+                                <textarea name="descripcion" id="descripcion" rows="5" cols="50" required minlength="40" maxlength="1000"><?php
                                     echo htmlspecialchars($descripcion ?? '');
                                 ?></textarea>
                             </p>
@@ -492,7 +536,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="hidden" name="tipo_publicacion" value="recambio">
 
                     <p>
-                        <label>Imágenes del recambio (máx. 5):<br>
+                        <label>ImÃ¡genes del recambio (mÃ¡x. 5):<br>
                             <input
                                 type="file"
                                 name="imagenes_recambio[]"
@@ -505,33 +549,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <p>
                         <label for="nombre">Nombre del recambio*:</label><br>
-                        <input type="text" name="nombre" id="nombre" required
+                        <input type="text" name="nombre" id="nombre" required minlength="6" maxlength="120"
                                value="<?php echo htmlspecialchars($nombre ?? ''); ?>">
                     </p>
 
                     <p>
                         <label for="tipo">Tipo*:</label><br>
-                        <input type="text" name="tipo" id="tipo" required
-                               placeholder="Ej: bisagra, tope, pieza..."
-                               value="<?php echo htmlspecialchars($tipo_r ?? ''); ?>">
+                        <select name="tipo" id="tipo" required>
+                            <option value="">Selecciona un tipo</option>
+                            <?php
+                            $tipo_actual = $tipo_r ?? '';
+
+                            foreach ($tipos_recambio as $tipo_opcion) {
+                                $selected = ($tipo_opcion === $tipo_actual) ? 'selected' : '';
+                                echo "<option value=\"" . htmlspecialchars($tipo_opcion) . "\" $selected>" . htmlspecialchars($tipo_opcion) . "</option>";
+                            }
+                            ?>
+                        </select>
                     </p>
 
                     <p>
                         <label for="compatible_con">Compatible con*:</label><br>
-                        <input type="text" name="compatible_con" id="compatible_con" required
-                               placeholder="Ej: Mesa, Armario, Silla..."
-                               value="<?php echo htmlspecialchars($compatible_con ?? ''); ?>">
+                        <select name="compatible_con" id="compatible_con" required>
+                            <option value="">Selecciona compatibilidad</option>
+                            <?php
+                            $compatible_actual = $compatible_con ?? '';
+
+                            foreach ($compatibles_recambio as $compatible_opcion) {
+                                $selected = ($compatible_opcion === $compatible_actual) ? 'selected' : '';
+                                echo "<option value=\"" . htmlspecialchars($compatible_opcion) . "\" $selected>" . htmlspecialchars($compatible_opcion) . "</option>";
+                            }
+                            ?>
+                        </select>
                     </p>
 
                     <p>
-                        <label for="precio_recambio">Precio (€)*:</label><br>
-                        <input type="number" step="0.01" min="0" name="precio_recambio" id="precio_recambio" required
+                        <label for="precio_recambio">Precio (â‚¬)*:</label><br>
+                        <input type="number" step="0.01" min="0.01" name="precio_recambio" id="precio_recambio" required
                                value="<?php echo htmlspecialchars($precio_r ?? ''); ?>">
                     </p>
 
                     <p>
-                        <label for="descripcion_recambio">Descripción*:</label><br>
-                        <textarea name="descripcion_recambio" id="descripcion_recambio" rows="5" cols="50" required><?php
+                        <label for="descripcion_recambio">DescripciÃ³n*:</label><br>
+                        <textarea name="descripcion_recambio" id="descripcion_recambio" rows="5" cols="50" required minlength="40" maxlength="1000"><?php
                             echo htmlspecialchars($descripcion_r ?? '');
                         ?></textarea>
                     </p>
@@ -554,9 +614,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </footer>
 
-<button id="btnTop" onclick="scrollToTop()">↑</button>
+<button id="btnTop" onclick="scrollToTop()">â†‘</button>
 <script src="js/app.js"></script>
 
 </body>
 </html>
+
 

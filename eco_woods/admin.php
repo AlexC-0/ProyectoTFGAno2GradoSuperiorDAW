@@ -102,6 +102,12 @@ $es_admin = ew_is_admin();
             <p><strong>Usuario admin:</strong> <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?></p>
         </section>
 
+        <?php if (isset($_GET['editado'])): ?>
+            <section class="section-content-card">
+                <div class="mensaje exito">Contenido actualizado correctamente.</div>
+            </section>
+        <?php endif; ?>
+
         <section class="section-content-card">
             <div class="perfil-subcard-titulo">
                 <h2>Sección activa: <?php echo htmlspecialchars(ucfirst($seccion)); ?></h2>
@@ -244,6 +250,10 @@ $es_admin = ew_is_admin();
                                     </a>
                                 </td>
                                 <td>
+                                    <a class="btn-ver"
+                                       href="editar_mueble.php?id_mueble=<?php echo (int)$m['id_mueble']; ?>">
+                                        Editar
+                                    </a>
                                     <form action="admin_borrar_mueble.php" method="post" style="margin:0;">
     <input type="hidden" name="id_mueble" value="<?php echo (int)$m['id_mueble']; ?>">
     <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
@@ -295,6 +305,10 @@ $es_admin = ew_is_admin();
                                     echo number_format($precioRec, 2, ',', '.'); ?> €
                                 </td>
                                 <td>
+                                    <a class="btn-ver"
+                                       href="editar_recambio.php?id_recambio=<?php echo (int)$r['id_recambio']; ?>">
+                                        Editar
+                                    </a>
                                     <form action="admin_borrar_recambio.php" method="post" style="margin:0;">
     <input type="hidden" name="id_recambio" value="<?php echo (int)$r['id_recambio']; ?>">
     <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
@@ -378,4 +392,3 @@ $es_admin = ew_is_admin();
 
 </body>
 </html>
-
