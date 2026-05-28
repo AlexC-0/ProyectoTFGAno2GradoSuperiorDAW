@@ -38,6 +38,7 @@ body {
     color: var(--text);
     line-height: 1.55;
     position: relative;
+    overflow-x: hidden;
     background:
         radial-gradient(circle at 10% 10%, #f5ede2 0%, transparent 28%),
         radial-gradient(circle at 90% 0%, #f2e9dd 0%, transparent 24%),
@@ -926,6 +927,10 @@ footer {
     overflow: hidden;
 }
 
+.section-content-card {
+    overflow-x: auto;
+}
+
 .section-head-card {
     border: 1px solid #d8c8b8;
     background:
@@ -1243,6 +1248,18 @@ footer {
     max-width: 920px;
 }
 
+.tabla-admin {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tabla-admin table,
+.tabla-carrito,
+.checkout-table {
+    min-width: 680px;
+}
+
 .cell-cantidad,
 .cell-acciones {
     white-space: nowrap;
@@ -1360,20 +1377,44 @@ footer {
 @media (max-width: 740px) {
     header .contenedor {
         flex-direction: column;
-        align-items: stretch;
+        align-items: center;
+        padding-top: 10px;
+        padding-bottom: 14px;
+        gap: 8px;
     }
 
     header nav {
-        justify-content: flex-start;
+        justify-content: center;
+        width: 100%;
+        gap: 6px;
+        transform: none;
     }
 
     .nav-cart {
         margin-left: 0;
     }
 
+    header nav a {
+        font-size: 12px;
+        padding: 8px 10px;
+        transform: none;
+    }
+
+    header nav a:hover,
+    header nav a:focus-visible {
+        transform: translateY(-1px);
+    }
+
+    .brand-wrap {
+        height: auto;
+        transform: none;
+    }
+
     .brand-logo {
         height: clamp(62px, 20vw, 86px);
-        transform: scale(1.42) translateY(4px);
+        max-width: min(230px, 80vw);
+        transform: none;
+        transform-origin: center;
     }
 
     .filtros-grid {
@@ -1400,6 +1441,211 @@ footer {
         margin-right: 0;
         justify-content: center;
     }
+
+    .contenedor {
+        width: min(100% - 24px, 1120px);
+        margin-bottom: 22px;
+    }
+
+    .section-head-card,
+    .section-content-card,
+    .section-form-card,
+    .home-hero,
+    .catalog-hero,
+    .tarjeta,
+    .perfil-card {
+        border-radius: 14px;
+        padding: 15px;
+    }
+
+    .section-head-card h1,
+    .home-hero h1,
+    .catalog-hero h1 {
+        font-size: clamp(28px, 10vw, 36px);
+        line-height: 1.05;
+    }
+
+    .listado-tarjetas,
+    .home-grid,
+    .landing-cajas,
+    .perfil-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tarjeta-header,
+    .detail-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tarjeta-footer,
+    .landing-acciones,
+    .cart-links,
+    .filtros-botones,
+    .share-actions {
+        justify-content: flex-start;
+    }
+
+    .tarjeta-footer > *,
+    .landing-acciones > *,
+    .cart-links > *,
+    .filtros-botones > * {
+        width: 100%;
+    }
+
+    .tarjeta-footer a,
+    .tarjeta-footer button,
+    .landing-acciones a,
+    .cart-links a,
+    .filtros-botones button,
+    .filtros-botones a {
+        width: 100%;
+    }
+
+    .detail-cart {
+        align-items: flex-start;
+    }
+
+    .detail-contact {
+        text-align: left;
+    }
+
+    .btn-carrito-mueble,
+    .btn-carrito-recambio-grande {
+        width: 54px;
+        height: 54px;
+    }
+
+    .tarjeta img,
+    .tarjeta .imagen-mueble {
+        height: clamp(170px, 56vw, 230px);
+    }
+
+    .galeria-mueble {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .auth-shell,
+    .publish-shell,
+    .cart-shell,
+    .checkout-shell {
+        margin-top: 16px;
+        margin-bottom: 34px;
+    }
+
+    .toast-carrito {
+        left: 12px;
+        right: 12px;
+        bottom: 76px;
+        width: auto;
+    }
+
+    #btnTop {
+        right: 12px;
+        bottom: 14px;
+        width: 42px;
+        height: 42px;
+    }
+}
+
+@media (max-width: 520px) {
+    body::before {
+        background-size: 190vw;
+        background-position: center 46%;
+    }
+
+    header {
+        margin-bottom: 16px;
+    }
+
+    header nav {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+    }
+
+    header nav a {
+        width: 100%;
+        justify-content: center;
+        min-height: 36px;
+        text-align: center;
+    }
+
+    .nav-cart {
+        margin: 0;
+    }
+
+    .nav-icon {
+        padding: 8px 10px;
+    }
+
+    h1 {
+        font-size: clamp(26px, 12vw, 34px);
+    }
+
+    h2 {
+        font-size: clamp(22px, 10vw, 29px);
+    }
+
+    .formulario,
+    .auth-shell .formulario,
+    .publish-shell .formulario,
+    .publish-shell .formulario.formulario-dos-columnas {
+        width: 100%;
+        padding: 14px;
+    }
+
+    .section-content-card,
+    .section-form-card {
+        padding: 14px;
+    }
+
+    table th,
+    table td {
+        padding: 9px 8px;
+        font-size: 13px;
+    }
+
+    .tabla-admin table,
+    .tabla-carrito,
+    .checkout-table {
+        min-width: 620px;
+    }
+
+    .footer-flex {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-contacto {
+        flex-wrap: wrap;
+    }
+}
+
+@media (min-width: 741px) and (max-width: 1024px) {
+    header .contenedor {
+        width: min(100% - 36px, 1120px);
+    }
+
+    .brand-logo {
+        height: clamp(76px, 11vw, 96px);
+        transform: scale(1.18) translateY(4px);
+    }
+
+    header nav {
+        gap: 6px;
+    }
+
+    header nav a {
+        font-size: 13px;
+        padding: 7px 9px;
+    }
+
+    .contenedor {
+        width: min(100% - 36px, 1120px);
+    }
 }
 
 @media (min-width: 860px) {
@@ -1409,5 +1655,50 @@ footer {
 
     .form-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1024px) {
+    header .contenedor {
+        align-items: center;
+    }
+
+    header nav {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 6px 2px 10px;
+        transform: none;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    header nav a {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        transform: none;
+    }
+
+    header nav a:hover,
+    header nav a:focus-visible {
+        transform: translateY(-1px);
+    }
+
+    .nav-cart {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 520px) {
+    header nav {
+        display: flex;
+        grid-template-columns: none;
+    }
+
+    header nav a {
+        width: auto;
+        min-height: 36px;
     }
 }

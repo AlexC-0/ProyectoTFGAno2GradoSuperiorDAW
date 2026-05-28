@@ -130,6 +130,7 @@ $num_enviados  = $res_enviados  ? mysqli_num_rows($res_enviados)  : 0;
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi perfil - ECO & WOODS</title>
     <link rel="stylesheet" href="css/style.css">
 </head>

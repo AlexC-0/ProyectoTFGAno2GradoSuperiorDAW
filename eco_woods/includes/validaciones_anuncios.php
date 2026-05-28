@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 $estados_mueble = ["Mal estado", "Correcto", "Buen estado", "Muy buen estado", "Perfecto"];
-$categorias = ["Mesa", "Armario", "Silla", "Cama", "Estantería", "Sofá", "Otro"];
-$tipos_recambio = ["Bisagra", "Tirador", "Pata", "Tope", "Junta", "Soporte", "Guía", "Pieza estructural", "Otro"];
-$compatibles_recambio = ["Mesa", "Armario", "Silla", "Cama", "Estantería", "Sofá", "Otro"];
+$categorias = ["Mesa", "Armario", "Silla", "Cama", "Estanteria", "Sofa", "Otro"];
+$tipos_recambio = ["Bisagra", "Tirador", "Pata", "Tope", "Junta", "Soporte", "Guia", "Pieza estructural", "Otro"];
+$compatibles_recambio = ["Mesa", "Armario", "Silla", "Cama", "Estanteria", "Sofa", "Otro"];
 
 function ew_valid_text(string $value, int $min, int $max): bool
 {
@@ -29,25 +29,25 @@ function ew_normalize_text_input(string $value): string
 
 function ew_letters_count(string $value): int
 {
-    preg_match_all('/[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/u', $value, $matches);
+    preg_match_all('/[A-Za-z]/u', $value, $matches);
     return count($matches[0]);
 }
 
 function ew_words_count(string $value): int
 {
-    preg_match_all('/[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]{3,}/u', $value, $matches);
+    preg_match_all('/[A-Za-z]{3,}/u', $value, $matches);
     return count($matches[0]);
 }
 
 function ew_has_clear_vowels(string $value, int $min): bool
 {
-    preg_match_all('/[AEIOUÁÉÍÓÚÜaeiouáéíóúü]/u', $value, $matches);
+    preg_match_all('/[AEIOUaeiou]/u', $value, $matches);
     return count($matches[0]) >= $min;
 }
 
 function ew_has_allowed_plain_text_chars(string $value): bool
 {
-    return (bool)preg_match('/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9\s.,;:()\/+\-ºª€]+$/u', $value);
+    return (bool)preg_match('/^[A-Za-z0-9\s.,;:()\/+-]+$/u', $value);
 }
 
 function ew_has_repeated_gibberish(string $value): bool
@@ -56,7 +56,7 @@ function ew_has_repeated_gibberish(string $value): bool
         return true;
     }
 
-    return (bool)preg_match('/[bcdfghjklmnñpqrstvwxyzBCDFGHJKLMNÑPQRSTVWXYZ]{6,}/u', $value);
+    return (bool)preg_match('/[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]{6,}/u', $value);
 }
 
 function ew_valid_title_text(string $value, int $min, int $max): bool
@@ -90,7 +90,7 @@ function ew_valid_place_text(string $value): bool
         return false;
     }
 
-    if (!preg_match('/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s.\'-]+$/u', $value)) {
+    if (!preg_match('/^[A-Za-z\s.\'-]+$/u', $value)) {
         return false;
     }
 
@@ -122,10 +122,10 @@ function ew_valid_description_text(string $value): bool
         return false;
     }
 
-    $wordCharacters = preg_replace('/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/u', '', $value);
+    $wordCharacters = preg_replace('/[^A-Za-z]/u', '', $value);
     $cleanLength = ew_text_length($wordCharacters);
     if ($cleanLength > 0) {
-        preg_match_all('/[AEIOUÁÉÍÓÚÜaeiouáéíóúü]/u', $wordCharacters, $vowels);
+        preg_match_all('/[AEIOUaeiou]/u', $wordCharacters, $vowels);
         $vowelRatio = count($vowels[0]) / $cleanLength;
         if ($vowelRatio < 0.25 || $vowelRatio > 0.70) {
             return false;
