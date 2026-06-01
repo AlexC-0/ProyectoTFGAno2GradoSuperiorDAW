@@ -1,0 +1,1402 @@
+====================================================================
+
+INDICE
+
+
+====================================================================
+
+
+1. Objetivo del documento
+
+2. Alcance del mapa de navegacion
+
+3. Leyenda utilizada
+
+4. Roles contemplados
+
+5. Navegacion visible por rol
+
+6. Mapa general de pantallas principales
+
+7. Flujo de visitante no autenticado
+
+8. Flujo de usuario registrado
+
+9. Flujo de administrador
+
+10. Pantallas secundarias
+
+11. Rutas funcionales sin pantalla propia
+
+12. Endpoints API actuales
+
+13. Restricciones y condiciones de navegacion
+
+14. Resumen visual global
+
+15. Criterio de fidelidad para la memoria del TFG
+
+
+====================================================================
+
+1. OBJETIVO DEL DOCUMENTO
+
+
+====================================================================
+
+
+Este documento define el mapa de navegacion actual del TFG GR-Inn / ECO & WOODS. Su finalidad es mostrar de forma ordenada como se conectan las pantallas principales de la aplicacion, que rutas puede seguir cada tipo de usuario y que acciones forman parte del funcionamiento interno del sistema.
+
+El mapa diferencia tres perfiles principales:
+
+
+- Visitante no autenticado.
+
+- Usuario registrado.
+
+- Usuario administrador.
+
+
+Tambien separa las pantallas visibles de las rutas de accion, ya que algunas paginas PHP no representan una pantalla completa, sino que procesan operaciones como anadir productos al carrito, modificar favoritos, eliminar elementos o cerrar sesion.
+
+
+====================================================================
+
+2. ALCANCE DEL MAPA DE NAVEGACION
+
+
+====================================================================
+
+
+El mapa representa el estado actual del proyecto, no una version futura ni idealizada.
+
+Incluye:
+
+
+- Inicio.
+
+- Login y registro.
+
+- Catalogo de muebles.
+
+- Detalle de mueble.
+
+- Catalogo de recambios 3D.
+
+- Detalle de recambio.
+
+- Publicacion de muebles.
+
+- Publicacion de recambios 3D para administrador.
+
+- Perfil de usuario.
+
+- Edicion de muebles.
+
+- Mensajeria.
+
+- Carrito.
+
+- Finalizacion de compra en modo prueba.
+
+- Panel de administracion.
+
+- Edicion de recambios.
+
+- Pantallas secundarias.
+
+- Rutas AJAX / POST.
+
+- APIs actuales.
+
+
+No incluye como flujo real:
+
+
+- Pago online real.
+
+- Pasarela bancaria.
+
+- Direccion de envio.
+
+- Chat en tiempo real.
+
+- Estadisticas avanzadas.
+
+- Publicacion de recambios por usuarios normales.
+
+- Edicion de imagenes ya subidas.
+
+
+====================================================================
+
+3. LEYENDA UTILIZADA
+
+
+====================================================================
+
+
+->              Navegacion directa entre pantallas.
+
+[accion]        Accion del usuario dentro de una pantalla.
+
+[POST]          Envio de formulario que modifica datos.
+[AJAX]          Accion asincrona sin recarga completa de pagina.
+
+[requiere sesion] El usuario debe estar autenticado.
+[solo admin]    Acceso exclusivo para usuario administrador.
+
+[secundaria]    Pantalla existente, pero no central en el flujo principal.
+
+[sin pantalla]  Ruta tecnica de procesamiento, no vista completa.
+
+[condicion]     Regla que cambia el flujo segun usuario, sesion o permisos.
+
+
+====================================================================
+
+4. ROLES CONTEMPLADOS
+
+
+====================================================================
+
+
+4.1. Visitante no autenticado
+
+
+Puede consultar la pantalla de inicio, acceder al login, registrarse y explorar contenido publico si llega a los catalogos o detalles. No puede publicar, contactar, guardar favoritos, escribir resenas ni mantener un carrito asociado a cuenta.
+
+4.2. Usuario registrado
+
+
+Puede navegar por la aplicacion completa orientada a usuario final. Tiene acceso a catalogos, detalles, favoritos, carrito, publicacion de muebles, resenas, mensajeria y gestion de perfil.
+
+4.3. Usuario administrador
+
+
+Hereda las funciones del usuario registrado y anade gestion global de contenido. Puede entrar al panel de administracion y publicar tanto muebles como recambios 3D.
+
+
+====================================================================
+
+5. NAVEGACION VISIBLE POR ROL
+
+
+====================================================================
+
+
+5.1. Menu de visitante
+
+
+Inicio
+Log-In
+
+Aunque el menu visible del visitante es reducido, el sistema permite que llegue a ciertas pantallas publicas mediante enlaces internos o URL directa. Cuando intenta usar acciones privadas, se le solicita iniciar sesion o se le redirige al login.
+
+5.2. Menu de usuario registrado
+
+
+Inicio
+Muebles
+Recambios 3D
+Publicar mueble
+Mi perfil
+Cerrar sesion
+Carrito
+
+5.3. Menu de administrador
+
+
+Inicio
+Muebles
+Recambios 3D
+Publicar
+Panel Admin
+Mi perfil
+Cerrar sesion
+Carrito
+
+
+====================================================================
+
+6. MAPA GENERAL DE PANTALLAS PRINCIPALES
+
+
+====================================================================
+
+
+Inicio (index.php)
+
+|
+
+|-- Login (login.php)
+
+|   |-- Registro (registro.php)
+
+|
+
+|-- Muebles (muebles.php)
+
+|   |-- Detalle de mueble (ver_mueble.php)
+
+|       |-- Enviar mensaje (enviar_mensaje.php) [requiere sesion]
+
+|       |-- Recambios compatibles [bloque dentro del detalle]
+
+|
+
+|-- Recambios 3D (recambios.php)
+
+|   |-- Detalle de recambio (ver_recambio.php)
+
+|
+
+|-- Publicar (publicar.php) [requiere sesion]
+
+|   |-- Formulario de mueble [usuario normal y admin]
+
+|   |-- Formulario de recambio 3D [solo admin]
+
+|
+
+|-- Mi perfil (mi_perfil.php) [requiere sesion]
+
+|   |-- Editar mueble (editar_mueble.php)
+
+|   |-- Ver mensaje (ver_mensaje.php)
+
+|
+
+|-- Carrito (ver_carrito.php) [requiere sesion para carrito real]
+
+|   |-- Finalizar compra (finalizar_compra.php)
+
+|
+
+|-- Panel Admin (admin.php) [solo admin]
+
+    |-- Editar mueble (editar_mueble.php)
+
+    |-- Editar recambio (editar_recambio.php)
+
+    |-- Ver detalle de mueble (ver_mueble.php)
+
+
+====================================================================
+
+7. FLUJO DE VISITANTE NO AUTENTICADO
+
+
+====================================================================
+
+
+7.1. Entrada y autenticacion
+
+
+Inicio
+-> Login
+
+   -> Registro
+
+      [crear cuenta]
+      -> Login
+
+   [iniciar sesion]
+   -> Inicio con menu de usuario registrado
+
+
+Login
+-> Registro
+
+
+Registro
+-> Login
+
+
+7.2. Exploracion de muebles como visitante
+
+
+Inicio
+-> Muebles
+
+   -> Aplicar filtros
+
+      -> Muebles con resultados filtrados
+
+   -> Limpiar filtros
+
+      -> Muebles sin filtros
+
+   -> Ver detalles y resenas
+
+      -> Detalle de mueble
+
+         -> Volver al inicio
+
+         -> Volver al listado de muebles
+
+         -> Compartir por email / WhatsApp / Instagram
+
+         -> Intentar contactar con vendedor
+
+            -> Login
+
+         -> Intentar escribir resena
+
+            -> Login
+
+         -> Intentar anadir al carrito
+
+            -> Login o aviso de sesion requerida
+
+
+Acciones privadas no disponibles para visitante:
+
+
+- Anadir a favoritos.
+
+- Quitar de favoritos.
+
+- Contactar con vendedor.
+
+- Escribir resenas.
+
+- Mantener carrito real de usuario.
+
+- Publicar mueble.
+
+- Acceder a Mi perfil.
+
+- Acceder al Panel Admin.
+
+
+7.3. Exploracion de recambios como visitante
+
+
+Inicio
+-> Recambios 3D
+
+   -> Ver detalles y resenas
+
+      -> Detalle de recambio
+
+         -> Volver al inicio
+
+         -> Volver al listado de recambios
+
+         -> Compartir por email / WhatsApp / Instagram
+
+         -> Intentar escribir resena
+
+            -> Login
+
+         -> Intentar anadir al carrito
+
+            -> Login o aviso de sesion requerida
+
+
+Acciones privadas no disponibles para visitante:
+
+
+- Anadir recambio a favoritos.
+
+- Quitar recambio de favoritos.
+
+- Anadir recambio a carrito real.
+
+- Escribir resenas.
+
+
+7.4. Publicar como visitante
+
+
+Inicio
+-> Publicar anuncio
+
+   -> Login
+
+
+La publicacion exige sesion. Si un visitante intenta acceder a publicar.php, el flujo correcto es redirigir al login.
+
+7.5. Carrito como visitante
+
+
+Inicio o accion de carrito
+-> Carrito
+
+   -> Mensaje informativo: debe iniciar sesion para ver o gestionar su carrito.
+
+
+====================================================================
+
+8. FLUJO DE USUARIO REGISTRADO
+
+
+====================================================================
+
+
+8.1. Flujo principal
+
+
+Inicio
+-> Muebles
+
+-> Recambios 3D
+
+-> Publicar mueble
+
+-> Mi perfil
+
+-> Carrito
+
+-> Cerrar sesion
+
+
+Cerrar sesion
+-> Inicio con estado no autenticado
+
+
+8.2. Catalogo de muebles
+
+
+Muebles
+Archivo: muebles.php
+
+Muebles
+-> Aplicar filtros [accion]
+
+   -> Muebles con resultados filtrados
+
+-> Limpiar filtros [accion]
+
+   -> Muebles sin filtros
+
+-> Ver detalles y resenas
+
+   -> Detalle de mueble
+
+-> Anadir a favoritos [AJAX]
+
+   -> Muebles, actualizando estado del boton
+
+-> Quitar de favoritos [AJAX]
+
+   -> Muebles, actualizando estado del boton
+
+-> Anadir al carrito [AJAX]
+
+   -> Muebles, actualizando contador del carrito y mostrando aviso
+
+
+Filtros disponibles:
+
+
+- Palabra clave.
+
+- Categoria.
+
+- Ubicacion.
+
+- Precio minimo.
+
+- Precio maximo.
+
+
+8.3. Detalle de mueble
+
+
+Detalle de mueble
+Archivo: ver_mueble.php
+
+Detalle de mueble
+-> Volver al inicio
+
+-> Volver al listado de muebles
+
+-> Compartir por email
+
+-> Compartir por WhatsApp
+
+-> Compartir en Instagram
+
+-> Anadir mueble al carrito [POST/AJAX]
+
+-> Contactar con vendedor
+
+   -> Enviar mensaje
+
+-> Enviar resena [POST]
+
+   -> Detalle de mueble con nueva resena
+
+-> Ver recambios compatibles
+
+   -> Anadir recambio compatible al carrito [POST/AJAX]
+
+
+Condicion importante:
+
+
+- Si el usuario autenticado es el vendedor del mueble, no debe mostrarse la accion de contactar consigo mismo.
+
+
+8.4. Enviar mensaje al vendedor
+
+
+Enviar mensaje
+Archivo: enviar_mensaje.php
+
+Detalle de mueble
+-> Contactar con el vendedor
+
+   -> Enviar mensaje
+
+      -> Volver al mueble
+
+      -> Enviar mensaje [POST]
+
+         -> Mensaje de exito o error
+
+
+Datos principales:
+
+
+- Mueble relacionado.
+
+- Vendedor.
+
+- Asunto.
+
+- Cuerpo del mensaje.
+
+
+8.5. Catalogo de recambios 3D
+
+
+Recambios 3D
+Archivo: recambios.php
+
+Recambios 3D
+-> Ver detalles y resenas
+
+   -> Detalle de recambio
+
+-> Anadir a favoritos [AJAX]
+
+   -> Recambios 3D, actualizando estado del boton
+
+-> Quitar de favoritos [AJAX]
+
+   -> Recambios 3D, actualizando estado del boton
+
+-> Anadir al carrito [AJAX]
+
+   -> Recambios 3D, actualizando contador del carrito y mostrando aviso
+
+
+8.6. Detalle de recambio
+
+
+Detalle de recambio
+Archivo: ver_recambio.php
+
+Detalle de recambio
+-> Volver al inicio
+
+-> Volver al listado de recambios
+
+-> Compartir por email
+
+-> Compartir por WhatsApp
+
+-> Compartir en Instagram
+
+-> Anadir recambio al carrito [POST/AJAX]
+
+-> Enviar resena [POST/AJAX]
+
+   -> Detalle de recambio, insertando la nueva resena en pantalla
+
+
+8.7. Publicar mueble
+
+
+Publicar mueble
+Archivo: publicar.php
+
+Inicio o menu
+-> Publicar mueble
+
+   -> Completar formulario
+
+   -> Publicar mueble [POST]
+
+      -> Mensaje de exito
+
+      -> o mensajes de error de validacion
+
+
+Campos principales:
+
+
+- Imagenes del mueble.
+
+- Titulo.
+
+- Precio.
+
+- Categoria.
+
+- Provincia.
+
+- Localidad.
+
+- Estado.
+
+- Descripcion.
+
+
+Resultado:
+
+
+- Si el mueble se publica correctamente, aparece en el catalogo de muebles y en Mi perfil dentro de Mis muebles publicados.
+
+
+8.8. Mi perfil
+
+
+Mi perfil
+Archivo: mi_perfil.php
+
+Mi perfil
+-> Datos de la cuenta
+
+-> Mis muebles publicados
+
+   -> Ver mueble
+
+      -> Detalle de mueble
+
+   -> Editar
+
+      -> Editar mueble
+
+   -> Eliminar [POST]
+
+      -> Mi perfil actualizado
+
+-> Mis muebles favoritos
+
+   -> Ver mueble
+
+      -> Detalle de mueble
+
+   -> Quitar de favoritos [POST/AJAX]
+
+      -> Mi perfil actualizado
+
+-> Mis resenas
+
+   -> Eliminar resena [POST]
+
+      -> Mi perfil actualizado
+
+-> Mis mensajes
+
+   -> Ver mensaje
+
+      -> Detalle de mensaje
+
+         -> Responder [POST]
+
+
+8.9. Editar mueble
+
+
+Editar mueble
+Archivo: editar_mueble.php
+
+Mi perfil
+-> Editar mueble
+
+   -> Guardar cambios [POST]
+
+      -> Mi perfil con aviso de edicion correcta
+
+   -> Cancelar
+
+      -> Mi perfil
+
+
+Restriccion:
+
+
+- El usuario registrado solo puede editar sus propios muebles.
+
+
+8.10. Ver mensaje y responder
+
+
+Ver mensaje
+Archivo: ver_mensaje.php
+
+Mi perfil
+-> Ver mensaje
+
+   -> Volver a mi perfil
+
+   -> Ver mueble relacionado, si existe
+
+      -> Detalle de mueble
+
+   -> Enviar respuesta [POST]
+
+      -> Ver mensaje con aviso de respuesta enviada
+
+
+Restriccion:
+
+
+- Solo puede acceder al mensaje el remitente o el destinatario.
+
+
+8.11. Carrito
+
+
+Carrito
+Archivo: ver_carrito.php
+
+Menu o acciones de producto
+-> Carrito
+
+   -> Volver al inicio
+
+   -> Seguir viendo productos
+
+      -> Muebles
+
+   -> Aumentar cantidad [AJAX]
+
+      -> Carrito actualizado
+
+   -> Reducir cantidad [AJAX]
+
+      -> Carrito actualizado o producto eliminado
+
+   -> Eliminar producto [AJAX]
+
+      -> Carrito actualizado
+
+   -> Finalizar compra
+
+      -> Finalizar compra
+
+
+8.12. Finalizar compra
+
+
+Finalizar compra
+Archivo: finalizar_compra.php
+
+Carrito
+-> Finalizar compra
+
+   -> Revisar resumen
+
+   -> Volver al carrito
+
+   -> Confirmar finalizacion [POST]
+
+      -> Pedido confirmado
+
+      -> Volver al inicio
+
+      -> Seguir viendo productos
+
+
+Condicion importante:
+
+
+- La compra se cierra en modo prueba.
+
+- No existe pasarela de pago real.
+
+- No se solicitan datos bancarios ni direccion de envio.
+
+
+====================================================================
+
+9. FLUJO DE ADMINISTRADOR
+
+
+====================================================================
+
+
+9.1. Flujo general
+
+
+Inicio
+-> Muebles
+
+-> Recambios 3D
+
+-> Publicar
+
+-> Panel Admin
+
+-> Mi perfil
+
+-> Carrito
+
+-> Cerrar sesion
+
+
+9.2. Publicar como administrador
+
+
+Publicar
+Archivo: publicar.php
+
+Publicar
+-> Seleccionar tipo de publicacion
+
+   -> Mueble
+
+      -> Publicar mueble [POST]
+
+   -> Recambio 3D
+
+      -> Publicar recambio [POST]
+
+
+Mueble:
+
+
+- Usa el mismo formulario base que el usuario normal.
+
+
+Recambio 3D:
+
+
+- Imagenes.
+
+- Nombre.
+
+- Tipo.
+
+- Compatible con.
+
+- Precio.
+
+- Descripcion.
+
+
+Resultado:
+
+
+- Los muebles publicados aparecen en el catalogo de muebles.
+
+- Los recambios publicados aparecen en el catalogo de recambios 3D.
+
+
+9.3. Panel Admin
+
+
+Panel Admin
+Archivo: admin.php
+
+Panel Admin
+-> Usuarios
+
+-> Muebles
+
+-> Recambios 3D
+
+-> Resenas
+
+
+9.4. Administracion de usuarios
+
+
+Panel Admin
+-> Usuarios
+
+   -> Eliminar usuario [POST]
+
+      -> Tabla de usuarios actualizada
+
+
+Restriccion:
+
+
+- El usuario con ID 1 no debe eliminarse desde la tabla.
+
+
+9.5. Administracion de muebles
+
+
+Panel Admin
+-> Muebles
+
+   -> Ver
+
+      -> Detalle de mueble
+
+   -> Editar
+
+      -> Editar mueble
+
+   -> Eliminar [POST]
+
+      -> Tabla de muebles actualizada
+
+
+Editar mueble como administrador:
+
+
+Editar mueble
+-> Guardar cambios [POST]
+
+   -> Panel Admin, seccion muebles, con aviso de edicion correcta
+
+-> Cancelar
+
+   -> Panel Admin, seccion muebles
+
+
+9.6. Administracion de recambios 3D
+
+
+Panel Admin
+-> Recambios 3D
+
+   -> Editar
+
+      -> Editar recambio
+
+   -> Eliminar [POST]
+
+      -> Tabla de recambios actualizada
+
+
+Editar recambio:
+
+
+Editar recambio
+-> Guardar cambios [POST]
+
+   -> Panel Admin, seccion recambios, con aviso de edicion correcta
+
+-> Cancelar
+
+   -> Panel Admin, seccion recambios
+
+
+9.7. Administracion de resenas
+
+
+Panel Admin
+-> Resenas
+
+   -> Ver mueble asociado
+
+      -> Detalle de mueble
+
+   -> Eliminar resena [POST]
+
+      -> Tabla de resenas actualizada
+
+
+====================================================================
+
+10. PANTALLAS SECUNDARIAS
+
+
+====================================================================
+
+
+10.1. Busqueda secundaria
+
+
+Buscar
+Archivo: buscar.php
+[secundaria]
+
+Buscar
+-> Volver al inicio
+
+-> Ver todos los muebles
+
+-> Ver detalle de mueble
+
+
+Observacion:
+
+
+La busqueda principal del proyecto se encuentra actualmente dentro de muebles.php mediante filtros. buscar.php existe, pero no es el flujo principal visible desde la cabecera.
+
+10.2. Mensajes secundaria
+
+
+Mensajes
+Archivo: mensajes.php
+[secundaria]
+
+Mensajes
+-> Lista recibidos
+
+-> Lista enviados
+
+
+Observacion:
+
+
+La gestion mas completa de mensajes se concentra en mi_perfil.php y ver_mensaje.php. mensajes.php puede considerarse una pantalla adicional o heredada.
+
+
+====================================================================
+
+11. RUTAS FUNCIONALES SIN PANTALLA PROPIA
+
+
+====================================================================
+
+
+Estas rutas forman parte de la navegacion funcional del sistema, pero no deben representarse como pantallas completas en el prototipo. Se usan para procesar acciones.
+
+Carrito:
+
+
+- add_carrito.php [sin pantalla]
+
+- carrito_cantidad.php [sin pantalla]
+
+- carrito_eliminar.php [sin pantalla]
+
+- carrito_contador.php [sin pantalla]
+
+
+Favoritos:
+
+
+- toggle_favorito.php [sin pantalla]
+
+- toggle_favorito_recambio.php [sin pantalla]
+
+
+Eliminaciones de usuario:
+
+
+- admin_borrar_usuario.php [sin pantalla]
+
+
+Eliminaciones de muebles:
+
+
+- eliminar_mueble.php [sin pantalla]
+
+- borrar_mueble.php [sin pantalla]
+
+- admin_borrar_mueble.php [sin pantalla]
+
+
+Eliminaciones de recambios:
+
+
+- admin_borrar_recambio.php [sin pantalla]
+
+
+Eliminaciones de resenas:
+
+
+- eliminar_resena.php [sin pantalla]
+
+- borrar_mi_resena.php [sin pantalla]
+
+- admin_borrar_resena.php [sin pantalla]
+
+
+Resenas:
+
+
+- add_resena_recambio.php [sin pantalla]
+
+
+Sesion:
+
+
+- logout.php [sin pantalla]
+
+
+====================================================================
+
+12. ENDPOINTS API ACTUALES
+
+
+====================================================================
+
+
+La aplicacion incluye endpoints API que sirven como apoyo tecnico. No sustituyen las pantallas web actuales y no deben dibujarse como pantallas principales del prototipo.
+
+APIs existentes:
+
+
+- api/login.php
+
+- api/registro.php
+
+- api/get_muebles.php
+
+- api/get_mueble.php
+
+- api/get_recambios.php
+
+- api/get_resenas.php
+
+
+Uso dentro del mapa:
+
+
+- Procesar autenticacion o registro desde clientes externos o futuras integraciones.
+
+- Devolver datos en formato JSON.
+
+- Apoyar posibles evoluciones del proyecto.
+
+- No reemplazar el flujo web tradicional basado en paginas PHP.
+
+
+====================================================================
+
+13. RESTRICCIONES Y CONDICIONES DE NAVEGACION
+
+
+====================================================================
+
+
+13.1. Condiciones por sesion
+
+
+- Las acciones privadas requieren usuario autenticado.
+
+- El visitante puede explorar, pero no gestionar datos personales ni realizar operaciones de usuario.
+
+- El carrito real esta asociado a sesion de usuario.
+
+- El perfil solo existe para usuarios autenticados.
+
+
+13.2. Condiciones por rol
+
+
+- El usuario normal puede publicar muebles, pero no recambios 3D.
+
+- El administrador puede publicar muebles y recambios 3D.
+
+- El administrador tiene acceso a Panel Admin.
+
+- El usuario normal no puede acceder a admin.php.
+
+
+13.3. Condiciones sobre acciones
+
+
+- Las acciones AJAX o POST modifican datos sin representar pantallas completas.
+
+- Al actualizar favoritos o carrito, la interfaz debe reflejar el cambio con aviso o actualizacion de contador.
+
+- Las eliminaciones actualizan la pantalla de origen.
+
+- La compra termina en modo prueba.
+
+
+====================================================================
+
+14. RESUMEN VISUAL GLOBAL
+
+
+====================================================================
+
+
+14.1. Visitante
+
+
+Inicio
+
+|
+
+|-- Login
+
+|   |-- Registro
+
+|
+
+|-- Muebles
+
+|   |-- Detalle de mueble
+
+|       |-- Login para acciones privadas
+
+|
+
+|-- Recambios 3D
+
+|   |-- Detalle de recambio
+
+|       |-- Login para acciones privadas
+
+|
+
+|-- Publicar anuncio
+
+    |-- Login
+
+
+14.2. Usuario registrado
+
+
+Inicio
+
+|
+
+|-- Muebles
+
+|   |-- Filtros
+
+|   |-- Favoritos [AJAX]
+
+|   |-- Carrito [AJAX]
+
+|   |-- Detalle de mueble
+
+|       |-- Contactar vendedor
+
+|       |   |-- Enviar mensaje
+
+|       |-- Escribir resena
+
+|       |-- Anadir al carrito
+
+|       |-- Recambios compatibles
+
+|
+
+|-- Recambios 3D
+
+|   |-- Favoritos [AJAX]
+
+|   |-- Carrito [AJAX]
+
+|   |-- Detalle de recambio
+
+|       |-- Escribir resena [AJAX]
+
+|       |-- Anadir al carrito
+
+|
+
+|-- Publicar mueble
+
+|
+
+|-- Mi perfil
+
+|   |-- Datos de cuenta
+
+|   |-- Mis muebles publicados
+
+|   |   |-- Ver / Editar / Eliminar
+
+|   |-- Mis favoritos
+
+|   |   |-- Ver / Quitar
+
+|   |-- Mis resenas
+
+|   |   |-- Eliminar
+
+|   |-- Mis mensajes
+
+|       |-- Ver / Responder
+
+|
+
+|-- Carrito
+
+    |-- Aumentar / Reducir / Eliminar
+
+    |-- Finalizar compra
+
+        |-- Confirmar compra de prueba
+
+
+14.3. Administrador
+
+
+Inicio
+
+|
+
+|-- Publicar
+
+|   |-- Publicar mueble
+
+|   |-- Publicar recambio 3D
+
+|
+
+|-- Panel Admin
+
+|   |-- Usuarios
+
+|   |   |-- Eliminar
+
+|   |-- Muebles
+
+|   |   |-- Ver / Editar / Eliminar
+
+|   |-- Recambios 3D
+
+|   |   |-- Editar / Eliminar
+
+|   |-- Resenas
+
+|       |-- Ver mueble / Eliminar
+
+|
+
+|-- Resto de funciones de usuario registrado
+
+
+====================================================================
+
+15. CRITERIO DE FIDELIDAD PARA LA MEMORIA DEL TFG
+
+
+====================================================================
+
+
+Este mapa debe entenderse como una representacion funcional del TFG actual. Para mantener la fidelidad con el proyecto, la documentacion debe respetar estos puntos:
+
+- La cabecera cambia segun sesion y rol.
+
+- El visitante tiene menu reducido.
+
+- El usuario registrado accede a catalogos, carrito, favoritos, mensajes, resenas, publicacion de muebles y perfil.
+
+- El administrador hereda funciones de usuario y anade Panel Admin y publicacion de recambios.
+
+- Mi perfil concentra la gestion personal.
+
+- Panel Admin concentra la gestion global.
+
+- El carrito existe y finaliza compras en modo prueba.
+
+- El sistema de pago real no forma parte del flujo actual.
+
+- Las rutas AJAX y POST son acciones funcionales, no pantallas independientes.
+
+- Las pantallas secundarias existen, pero no son el centro del recorrido principal.
+
+
+FIN DEL DOCUMENTO

@@ -1,0 +1,1810 @@
+====================================================================
+
+INDICE
+
+
+====================================================================
+
+
+1. Objetivo del documento
+
+2. Identidad general del producto
+
+3. Usuarios contemplados
+
+4. Estilo visual actual
+
+5. Estructura comun de pantalla
+
+6. Leyenda de wireframes
+
+7. Navegacion visible segun estado
+
+8. Prototipado de pantallas principales
+
+   8.1. Inicio
+
+   8.2. Login
+
+   8.3. Registro
+
+   8.4. Catalogo de muebles
+
+   8.5. Busqueda secundaria
+
+   8.6. Detalle de mueble
+
+   8.7. Catalogo de recambios 3D
+
+   8.8. Detalle de recambio
+
+   8.9. Publicar mueble / publicar recambio
+
+   8.10. Mi perfil
+
+   8.11. Editar mueble
+
+   8.12. Enviar mensaje
+
+   8.13. Ver mensaje y responder
+
+   8.14. Carrito
+
+   8.15. Finalizar compra
+
+   8.16. Panel de administracion
+
+   8.17. Editar recambio 3D
+
+9. Componentes reutilizables
+
+10. Estados que debe contemplar el prototipo
+
+11. Adaptacion responsive
+
+12. Alcance actual y limites del prototipo
+
+13. Criterio de fidelidad
+
+
+====================================================================
+
+1. OBJETIVO DEL DOCUMENTO
+
+
+====================================================================
+
+
+Este documento describe el prototipado funcional y visual del TFG GR-Inn / ECO & WOODS en su estado actual. Su finalidad es dejar constancia de como debe representarse la aplicacion en una maqueta, wireframe, documento de memoria o exposicion del proyecto.
+
+A diferencia de una explicacion puramente textual, este documento incluye dibujos en texto plano mediante lineas, cajas, separadores y botones simulados. Estos wireframes no son imagenes externas, sino esquemas ASCII integrados dentro del propio documento para representar la forma aproximada de cada pantalla.
+
+El documento no plantea una version futura ni idealizada. Representa la aplicacion existente: una plataforma web de compraventa de muebles de segunda mano y recambios 3D, desarrollada con PHP, MySQL, sesiones de usuario, carrito, favoritos, resenas, mensajeria y panel de administracion.
+
+
+====================================================================
+
+2. IDENTIDAD GENERAL DEL PRODUCTO
+
+
+====================================================================
+
+
+Nombre visible del proyecto:
+
+
+- GR-Inn en la pagina de inicio y varias pantallas.
+
+- ECO & WOODS en titulos internos y textos historicos del proyecto.
+
+
+Enfoque del producto:
+
+
+- Mercado circular para muebles.
+
+- Compra y venta de muebles usados.
+
+- Reutilizacion y consumo responsable.
+
+- Reparacion mediante recambios 3D.
+
+- Contacto directo entre usuarios.
+
+- Gestion personal de anuncios, favoritos, carrito, mensajes y resenas.
+
+
+Idea que debe transmitir el prototipo:
+
+
+La aplicacion debe verse como una plataforma sencilla, clara y funcional, centrada en alargar la vida util de los muebles mediante segunda mano y piezas de reparacion.
+
+
+====================================================================
+
+3. USUARIOS CONTEMPLADOS
+
+
+====================================================================
+
+
+3.1. Visitante no autenticado
+
+
+Puede ver el inicio, acceder al login, registrarse y explorar contenido publico. Las acciones privadas le llevan al inicio de sesion.
+
+3.2. Usuario registrado
+
+
+Puede explorar catalogos, guardar favoritos, anadir productos al carrito, publicar muebles, escribir resenas, contactar con vendedores y gestionar su perfil.
+
+3.3. Administrador
+
+
+Puede realizar las acciones de usuario registrado y, ademas, gestionar usuarios, muebles, recambios 3D y resenas desde el panel de administracion. Tambien puede publicar recambios 3D.
+
+
+====================================================================
+
+4. ESTILO VISUAL ACTUAL
+
+
+====================================================================
+
+
+El prototipo debe respetar la identidad visual actual del proyecto.
+
+Paleta principal:
+
+
+- Fondo general claro, tipo beige o crema suave.
+
+- Verde como color principal de marca.
+
+- Tonos madera o marron como apoyo visual.
+
+- Paneles oscuros en verde profundo para bloques destacados.
+
+- Blanco para formularios, tarjetas y tablas.
+
+
+Elementos visuales recurrentes:
+
+
+- Cabecera superior con logo.
+
+- Navegacion horizontal con enlaces redondeados.
+
+- Tarjetas para productos, favoritos, resenas y mensajes.
+
+- Botones redondeados.
+
+- Formularios con campos amplios y bordes suaves.
+
+- Etiquetas o badges para categoria, ubicacion, tipo o compatibilidad.
+
+- Tablas para carrito, resumen de compra y administracion.
+
+- Mensajes de exito y error.
+
+- Boton flotante para volver arriba.
+
+- Toasts o avisos breves para carrito, favoritos y resenas.
+
+
+Tipografia:
+
+
+- Titulares con aspecto elegante.
+
+- Texto general legible.
+
+- Jerarquia clara entre titulo, subtitulo, informacion y acciones.
+
+
+====================================================================
+
+5. ESTRUCTURA COMUN DE PANTALLA
+
+
+====================================================================
+
+
+Todas las pantallas principales comparten una estructura base:
+
++------------------------------------------------------------------+
+| LOGO / MARCA                        MENU DE NAVEGACION           |
++------------------------------------------------------------------+
+|                                                                  |
+| BLOQUE PRINCIPAL DE CONTENIDO                                    |
+| - Titulo o hero                                                  |
+| - Texto de apoyo                                                 |
+| - Formularios, tarjetas, tablas o acciones                       |
+|                                                                  |
++------------------------------------------------------------------+
+| PIE: GR-Inn - Proyecto Trabajo Fin de Grado / Contacto           |
++------------------------------------------------------------------+
+|                                                            [ ↑ ] |
++------------------------------------------------------------------+
+
+
+La cabecera cambia segun el estado de sesion y el rol del usuario. El contenido central cambia segun la pantalla.
+
+
+====================================================================
+
+6. LEYENDA DE WIREFRAMES
+
+
+====================================================================
+
+
++-----+        Caja, panel, contenedor o tarjeta.
+|     |        Contenido dentro de un bloque.
+
+[     ]        Boton, enlace o campo de formulario.
+(  )          Icono, contador o elemento pequeno.
+.....         Texto descriptivo o contenido variable.
+====          Separador de seccion importante.
+----          Separador secundario.
+< >           Selector o desplegable.
+{ }           Grupo de tarjetas o resultados.
+
+Los wireframes muestran distribucion, no diseno final exacto. Sirven para explicar la estructura de la interfaz en memoria o defensa.
+
+
+====================================================================
+
+7. NAVEGACION VISIBLE SEGUN ESTADO
+
+
+====================================================================
+
+
+7.1. Visitante no autenticado
+
++------------------------------------------------------------------+
+| LOGO GR-Inn                                    [Inicio] [Log-In] |
++------------------------------------------------------------------+
+
+
+7.2. Usuario registrado
+
++------------------------------------------------------------------+
+| LOGO GR-Inn  [Inicio] [Muebles] [Recambios 3D] [Publicar mueble] |
+|              [Mi perfil] [Cerrar sesion] [Carrito (n)]           |
++------------------------------------------------------------------+
+
+
+7.3. Administrador
+
++------------------------------------------------------------------+
+| LOGO GR-Inn  [Inicio] [Muebles] [Recambios 3D] [Publicar]        |
+|              [Panel Admin] [Mi perfil] [Cerrar sesion] [Carrito] |
++------------------------------------------------------------------+
+
+
+====================================================================
+
+8. PROTOTIPADO DE PANTALLAS PRINCIPALES
+
+
+====================================================================
+
+--------------------------------------------------------------------
+
+8.1. PANTALLA DE INICIO
+
+--------------------------------------------------------------------
+
+
+Archivo principal: index.php
+
+Funcion:
+
+Presentar el proyecto y ofrecer acceso rapido a las areas principales.
+
+Elementos:
+
+
+- Cabecera con logo y navegacion.
+
+- Hero principal con mensaje de mercado circular.
+
+- Texto explicativo sobre compra, venta y reparacion responsable.
+
+- Botones de accion:
+
+  - Explorar muebles.
+
+  - Explorar recambios.
+
+  - Publicar anuncio.
+
+- Chips informativos.
+
+- Tres bloques informativos.
+
+- Pie de pagina.
+
+
+Wireframe escritorio:
+
++------------------------------------------------------------------+
+| LOGO GR-Inn                                    [Inicio] [Log-In] |
++------------------------------------------------------------------+
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | Compra, venta y reparacion responsable                    |  |
+|  |                                                            |  |
+|  | MERCADO CIRCULAR PARA MUEBLES Y RECAMBIOS 3D              |  |
+|  |                                                            |  |
+|  | GR-Inn conecta personas que quieren vender, comprar y      |  |
+|  | alargar la vida de sus muebles.                            |  |
+|  |                                                            |  |
+|  | [Explorar muebles] [Explorar recambios] [Publicar anuncio] |  |
+|  |                                                            |  |
+|  | (Segunda mano) (Reparacion 3D) (Contacto directo)          |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
+|  +------------------+ +------------------+ +------------------+  |
+|  | Compraventa      | | Recambios 3D     | | Experiencia      |  |
+|  | de muebles       | |                  | | transparente     |  |
+|  | Texto breve...   | | Texto breve...   | | Texto breve...   |  |
+|  +------------------+ +------------------+ +------------------+  |
+|                                                                  |
++------------------------------------------------------------------+
+| GR-Inn - Proyecto Trabajo Fin de Grado              Gmail Instagram|
++------------------------------------------------------------------+
+|                                                            [ ↑ ] |
++------------------------------------------------------------------+
+
+
+Fidelidad esperada:
+
+La pantalla debe funcionar como entrada clara al producto, no como una landing comercial excesivamente decorativa. El usuario debe entender que puede comprar, vender, reparar y gestionar su actividad.
+
+--------------------------------------------------------------------
+
+8.2. LOGIN
+
+--------------------------------------------------------------------
+
+
+Archivo principal: login.php
+
+Funcion:
+
+Permitir el acceso a usuarios registrados.
+
+Elementos:
+
+
+- Cabecera.
+
+- Titulo: Iniciar sesion.
+
+- Campo email.
+
+- Campo contrasena.
+
+- Boton Entrar.
+
+- Enlace al registro.
+
+- Mensajes de error.
+
+
+Wireframe:
+
++------------------------------------------------------------------+
+| LOGO GR-Inn                                    [Inicio] [Log-In] |
++------------------------------------------------------------------+
+|                                                                  |
+|                  +--------------------------------+              |
+|                  |        INICIAR SESION          |              |
+|                  |--------------------------------|              |
+|                  | Email                          |              |
+|                  | [__________________________]   |              |
+|                  |                                |              |
+|                  | Contrasena                     |              |
+|                  | [__________________________]   |              |
+|                  |                                |              |
+|                  | [ Entrar ]                     |              |
+|                  |                                |              |
+|                  | No tienes cuenta? [Registro]   |              |
+|                  |                                |              |
+|                  | ! Mensaje de error si procede  |              |
+|                  +--------------------------------+              |
+|                                                                  |
++------------------------------------------------------------------+
+| GR-Inn - Proyecto Trabajo Fin de Grado                           |
++------------------------------------------------------------------+
+
+
+Comportamiento:
+
+
+- Si el login es correcto, se inicia sesion y se redirige al inicio.
+
+- Si falla, se mantiene al usuario en la pantalla con mensaje de error.
+
+--------------------------------------------------------------------
+
+8.3. REGISTRO
+
+--------------------------------------------------------------------
+
+
+Archivo principal: registro.php
+
+Funcion:
+
+Crear una cuenta de usuario normal.
+
+Elementos:
+
+
+- Titulo: Registro de usuario.
+
+- Nombre.
+
+- Email.
+
+- Contrasena.
+
+- Repetir contrasena.
+
+- Telefono.
+
+- Provincia.
+
+- Localidad.
+
+- Boton Registrarme.
+
+- Enlace para volver al login.
+
+- Mensajes de error o exito.
+
+
+Wireframe:
+
++------------------------------------------------------------------+
+| LOGO GR-Inn                                    [Inicio] [Log-In] |
++------------------------------------------------------------------+
+|                                                                  |
+|              +----------------------------------------+          |
+|              |          REGISTRO DE USUARIO           |          |
+|              |----------------------------------------|          |
+|              | Nombre*                                |          |
+|              | [__________________________________]   |          |
+|              | Email*                                 |          |
+|              | [__________________________________]   |          |
+|              | Contrasena*                            |          |
+|              | [__________________________________]   |          |
+|              | Repetir contrasena*                    |          |
+|              | [__________________________________]   |          |
+|              | Telefono                               |          |
+|              | [__________________________________]   |          |
+|              | Provincia        Localidad             |          |
+|              | [_____________]  [_________________]   |          |
+|              |                                        |          |
+|              | [ Registrarme ]                        |          |
+|              |                                        |          |
+|              | Ya tienes cuenta? [Volver al login]    |          |
+|              +----------------------------------------+          |
+|                                                                  |
++------------------------------------------------------------------+
+
+
+Comportamiento:
+
+
+- Comprueba email valido.
+
+- Comprueba que las contrasenas coincidan.
+
+- Comprueba que no exista otro usuario con el mismo email.
+
+- Si el registro es correcto, muestra mensaje de exito y permite ir al login.
+
+--------------------------------------------------------------------
+
+8.4. CATALOGO DE MUEBLES
+
+--------------------------------------------------------------------
+
+
+Archivo principal: muebles.php
+
+Funcion:
+
+Mostrar muebles publicados y permitir busqueda mediante filtros.
+
+Elementos:
+
+
+- Cabecera.
+
+- Hero de catalogo: Muebles disponibles.
+
+- Formulario de filtros.
+
+- Listado de tarjetas.
+
+- Aviso de filtros activos.
+
+- Toast para carrito o favoritos.
+
+- Mensaje de catalogo vacio si no hay resultados.
+
+
+Wireframe escritorio:
+
++------------------------------------------------------------------+
+| LOGO  [Inicio] [Muebles] [Recambios 3D] [Publicar] [Perfil] [Car]|
++------------------------------------------------------------------+
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | Catalogo de segunda mano                                  |  |
+|  | MUEBLES DISPONIBLES                                       |  |
+|  | Filtra por categoria, precio o ubicacion.                  |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | BUSCAR Y FILTRAR MUEBLES                                  |  |
+|  | Palabra clave: [____________________] Categoria: <Todas>   |  |
+|  | Ubicacion:     [____________________] Precio: [__] a [__]  |  |
+|  | [Aplicar filtros] [Limpiar filtros]                       |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
+|  Mostrando resultados filtrados.                                |
+|                                                                  |
+|  +------------------+ +------------------+ +------------------+  |
+|  | [ Imagen ]       | | [ Imagen ]       | | [ Imagen ]       |  |
+|  | Titulo mueble    | | Titulo mueble    | | Titulo mueble    |  |
+|  | Precio           | | Precio           | | Precio           |  |
+|  | Descripcion...   | | Descripcion...   | | Descripcion...   |  |
+|  | (Categoria)      | | (Categoria)      | | (Categoria)      |  |
+|  | (Provincia-Loc.) | | (Provincia-Loc.) | | (Provincia-Loc.) |  |
+|  | [Ver detalles]   | | [Ver detalles]   | | [Ver detalles]   |  |
+|  | [☆ Favorito] [🛒] | | [☆ Favorito] [🛒] | | [☆ Favorito] [🛒] |  |
+|  +------------------+ +------------------+ +------------------+  |
+|                                                                  |
+|  [Toast: Producto anadido al carrito / favorito actualizado]     |
++------------------------------------------------------------------+
+
+
+Wireframe movil:
+
++----------------------------------+
+| LOGO                             |
+| [Inicio] [Muebles] [Recambios]   |
+| [Perfil] [Carrito]               |
++----------------------------------+
+| MUEBLES DISPONIBLES              |
+| [Palabra clave____________]      |
+| <Categoria>                      |
+| [Ubicacion________________]      |
+| [Precio min] [Precio max]        |
+| [Aplicar filtros]                |
+| [Limpiar filtros]                |
+|                                  |
+| +----------------------------+   |
+| | [Imagen]                   |   |
+| | Titulo / Precio            |   |
+| | Descripcion breve          |   |
+| | (Categoria) (Ubicacion)    |   |
+| | [Ver detalles]             |   |
+| | [Favorito] [Carrito]       |   |
+| +----------------------------+   |
++----------------------------------+
+
+
+Estados:
+
+
+- Con resultados.
+
+- Sin resultados.
+
+- Con filtros aplicados.
+
+- Toast visible tras accion AJAX.
+
+--------------------------------------------------------------------
+
+8.5. BUSQUEDA DE MUEBLES SECUNDARIA
+
+--------------------------------------------------------------------
+
+
+Archivo principal: buscar.php
+
+Funcion:
+
+Pantalla secundaria de busqueda por palabra clave y ubicacion.
+
+Observacion:
+
+La busqueda principal esta actualmente integrada en muebles.php. Esta pantalla se representa como pantalla secundaria o heredada.
+
+Wireframe:
+
++------------------------------------------------------------------+
+| LOGO                                           [Inicio] [Log-In] |
++------------------------------------------------------------------+
+|                                                                  |
+|  BUSQUEDA DE MUEBLES                                             |
+|  [Volver al inicio] [Ver todos los muebles]                      |
+|                                                                  |
+|  Criterios utilizados: palabra clave / ubicacion                 |
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | Resultado simple                                           |  |
+|  | Titulo - Precio - Ubicacion                                |  |
+|  | [Ver detalle del mueble]                                   |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
++------------------------------------------------------------------+
+
+--------------------------------------------------------------------
+
+8.6. DETALLE DE MUEBLE
+
+--------------------------------------------------------------------
+
+
+Archivo principal: ver_mueble.php
+
+Funcion:
+
+Mostrar informacion completa de un mueble y permitir acciones relacionadas.
+
+Elementos:
+
+
+- Enlaces de vuelta.
+
+- Imagen principal.
+
+- Galeria adicional.
+
+- Titulo.
+
+- Descripcion.
+
+- Precio.
+
+- Ubicacion.
+
+- Estado.
+
+- Categoria.
+
+- Vendedor.
+
+- Fecha de publicacion.
+
+- Compartir por email, WhatsApp e Instagram.
+
+- Boton de anadir al carrito.
+
+- Contactar con vendedor si procede.
+
+- Seccion de resenas.
+
+- Formulario de resena para usuarios logueados.
+
+- Bloque de recambios 3D compatibles.
+
+
+Wireframe escritorio:
+
++------------------------------------------------------------------+
+| LOGO  [Inicio] [Muebles] [Recambios 3D] [Publicar] [Perfil] [Car]|
++------------------------------------------------------------------+
+|                                                                  |
+| [Volver al inicio] [Volver al listado de muebles]                |
+|                                                                  |
+| +----------------------------+ +-------------------------------+ |
+| |                            | | TITULO DEL MUEBLE             | |
+| |        IMAGEN PRINCIPAL    | |-------------------------------| |
+| |                            | | Precio: XX,XX EUR             | |
+| |  [img2] [img3] [img4]      | | Categoria: ...                | |
+| |                            | | Estado: ...                   | |
+| +----------------------------+ | Ubicacion: Provincia - Local. | |
+|                                | Vendedor: ...                 | |
+|                                | Fecha: ...                    | |
+|                                |                               | |
+|                                | Descripcion larga...          | |
+|                                |                               | |
+|                                | [Email] [WhatsApp] [Instagram]| |
+|                                | [Anadir al carrito]           | |
+|                                | [Contactar con vendedor]      | |
+|                                +-------------------------------+ |
+|                                                                  |
+| +------------------------------------------------------------+   |
+| | RESENAS                                                    |   |
+| | ★★★★☆ Usuario - comentario...                              |   |
+| | [Puntuacion] [Comentario_______________________________]    |   |
+| | [Enviar resena]                                            |   |
+| +------------------------------------------------------------+   |
+|                                                                  |
+| +------------------------------------------------------------+   |
+| | RECAMBIOS 3D COMPATIBLES                                  |   |
+| | +--------------+ +--------------+ +--------------+          |   |
+| | | Pieza 3D     | | Pieza 3D     | | Pieza 3D     |          |   |
+| | | [Carrito]    | | [Carrito]    | | [Carrito]    |          |   |
+| | +--------------+ +--------------+ +--------------+          |   |
+| +------------------------------------------------------------+   |
+|                                                                  |
++------------------------------------------------------------------+
+
+
+Condiciones:
+
+
+- Si el visitante intenta anadir al carrito o contactar, se solicita login.
+
+- Si el usuario es el vendedor, no se muestra la accion de contactar consigo mismo.
+
+- Los recambios compatibles se muestran segun categoria o compatibilidad.
+
+--------------------------------------------------------------------
+
+8.7. CATALOGO DE RECAMBIOS 3D
+
+--------------------------------------------------------------------
+
+
+Archivo principal: recambios.php
+
+Funcion:
+
+Mostrar piezas de recambio 3D disponibles.
+
+Elementos:
+
+
+- Hero de catalogo.
+
+- Listado de tarjetas.
+
+- Imagen principal.
+
+- Nombre.
+
+- Precio.
+
+- Descripcion recortada.
+
+- Tipo.
+
+- Compatibilidad.
+
+- Boton Ver detalles y resenas.
+
+- Boton de favoritos si hay sesion.
+
+- Boton de carrito si hay sesion.
+
+- Toast de accion.
+
+
+Wireframe:
+
++------------------------------------------------------------------+
+| LOGO  [Inicio] [Muebles] [Recambios 3D] [Publicar] [Perfil] [Car]|
++------------------------------------------------------------------+
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | RECAMBIOS 3D                                              |  |
+|  | Piezas de reparacion para alargar la vida de los muebles.  |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
+|  +------------------+ +------------------+ +------------------+  |
+|  | [ Imagen ]       | | [ Imagen ]       | | [ Imagen ]       |  |
+|  | Nombre recambio  | | Nombre recambio  | | Nombre recambio  |  |
+|  | Precio           | | Precio           | | Precio           |  |
+|  | Descripcion...   | | Descripcion...   | | Descripcion...   |  |
+|  | (Tipo)           | | (Tipo)           | | (Tipo)           |  |
+|  | (Compatible con) | | (Compatible con) | | (Compatible con) |  |
+|  | [Ver detalles]   | | [Ver detalles]   | | [Ver detalles]   |  |
+|  | [☆ Favorito] [🛒] | | [☆ Favorito] [🛒] | | [☆ Favorito] [🛒] |  |
+|  +------------------+ +------------------+ +------------------+  |
+|                                                                  |
++------------------------------------------------------------------+
+
+
+Estado sin resultados:
+
++------------------------------------------------------------------+
+| No hay piezas de recambio disponibles actualmente.               |
++------------------------------------------------------------------+
+
+--------------------------------------------------------------------
+
+8.8. DETALLE DE RECAMBIO
+
+--------------------------------------------------------------------
+
+
+Archivo principal: ver_recambio.php
+
+Funcion:
+
+Mostrar informacion completa de una pieza de recambio 3D.
+
+Elementos:
+
+
+- Enlaces de vuelta.
+
+- Imagen principal.
+
+- Galeria adicional.
+
+- Nombre.
+
+- Descripcion.
+
+- Tipo.
+
+- Compatible con.
+
+- Precio.
+
+- Compartir por email, WhatsApp e Instagram.
+
+- Boton anadir al carrito.
+
+- Seccion de resenas.
+
+- Formulario de resena para usuarios logueados.
+
+
+Wireframe:
+
++------------------------------------------------------------------+
+| LOGO  [Inicio] [Muebles] [Recambios 3D] [Publicar] [Perfil] [Car]|
++------------------------------------------------------------------+
+|                                                                  |
+| [Volver al inicio] [Volver al listado de recambios]              |
+|                                                                  |
+| +----------------------------+ +-------------------------------+ |
+| |                            | | NOMBRE DEL RECAMBIO 3D        | |
+| |        IMAGEN PRINCIPAL    | |-------------------------------| |
+| |                            | | Precio: XX,XX EUR             | |
+| |  [img2] [img3] [img4]      | | Tipo: ...                     | |
+| |                            | | Compatible con: ...           | |
+| +----------------------------+ |                               | |
+|                                | Descripcion de la pieza...     | |
+|                                |                               | |
+|                                | [Email] [WhatsApp] [Instagram]| |
+|                                | [Anadir al carrito]           | |
+|                                +-------------------------------+ |
+|                                                                  |
+| +------------------------------------------------------------+   |
+| | RESENAS                                                    |   |
+| | ★★★★★ Usuario - comentario...                              |   |
+| | [Puntuacion] [Comentario_______________________________]    |   |
+| | [Enviar resena]                                            |   |
+| +------------------------------------------------------------+   |
+|                                                                  |
++------------------------------------------------------------------+
+
+
+Comportamiento:
+
+
+- Si el visitante intenta anadir al carrito, se redirige al login o se muestra aviso.
+
+- Las resenas de recambios se pueden insertar de forma asincrona.
+
+--------------------------------------------------------------------
+
+8.9. PUBLICAR MUEBLE / PUBLICAR RECAMBIO
+
+--------------------------------------------------------------------
+
+
+Archivo principal: publicar.php
+
+Funcion:
+
+Permitir crear anuncios de muebles y, en el caso del administrador, crear tambien recambios 3D.
+
+Acceso:
+
+Requiere iniciar sesion.
+
+Pantalla para usuario normal:
+
++------------------------------------------------------------------+
+| LOGO  [Inicio] [Muebles] [Recambios 3D] [Publicar mueble] [Perfil]|
++------------------------------------------------------------------+
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | Publicacion de contenido                                  |  |
+|  | PUBLICAR UN MUEBLE                                        |  |
+|  | Completa los datos del anuncio antes de publicarlo.        |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | FORMULARIO DE MUEBLE                                      |  |
+|  |                                                            |  |
+|  | Imagenes max. 5: [Seleccionar archivos____________]        |  |
+|  |                                                            |  |
+|  | Titulo*:       [______________________________]            |  |
+|  | Precio*:       [____________]                              |  |
+|  | Categoria*:    <Mesa / Armario / Silla / ...>              |  |
+|  |                                                            |  |
+|  | Provincia*:    [________________]                          |  |
+|  | Localidad*:    [________________]                          |  |
+|  | Estado*:       <Selecciona estado>                         |  |
+|  | Descripcion*:  [______________________________________]    |  |
+|  |               [______________________________________]     |  |
+|  |                                                            |  |
+|  | [Publicar mueble]                                         |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
++------------------------------------------------------------------+
+
+
+Pantalla para administrador:
+
++------------------------------------------------------------------+
+| LOGO  [Inicio] [Muebles] [Recambios 3D] [Publicar] [Panel Admin] |
++------------------------------------------------------------------+
+|                                                                  |
+|  PUBLICAR                                                       |
+|  Desde aqui puedes dar de alta muebles y recambios 3D.           |
+|                                                                  |
+|  Que quieres publicar? < Mueble / Recambio 3D >                  |
+|                                                                  |
+|  Si selecciona Mueble:                                           |
+|  +------------------------------------------------------------+  |
+|  | Formulario de mueble                                      |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
+|  Si selecciona Recambio 3D:                                     |
+|  +------------------------------------------------------------+  |
+|  | Imagenes max. 5: [Seleccionar archivos____________]        |  |
+|  | Nombre*:       [______________________________]            |  |
+|  | Tipo*:         <Tipo de pieza>                             |  |
+|  | Compatible con:<Categoria compatible>                      |  |
+|  | Precio*:       [____________]                              |  |
+|  | Descripcion*:  [______________________________________]    |  |
+|  | [Publicar recambio]                                       |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
++------------------------------------------------------------------+
+
+
+Validaciones que debe reflejar el prototipo:
+
+
+- Campos obligatorios.
+
+- Titulo o nombre comprensible.
+
+- Descripcion entre 40 y 1000 caracteres.
+
+- Precio positivo con maximo dos decimales.
+
+- Provincia y localidad con texto valido.
+
+- Imagenes jpg, jpeg, png o webp.
+
+- Maximo de 5 MB por imagen.
+
+- Maximo de 5 imagenes.
+
+--------------------------------------------------------------------
+
+8.10. MI PERFIL
+
+--------------------------------------------------------------------
+
+
+Archivo principal: mi_perfil.php
+
+Funcion:
+
+Centralizar la gestion personal del usuario.
+
+Acceso:
+
+Requiere iniciar sesion.
+
+Elementos:
+
+
+- Datos de cuenta.
+
+- Mis muebles publicados.
+
+- Mis muebles favoritos.
+
+- Mis resenas.
+
+- Mis mensajes recibidos y enviados.
+
+
+Wireframe:
+
++------------------------------------------------------------------+
+| LOGO  [Inicio] [Muebles] [Recambios 3D] [Publicar] [Perfil] [Car]|
++------------------------------------------------------------------+
+|                                                                  |
+|  MI PERFIL                                                       |
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | DATOS DE LA CUENTA                                        |  |
+|  | Nombre: ...      Email: ...                               |  |
+|  | Telefono: ...    Ubicacion: ...                           |  |
+|  | Fecha registro: ...                                       |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | MIS MUEBLES PUBLICADOS                                    |  |
+|  | +----------------+ +----------------+ +----------------+   |  |
+|  | | Mueble         | | Mueble         | | Mueble         |   |  |
+|  | | Precio         | | Precio         | | Precio         |   |  |
+|  | | [Ver] [Editar] | | [Ver] [Editar] | | [Ver] [Editar] |   |  |
+|  | | [Eliminar]     | | [Eliminar]     | | [Eliminar]     |   |  |
+|  | +----------------+ +----------------+ +----------------+   |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | MIS MUEBLES FAVORITOS                                     |  |
+|  | +----------------+ +----------------+                      |  |
+|  | | Favorito       | | Favorito       |                      |  |
+|  | | [Ver] [Quitar] | | [Ver] [Quitar] |                      |  |
+|  | +----------------+ +----------------+                      |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | MIS RESENAS                                                |  |
+|  | +------------------------------------------------------+   |  |
+|  | | Mueble - puntuacion - comentario - fecha [Eliminar]  |   |  |
+|  | +------------------------------------------------------+   |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
+|  +----------------------------+ +-----------------------------+  |
+|  | MENSAJES RECIBIDOS          | | MENSAJES ENVIADOS           |  |
+|  | Asunto / Usuario / Fecha    | | Asunto / Usuario / Fecha    |  |
+|  | [Ver mensaje]               | | [Ver mensaje]               |  |
+|  +----------------------------+ +-----------------------------+  |
+|                                                                  |
++------------------------------------------------------------------+
+
+
+Estados:
+
+
+- Usuario con publicaciones.
+
+- Usuario sin publicaciones.
+
+- Usuario con favoritos.
+
+- Usuario sin favoritos.
+
+- Usuario con mensajes.
+
+- Usuario sin mensajes.
+
+--------------------------------------------------------------------
+
+8.11. EDITAR MUEBLE
+
+--------------------------------------------------------------------
+
+
+Archivo principal: editar_mueble.php
+
+Funcion:
+
+Permitir modificar los datos textuales de un anuncio de mueble.
+
+Acceso:
+
+
+- Usuario normal: solo sus propios muebles.
+
+- Administrador: muebles desde Panel Admin.
+
+
+Wireframe:
+
++------------------------------------------------------------------+
+| LOGO  [Inicio] [Muebles] [Recambios 3D] [Perfil] [Carrito]       |
++------------------------------------------------------------------+
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | EDITAR MUEBLE                                             |  |
+|  |                                                            |  |
+|  | Titulo:       [______________________________]             |  |
+|  | Precio:       [____________]                               |  |
+|  | Categoria:    <Categoria>                                  |  |
+|  | Provincia:    [________________]                           |  |
+|  | Localidad:    [________________]                           |  |
+|  | Estado:       <Estado>                                     |  |
+|  | Descripcion:  [______________________________________]     |  |
+|  |               [______________________________________]     |  |
+|  |                                                            |  |
+|  | Nota: no se modifican las imagenes ya subidas.             |  |
+|  |                                                            |  |
+|  | [Guardar cambios] [Cancelar]                               |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
++------------------------------------------------------------------+
+
+--------------------------------------------------------------------
+
+8.12. ENVIAR MENSAJE
+
+--------------------------------------------------------------------
+
+
+Archivo principal: enviar_mensaje.php
+
+Funcion:
+
+Permitir que un usuario contacte con el vendedor de un mueble.
+
+Acceso:
+
+Requiere sesion y solo se permite si el usuario no es el vendedor del propio mueble.
+
+Wireframe:
+
++------------------------------------------------------------------+
+| LOGO  [Inicio] [Muebles] [Recambios 3D] [Perfil] [Carrito]       |
++------------------------------------------------------------------+
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | CONTACTAR CON EL VENDEDOR                                 |  |
+|  |                                                            |  |
+|  | Mueble relacionado: Titulo del mueble                      |  |
+|  | Vendedor: Nombre vendedor                                  |  |
+|  |                                                            |  |
+|  | Asunto:  [________________________________________]        |  |
+|  | Mensaje: [________________________________________]        |  |
+|  |          [________________________________________]        |  |
+|  |          [________________________________________]        |  |
+|  |                                                            |  |
+|  | [Enviar mensaje] [Volver al mueble]                        |  |
+|  |                                                            |  |
+|  | Mensaje de exito o error si procede.                       |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
++------------------------------------------------------------------+
+
+--------------------------------------------------------------------
+
+8.13. VER MENSAJE Y RESPONDER
+
+--------------------------------------------------------------------
+
+
+Archivo principal: ver_mensaje.php
+
+Funcion:
+
+Mostrar el detalle de un mensaje y permitir responder.
+
+Restriccion:
+
+Solo pueden verlo remitente o destinatario.
+
+Wireframe:
+
++------------------------------------------------------------------+
+| LOGO  [Inicio] [Muebles] [Recambios 3D] [Perfil] [Carrito]       |
++------------------------------------------------------------------+
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | DETALLE DEL MENSAJE                                       |  |
+|  |                                                            |  |
+|  | Asunto: ...                                                |  |
+|  | Remitente: ...                                             |  |
+|  | Destinatario: ...                                          |  |
+|  | Fecha: ...                                                 |  |
+|  | Mueble relacionado: [Ver mueble]                           |  |
+|  |                                                            |  |
+|  | +------------------------------------------------------+   |  |
+|  | | Cuerpo del mensaje...                                |   |  |
+|  | +------------------------------------------------------+   |  |
+|  |                                                            |  |
+|  | RESPONDER                                                 |  |
+|  | [_______________________________________________]          |  |
+|  | [_______________________________________________]          |  |
+|  | [Enviar respuesta] [Volver a mi perfil]                   |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
++------------------------------------------------------------------+
+
+--------------------------------------------------------------------
+
+8.14. CARRITO
+
+--------------------------------------------------------------------
+
+
+Archivo principal: ver_carrito.php
+
+Funcion:
+
+Permitir revisar productos anadidos antes de finalizar la compra.
+
+Acceso:
+
+Si el usuario no ha iniciado sesion, se muestra aviso de sesion requerida.
+
+Wireframe escritorio:
+
++------------------------------------------------------------------+
+| LOGO  [Inicio] [Muebles] [Recambios 3D] [Perfil] [Carrito (n)]   |
++------------------------------------------------------------------+
+|                                                                  |
+|  CARRITO DE PRODUCTOS                                           |
+|  [Volver al inicio] [Seguir viendo productos]                   |
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | Tipo      Producto        Precio   Cant.   Subtotal Accion |  |
+|  |------------------------------------------------------------|  |
+|  | Mueble    Mesa madera     50 EUR   [-] 1 [+] 50 EUR  [X]   |  |
+|  | Recambio  Pata 3D         10 EUR   [-] 2 [+] 20 EUR  [X]   |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
+|                                      TOTAL: 70 EUR               |
+|                                      [Finalizar compra]          |
+|                                                                  |
++------------------------------------------------------------------+
+
+
+Wireframe para visitante o usuario sin sesion:
+
++------------------------------------------------------------------+
+| CARRITO DE PRODUCTOS                                             |
+| Debes iniciar sesion para ver tu carrito.                        |
+| [Ir a Login]                                                     |
++------------------------------------------------------------------+
+
+
+Comportamiento:
+
+
+- Aumentar cantidad actualiza la tabla.
+
+- Reducir cantidad actualiza la tabla o elimina el producto.
+
+- Eliminar producto actualiza el carrito.
+
+- El contador de la cabecera se refresca.
+
+--------------------------------------------------------------------
+
+8.15. FINALIZAR COMPRA
+
+--------------------------------------------------------------------
+
+
+Archivo principal: finalizar_compra.php
+
+Funcion:
+
+Simular el cierre de una compra.
+
+Acceso:
+
+Requiere iniciar sesion.
+
+Wireframe:
+
++------------------------------------------------------------------+
+| LOGO  [Inicio] [Muebles] [Recambios 3D] [Perfil] [Carrito]       |
++------------------------------------------------------------------+
+|                                                                  |
+|  FINALIZAR COMPRA                                                |
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | RESUMEN DEL CARRITO                                       |  |
+|  | Tipo      Producto        Precio   Cantidad   Subtotal     |  |
+|  |------------------------------------------------------------|  |
+|  | Mueble    Mesa madera     50 EUR   1          50 EUR       |  |
+|  | Recambio  Pata 3D         10 EUR   2          20 EUR       |  |
+|  |------------------------------------------------------------|  |
+|  | TOTAL: 70 EUR                                              |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | CONFIRMACION                                               |  |
+|  | Esta compra se cerrara en modo prueba.                     |  |
+|  | No hay pasarela de pago real ni datos bancarios.           |  |
+|  |                                                            |  |
+|  | [Confirmar finalizacion] [Volver al carrito]               |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
+|  Estado final: Pedido confirmado.                               |
+|                                                                  |
++------------------------------------------------------------------+
+
+
+Importante:
+
+El prototipo debe dejar claro que la compra es simulada.
+
+--------------------------------------------------------------------
+
+8.16. PANEL DE ADMINISTRACION
+
+--------------------------------------------------------------------
+
+
+Archivo principal: admin.php
+
+Funcion:
+
+Gestionar entidades principales del sistema.
+
+Acceso:
+
+Solo administradores.
+
+Elementos:
+
+
+- Titulo Panel de administracion.
+
+- Identificacion del administrador.
+
+- Submenu con secciones.
+
+- Tablas de gestion.
+
+
+Wireframe general:
+
++------------------------------------------------------------------+
+| LOGO  [Inicio] [Muebles] [Recambios 3D] [Publicar] [Panel Admin] |
+|       [Mi perfil] [Cerrar sesion] [Carrito]                      |
++------------------------------------------------------------------+
+|                                                                  |
+|  PANEL DE ADMINISTRACION                                         |
+|  Administrador: Nombre admin                                     |
+|                                                                  |
+|  [Usuarios] [Muebles] [Recambios 3D] [Resenas]                  |
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | TABLA DE LA SECCION ACTIVA                                |  |
+|  |------------------------------------------------------------|  |
+|  | ID | Campo 1 | Campo 2 | Campo 3 | Acciones                |  |
+|  | 1  | ...     | ...     | ...     | [Ver] [Editar] [Eliminar]|  |
+|  | 2  | ...     | ...     | ...     | [Ver] [Editar] [Eliminar]|  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
+|  Mensaje de exito o error tras una accion.                       |
+|                                                                  |
++------------------------------------------------------------------+
+
+
+Seccion Usuarios:
+
++------------------------------------------------------------------+
+| ID | Nombre | Email | Telefono | Ubicacion | Fecha | Rol | Accion|
+|------------------------------------------------------------------|
+| 1  | Admin  | ...   | ...      | ...       | ...   | admin | --  |
+| 2  | User   | ...   | ...      | ...       | ...   | user  |[Del]|
++------------------------------------------------------------------+
+
+
+Seccion Muebles:
+
++------------------------------------------------------------------+
+| ID | Titulo | Vendedor | Precio | Categoria | Ubicacion | Acciones|
+|------------------------------------------------------------------|
+| 1  | Mesa   | Usuario  | 50 EUR | Mesa      | Bilbao    |[Ver][Ed][X]|
++------------------------------------------------------------------+
+
+
+Seccion Recambios 3D:
+
++------------------------------------------------------------------+
+| ID | Nombre | Tipo | Compatible con | Precio | Acciones          |
+|------------------------------------------------------------------|
+| 1  | Pieza  | Pata | Mesa           | 10 EUR | [Editar] [Eliminar]|
++------------------------------------------------------------------+
+
+
+Seccion Resenas:
+
++------------------------------------------------------------------+
+| ID | Mueble | Usuario | Puntuacion | Comentario | Fecha | Accion |
+|------------------------------------------------------------------|
+| 1  | Mesa   | User    | 5          | Texto...    | ...   | [X]    |
++------------------------------------------------------------------+
+
+--------------------------------------------------------------------
+
+8.17. EDITAR RECAMBIO 3D
+
+--------------------------------------------------------------------
+
+
+Archivo principal: editar_recambio.php
+
+Funcion:
+
+Modificar los datos textuales de un recambio 3D.
+
+Acceso:
+
+Solo administrador.
+
+Wireframe:
+
++------------------------------------------------------------------+
+| LOGO  [Inicio] [Muebles] [Recambios 3D] [Publicar] [Panel Admin] |
++------------------------------------------------------------------+
+|                                                                  |
+|  +------------------------------------------------------------+  |
+|  | EDITAR RECAMBIO 3D                                       |  |
+|  |                                                            |  |
+|  | Nombre:          [______________________________]          |  |
+|  | Tipo:            <Tipo>                                    |  |
+|  | Compatible con:  <Categoria compatible>                    |  |
+|  | Precio:          [____________]                            |  |
+|  | Descripcion:     [____________________________________]    |  |
+|  |                  [____________________________________]    |  |
+|  |                                                            |  |
+|  | Nota: no se modifican las imagenes ya subidas.             |  |
+|  |                                                            |  |
+|  | [Guardar cambios] [Cancelar]                               |  |
+|  +------------------------------------------------------------+  |
+|                                                                  |
++------------------------------------------------------------------+
+
+
+====================================================================
+
+9. COMPONENTES REUTILIZABLES
+
+
+====================================================================
+
+
+9.1. Cabecera
+
+
+- Logo.
+
+- Menu segun rol.
+
+- Carrito con contador para usuarios autenticados.
+
+
+9.2. Tarjetas
+
+
+Se usan para:
+
+
+- Muebles.
+
+- Recambios.
+
+- Muebles publicados.
+
+- Favoritos.
+
+- Resenas.
+
+- Mensajes.
+
+
+Estructura base de tarjeta:
+
++------------------------------+
+| [Imagen]                     |
+| Titulo / Nombre              |
+| Precio o dato principal      |
+| Descripcion breve            |
+| (Badge) (Badge)              |
+| [Accion principal]           |
+| [Accion secundaria]          |
++------------------------------+
+
+
+9.3. Formularios
+
+
+Se usan para:
+
+
+- Login.
+
+- Registro.
+
+- Filtros.
+
+- Publicacion.
+
+- Edicion.
+
+- Mensajes.
+
+- Resenas.
+
+
+Estructura base:
+
++--------------------------------------+
+| Titulo del formulario                |
+| Campo 1 [________________________]   |
+| Campo 2 [________________________]   |
+| Campo 3 <selector>                   |
+| [Boton principal] [Cancelar/volver]  |
+| Mensaje de error o exito             |
++--------------------------------------+
+
+
+9.4. Tablas
+
+
+Se usan para:
+
+
+- Carrito.
+
+- Resumen de compra.
+
+- Panel de administracion.
+
+
+En movil deben permitir desplazamiento horizontal.
+
+9.5. Toasts y mensajes de estado
+
+
+- Toast para carrito.
+
+- Toast para favoritos.
+
+- Mensajes de exito.
+
+- Mensajes de error.
+
+- Mensajes de contenido vacio.
+
+
+====================================================================
+
+10. ESTADOS QUE DEBE CONTEMPLAR EL PROTOTIPO
+
+
+====================================================================
+
+
+10.1. Estados de sesion
+
+
+- Visitante.
+
+- Usuario registrado.
+
+- Administrador.
+
+
+10.2. Estados de catalogo
+
+
+- Con resultados.
+
+- Sin resultados.
+
+- Con filtros aplicados.
+
+
+10.3. Estados de formularios
+
+
+- Formulario vacio.
+
+- Formulario con errores.
+
+- Formulario enviado correctamente.
+
+
+10.4. Estados de carrito
+
+
+- Usuario no logueado.
+
+- Carrito vacio.
+
+- Carrito con productos.
+
+- Compra finalizada en modo prueba.
+
+
+10.5. Estados de perfil
+
+
+- Usuario con publicaciones.
+
+- Usuario sin publicaciones.
+
+- Usuario con favoritos.
+
+- Usuario sin favoritos.
+
+- Usuario con mensajes.
+
+- Usuario sin mensajes.
+
+
+10.6. Estados de administracion
+
+
+- Tablas con registros.
+
+- Tablas sin registros.
+
+- Mensaje tras eliminacion o edicion.
+
+
+====================================================================
+
+11. ADAPTACION RESPONSIVE
+
+
+====================================================================
+
+
+El prototipo debe prever que la interfaz se adapte a distintos tamanos de pantalla.
+
+11.1. Escritorio
+
+
+- Cabecera horizontal.
+
+- Tarjetas en grid de hasta tres columnas.
+
+- Formularios de dos columnas cuando tenga sentido.
+
+- Tablas completas.
+
+
+11.2. Tablet
+
+
+- Menor numero de columnas.
+
+- Formularios mas compactos.
+
+- Tarjetas en una o dos columnas.
+
+
+11.3. Movil
+
+
+- Navegacion reorganizada o desplazable.
+
+- Tarjetas en una sola columna.
+
+- Formularios en una sola columna.
+
+- Botones ocupando mas ancho.
+
+- Tablas con scroll horizontal.
+
+
+Wireframe responsive generico:
+
++----------------------------------+
+| LOGO                             |
+| [Inicio] [Muebles] [Recambios]   |
+| [Perfil] [Carrito]               |
++----------------------------------+
+| TITULO DE PANTALLA               |
+| Texto introductorio              |
+|                                  |
+| [Campo 1____________________]    |
+| [Campo 2____________________]    |
+| [Boton principal]                |
+|                                  |
+| +----------------------------+   |
+| | Tarjeta / bloque principal |   |
+| +----------------------------+   |
+|                                  |
+| +----------------------------+   |
+| | Tarjeta / bloque principal |   |
+| +----------------------------+   |
++----------------------------------+
+
+
+====================================================================
+
+12. ALCANCE ACTUAL Y LIMITES DEL PROTOTIPO
+
+
+====================================================================
+
+
+El prototipo debe incluir:
+
+
+- Inicio.
+
+- Login y registro.
+
+- Catalogo de muebles.
+
+- Detalle de mueble.
+
+- Catalogo de recambios 3D.
+
+- Detalle de recambio.
+
+- Publicacion de muebles.
+
+- Publicacion de recambios para administrador.
+
+- Mi perfil.
+
+- Edicion de muebles.
+
+- Mensajeria.
+
+- Carrito.
+
+- Finalizacion de compra en modo prueba.
+
+- Panel de administracion.
+
+- Edicion de recambios.
+
+
+El prototipo no debe presentar como funcionalidad real:
+
+
+- Pago online real.
+
+- Direcciones de envio.
+
+- Sistema de valoracion de vendedores independiente.
+
+- Chat en tiempo real.
+
+- Edicion de imagenes ya subidas.
+
+- Publicacion de recambios por usuarios normales.
+
+- Panel avanzado de estadisticas.
+
+
+====================================================================
+
+13. CRITERIO DE FIDELIDAD
+
+
+====================================================================
+
+
+Un prototipo fiel al estado actual del TFG debe representar la aplicacion como una plataforma ya navegable, con flujos completos pero sencillos:
+
+- El visitante puede explorar y registrarse.
+
+- El usuario registrado puede comprar en modo prueba, guardar favoritos, publicar muebles, escribir resenas, contactar vendedores y gestionar su perfil.
+
+- El administrador puede gestionar usuarios, muebles, recambios y resenas, ademas de publicar recambios 3D.
+
+
+La maqueta debe mantener el caracter del proyecto: reutilizacion de muebles, reparacion mediante piezas 3D, sencillez de uso y gestion responsable de publicaciones.
+
+FIN DEL DOCUMENTO
